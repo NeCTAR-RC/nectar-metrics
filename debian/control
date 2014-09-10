@@ -1,0 +1,13 @@
+Source: python-nectar-metrics
+Section: unknown
+Priority: optional
+Maintainer: Russell Sim <russell.sim@gmail.com>
+Build-Depends: debhelper (>= 9), python-all (>= 2.6), python-setuptools
+Standards-Version: 3.9.5
+Homepage: https://github.com/NeCTAR-RC/nectar-metrics
+
+Package: python-nectar-metrics
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Metrics collection for the NeCTAR Research Cloud.
+ nectar-metrics, Metrics collection for the NeCTAR Research Cloud.
