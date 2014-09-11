@@ -5,7 +5,7 @@ from ConfigParser import SafeConfigParser
 
 CONFIG_FILE = '/etc/nectar/metrics.ini'
 WORKING_PATH = os.getcwd()
-ALT_CONFIG_FILE = os.path.join(WORKING_PATH, "report.ini")
+ALT_CONFIG_FILE = os.path.join(WORKING_PATH, "metrics.ini")
 
 
 class ConfigurationDict(UserDict):

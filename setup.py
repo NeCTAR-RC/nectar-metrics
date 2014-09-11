@@ -52,6 +52,9 @@ setup(
     ],
     test_suite='tests',
     tests_require=test_requirements,
+    data_files=[
+        ('/etc/nectar', ['metrics.ini']),
+    ],
     entry_points={
         'console_scripts':
         ['nectar-metrics-nova = nectar_metrics.nova:main',
