@@ -21,13 +21,13 @@ logger = logging.getLogger(LOG_NAME)
 flavor = {}
 
 
-def client(username=None, key=None, tenant_id=None, url=None):
+def client(username=None, password=None, tenant=None, url=None):
     url = os.environ.get('OS_AUTH_URL', url)
     username = os.environ.get('OS_USERNAME', username)
     password = os.environ.get('OS_PASSWORD', password)
     tenant = os.environ.get('OS_TENANT_NAME', tenant)
-    conn = nova_client.Client(username=username, api_key=key,
-                              project_id=tenant_id, auth_url=auth_url)
+    conn = nova_client.Client(username=username, api_key=password,
+                              project_id=tenant, auth_url=url)
     return conn
 
 
