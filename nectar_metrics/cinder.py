@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import os
 import time
 import socket
@@ -7,11 +6,14 @@ import pickle
 import struct
 from collections import defaultdict
 
+from cinderclient.v1 import client as cinder_client
+
 from nectar_metrics import config
 from nectar_metrics.config import CONFIG
-from nectar_metrics.nova import client as nova_client
+from nectar_metrics.graphite import (PickleSocketMetricSender,
+                                     DummySender, SocketMetricSender)
 from nectar_metrics.keystone import client as keystone_client
-from cinderclient.v1 import client as cinder_client
+from nectar_metrics.nova import client as nova_client
 
 if __name__ == '__main__':
     LOG_NAME = __file__
@@ -21,134 +23,16 @@ else:
 logger = logging.getLogger(LOG_NAME)
 
 
-class BaseSender(object):
-    message_fmt = '%s %0.2f %d\n'
-
-    def __init__(self):
-        self.log = logging.getLogger(self.__class__.__name__)
-
-    def flush(self):
-        pass
-
-    def format_metric(self, metric, value, now):
-        return self.message_fmt % (metric, value, now)
-
-    def send_metric(self, metric, value, now):
-        raise NotImplemented()
-
-    def send_graphite_nectar(self, metric, value, time):
-        raise NotImplemented()
-
-    def send_graphite_cell(self, cell, metric, value, time):
-        raise NotImplemented()
-
-    def send_graphite_domain(self, cell, domain, metric, value, time):
-        raise NotImplemented()
-
-
-class DummySender(BaseSender):
-
-    def send_metric(self, metric, value, now):
-        message = self.format_metric(metric, value, now)
-        print message
-        return message
-
-    def send_graphite_nectar(self, metric, value, time):
-        return self.send_metric("cells.%s" % metric,  value, time)
-
-    def send_graphite_cell(self, cell, metric, value, time):
-        return self.send_metric("cells.%s.%s" % (cell, metric), value, time)
-
-    def send_graphite_domain(self, cell, domain, metric, value, time):
-        return self.send_metric("cells.%s.domains.%s.%s" % (cell, domain, metric),
-                                value, time)
-
-    def send_graphite_tenant(self, cell, tenants, flavor, metric, value, time):
-        return self.send_metric("cells.%s.tenants.%s.%s.%s" % (cell, tenants, flavor, metric),
-                                value, time)
-
-
-class SocketMetricSender(BaseSender):
-    sock = None
-    reconnect_at = 100
-
-    def __init__(self, host, port):
-        super(SocketMetricSender, self).__init__()
-        self.host = host
-        self.port = port
-        self.connect()
-        self.count = 1
-
-    def connect(self):
-        if self.sock:
-            self.sock.close()
-            self.log.info("Reconnecting")
-        else:
-            self.log.info("Connecting")
-        self.sock = socket.socket()
-        self.sock.connect((self.host, self.port))
-        self.log.info("Connected")
-
-    def reconnect(self):
-        self.count = 1
-        self.connect()
-
-    def send_metric(self, metric, value, now):
-        message = self.format_metric(metric, value, now)
-        if self.count > self.reconnect_at:
-            self.reconnect()
-        self.sock.sendall(message)
-        return message
-
-    def send_graphite_nectar(self, metric, value, time):
-        return self.send_metric("cells.%s" % metric,  value, time)
-
-    def send_graphite_cell(self, cell, metric, value, time):
-        return self.send_metric("cells.%s.%s" % (cell, metric), value, time)
-
-    def send_graphite_domain(self, cell, domain, metric, value, time):
-        return self.send_metric("cells.%s.domains.%s.%s" % (cell, domain, metric),
-                                value, time)
-
-    def send_graphite_tenant(self, cell, tenants, flavor, metric, value, time):
-        return self.send_metric("cells.%s.tenants.%s.%s.%s" % (cell, tenants, flavor, metric),
-                                value, time)
-
-    def send_graphite_tenant1(self, cell, tenants, metric, value, time):
-        return self.send_metric("cells.%s.tenants.%s.%s" % (cell, tenants, metric),
-                                value, time)
-
-
-class PickleSocketMetricSender(SocketMetricSender):
-    sock = None
-    reconnect_at = 500
-
-    def __init__(self, host, port):
-        super(SocketMetricSender, self).__init__()
-        self.host = host
-        self.port = port
-        self.connect()
-        self.count = 1
-        self.buffered_metrics = []
-
-    def send_metric(self, metric, value, now):
-        self.count = self.count + 1
-        self.buffered_metrics.append((metric, (now, float(value))))
-        if self.count > self.reconnect_at:
-            self.flush()
-            self.reconnect()
-        return (metric, (now, float(value)))
-
-    def flush(self):
-        payload = pickle.dumps(self.buffered_metrics)
-        header = struct.pack("!L", len(payload))
-        message = header + payload
-        self.sock.sendall(message)
-        print len(self.buffered_metrics)
-        self.buffered_metrics = []
-
-
-flavor = {}
+def client(username=None, password=None, tenant=None, url=None):
+    url = os.environ.get('OS_AUTH_URL', url)
+    username = os.environ.get('OS_USERNAME', username)
+    password = os.environ.get('OS_PASSWORD', password)
+    tenant = os.environ.get('OS_TENANT_NAME', tenant)
+    assert url and username and password and tenant
+    return cinder_client.Client(username=username,
+                                api_key=password,
+                                project_id=tenant,
+                                auth_url=url)
 
 
 def all_volumes(c_client):
@@ -165,19 +49,6 @@ def all_volumes(c_client):
         volumes.extend(res)
         marker = volumes[-1].id
     return volumes
-
-
-def client(username=None, password=None,
-                           tenant=None, url=None):
-    url = os.environ.get('OS_AUTH_URL', url)
-    username = os.environ.get('OS_USERNAME', username)
-    password = os.environ.get('OS_PASSWORD', password)
-    tenant = os.environ.get('OS_TENANT_NAME', tenant)
-    assert url and username and password and tenant
-    return cinder_client.Client(username=username,
-                                api_key=password,
-                                project_id=tenant,
-                                auth_url=url)
 
 
 def volume_metrics(volumes):
@@ -201,10 +72,10 @@ def by_tenant(volumes, now, sender):
 
 
 def main1(sender):
-    username = CONFIG.get('production', 'user')
-    key = CONFIG.get('production', 'passwd')
-    tenant_name = CONFIG.get('production', 'name')
-    url = CONFIG.get('production', 'url')
+    username = CONFIG.get('openstack', 'user')
+    key = CONFIG.get('openstack', 'passwd')
+    tenant_name = CONFIG.get('openstack', 'name')
+    url = CONFIG.get('openstack', 'url')
     c_client = client(username, key, tenant_name, url)
     volumes = all_volumes(c_client)
     now = int(time.time())
@@ -222,7 +93,10 @@ def main():
     parser.add_argument('--carbon-host', help='Carbon Host.')
     parser.add_argument('--carbon-port', default=2003, type=int,
                         help='Carbon Port.')
+    parser.add_argument('--config', default=config.CONFIG_FILE, type=str,
+                        help='Config file path.')
     args = parser.parse_args()
+    config.read(args.config)
 
     log_level = logging.WARNING
     if args.verbose == 1:

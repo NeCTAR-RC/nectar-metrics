@@ -37,6 +37,12 @@ class BaseSender(object):
     def send_graphite_domain(self, cell, domain, metric, value, time):
         raise NotImplemented()
 
+    def send_graphite_tenant(self, cell, tenants, flavor, metric, value, time):
+        raise NotImplemented()
+
+    def send_graphite_tenant1(self, cell, tenants, metric, value, time):
+        raise NotImplemented()
+
 
 class DummySender(BaseSender):
 
@@ -57,6 +63,10 @@ class DummySender(BaseSender):
 
     def send_graphite_tenant(self, cell, tenants, flavor, metric, value, time):
         return self.send_metric("cells.%s.tenants.%s.%s.%s" % (cell, tenants, flavor, metric),
+                                value, time)
+
+    def send_graphite_tenant1(self, cell, tenants, metric, value, time):
+        return self.send_metric("cells.%s.tenants.%s.%s" % (cell, tenants, metric),
                                 value, time)
 
 
@@ -104,6 +114,10 @@ class SocketMetricSender(BaseSender):
 
     def send_graphite_tenant(self, cell, tenants, flavor, metric, value, time):
         return self.send_metric("cells.%s.tenants.%s.%s.%s" % (cell, tenants, flavor, metric),
+                                value, time)
+
+    def send_graphite_tenant1(self, cell, tenants, metric, value, time):
+        return self.send_metric("cells.%s.tenants.%s.%s" % (cell, tenants, metric),
                                 value, time)
 
 

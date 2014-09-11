@@ -1,16 +1,14 @@
-#!/usr/bin/env python
 import time
 import logging
 from collections import defaultdict
 
 from novaclient.v1_1 import client as nova_client
 
-from nectar_metrics.keystone import client as keystone_client
-from nectar_metrics.graphite import (PickleSocketMetricSender,
-                                     DummySender,
-                                     SocketMetricSender)
 from nectar_metrics import config
 from nectar_metrics.config import CONFIG
+from nectar_metrics.graphite import (PickleSocketMetricSender,
+                                     DummySender, SocketMetricSender)
+from nectar_metrics.keystone import client as keystone_client
 
 if __name__ == '__main__':
     LOG_NAME = __file__
@@ -23,7 +21,11 @@ logger = logging.getLogger(LOG_NAME)
 flavor = {}
 
 
-def client(username, key, tenant_id, auth_url):
+def client(username=None, key=None, tenant_id=None, url=None):
+    url = os.environ.get('OS_AUTH_URL', url)
+    username = os.environ.get('OS_USERNAME', username)
+    password = os.environ.get('OS_PASSWORD', password)
+    tenant = os.environ.get('OS_TENANT_NAME', tenant)
     conn = nova_client.Client(username=username, api_key=key,
                               project_id=tenant_id, auth_url=auth_url)
     return conn
