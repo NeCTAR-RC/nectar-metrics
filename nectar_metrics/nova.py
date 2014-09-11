@@ -1,5 +1,7 @@
+import os
 import time
 import logging
+import pickle
 from collections import defaultdict
 
 from novaclient.v1_1 import client as nova_client
@@ -122,6 +124,27 @@ def by_tenant(servers, flavors, now, sender):
                                                 metric, value, now)
 
 
+def change_over_time(servers_by_cell, now, sender):
+    current_servers = dict([(cell, set([server.id for server in servers]))
+                            for cell, servers in servers_by_cell.items()])
+    working_dir = CONFIG.get('metrics', 'working_dir')
+    previous_servers_file = os.path.join(working_dir, "previous_servers.pickle")
+
+    if os.path.exists(previous_servers_file):
+        previous_servers = pickle.load(open(previous_servers_file))
+        for zone, servers in current_servers.items():
+            intersection = servers.intersection(previous_servers[zone])
+
+            instances_deleted = len(previous_servers[zone]) - len(intersection)
+            sender.send_graphite_cell(zone, 'instances_deleted',
+                                      instances_deleted, now)
+
+            instances_created = len(servers) - len(intersection)
+            sender.send_graphite_cell(zone, 'instances_created',
+                                      instances_created, now)
+    pickle.dump(current_servers, open(previous_servers_file, 'w'))
+
+
 def main1(sender):
     username = CONFIG.get('openstack', 'user')
     key = CONFIG.get('openstack', 'passwd')
@@ -152,6 +175,7 @@ def main1(sender):
     now = int(time.time())
     by_domain(servers, flavors, users, now, sender)
     by_tenant(servers, flavors, now, sender)
+    change_over_time(servers_by_cell, now, sender)
     sender.flush()
 
 
