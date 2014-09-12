@@ -146,5 +146,4 @@ class PickleSocketMetricSender(SocketMetricSender):
         header = struct.pack("!L", len(payload))
         message = header + payload
         self.sock.sendall(message)
-        print len(self.buffered_metrics)
         self.buffered_metrics = []
