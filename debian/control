@@ -8,6 +8,6 @@ Homepage: https://github.com/NeCTAR-RC/nectar-metrics
 
 Package: python-nectar-metrics
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Description: Metrics collection for the NeCTAR Research Cloud.
  nectar-metrics, Metrics collection for the NeCTAR Research Cloud.
