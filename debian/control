@@ -1,5 +1,5 @@
 Source: python-nectar-metrics
-Section: unknown
+Section: admin
 Priority: optional
 Maintainer: Russell Sim <russell.sim@gmail.com>
 Build-Depends: debhelper (>= 9), python-all (>= 2.6), python-setuptools
