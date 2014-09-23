@@ -10,8 +10,6 @@ Tests for `nectar-metrics` module.
 
 import unittest
 
-from nectar_metrics import nectar_metrics
-
 
 class TestNectar_metrics(unittest.TestCase):
 
