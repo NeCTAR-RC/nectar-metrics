@@ -1,4 +1,5 @@
 import os
+from os import path
 import time
 import logging
 import pickle
@@ -128,21 +129,31 @@ def change_over_time(servers_by_cell, now, sender):
     current_servers = dict([(cell, set([server.id for server in servers]))
                             for cell, servers in servers_by_cell.items()])
     working_dir = CONFIG.get('metrics', 'working_dir')
-    previous_servers_file = os.path.join(working_dir, "previous_servers.pickle")
+    previous_servers_file = path.join(working_dir, "previous_servers.pickle")
 
     if os.path.exists(previous_servers_file):
         previous_servers = pickle.load(open(previous_servers_file))
+        # Override the pickle each time no matter what.  this will
+        # prevent massive launch rates if the script fails fro a
+        # while.
+        pickle.dump(current_servers, open(previous_servers_file, 'w'))
         for zone, servers in current_servers.items():
-            intersection = servers.intersection(previous_servers[zone])
+            if zone not in previous_servers:
+                # If the zone isn't in the list of previous servers
+                # then skip it.
+                continue
+            previous_zone_servers = previous_servers.get(zone)
+            intersection = servers.intersection(previous_zone_servers)
 
-            instances_deleted = len(previous_servers[zone]) - len(intersection)
+            instances_deleted = len(previous_zone_servers) - len(intersection)
             sender.send_graphite_cell(zone, 'instances_deleted',
                                       instances_deleted, now)
 
             instances_created = len(servers) - len(intersection)
             sender.send_graphite_cell(zone, 'instances_created',
                                       instances_created, now)
-    pickle.dump(current_servers, open(previous_servers_file, 'w'))
+    else:
+        pickle.dump(current_servers, open(previous_servers_file, 'w'))
 
 
 def main1(sender):
