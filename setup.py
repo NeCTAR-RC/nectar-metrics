@@ -47,7 +47,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     data_files=[
-        ('/etc/nectar', ['metrics.ini']),
+        ('etc/nectar', ['metrics.ini']),
     ],
     entry_points={
         'console_scripts':
