@@ -62,7 +62,7 @@ def all_servers(client, limit=None):
 def all_flavors(client, servers):
     flavor_ids = set()
     for server in servers:
-        flavor_ids.add(server.flavor['id'])
+        flavor_ids.add(server['flavor']['id'])
     flavors = {}
     for flavor_id in flavor_ids:
         flavor = client.flavors.get(flavor_id)
@@ -73,23 +73,25 @@ def all_flavors(client, servers):
 
 
 def server_metrics(servers, flavors):
+    """Generate a dict containing the total counts of vcpus, ram, disk as
+    well as the total number of servers."""
     metrics = defaultdict(int)
     metrics['total_instances'] = len(servers)
     for server in servers:
-        metrics['used_vcpus'] += flavors[server.flavor['id']]['vcpus']
-        metrics['used_memory'] += flavors[server.flavor['id']]['ram']
-        metrics['used_disk'] += flavors[server.flavor['id']]['disk']
+        metrics['used_vcpus'] += flavors[server['flavor']['id']]['vcpus']
+        metrics['used_memory'] += flavors[server['flavor']['id']]['ram']
+        metrics['used_disk'] += flavors[server['flavor']['id']]['disk']
     return metrics
 
 
 def server_metrics1(servers, flavors):
     metrics = defaultdict(lambda: defaultdict(int))
     for server in servers:
-        name = server.flavor['id']
+        name = server['flavor']['id']
         metrics[name]['total_instances'] += 1
-        metrics[name]['used_vcpus'] += flavors[server.flavor['id']]['vcpus']
-        metrics[name]['used_memory'] += flavors[server.flavor['id']]['ram']
-        metrics[name]['used_disk'] += flavors[server.flavor['id']]['disk']
+        metrics[name]['used_vcpus'] += flavors[server['flavor']['id']]['vcpus']
+        metrics[name]['used_memory'] += flavors[server['flavor']['id']]['ram']
+        metrics[name]['used_disk'] += flavors[server['flavor']['id']]['disk']
     return metrics
 
 
@@ -103,16 +105,16 @@ def by_cell(servers_by_cell, flavors, now, sender):
 def by_domain(servers, flavors, users, now, sender):
     servers_by_cell_by_domain = defaultdict(lambda: defaultdict(list))
     for server in servers:
-        cell = getattr(server, 'OS-EXT-AZ:availability_zone')
-        if server.user_id in users and users[server.user_id] is None:
-            logger.info("skipping unknown user %s" % server.user_id)
+        cell = server.get('OS-EXT-AZ:availability_zone')
+        if server['user_id'] in users and users[server['user_id']] is None:
+            logger.info("skipping unknown user %s" % server['user_id'])
             return True
-        if server.user_id not in users:
+        if server['user_id'] not in users:
             logger.error(
                 "user %s doesn't exist but is currently owner of server %s"
-                % (server.user_id, server.id))
+                % (server['user_id'], server['id']))
             return True
-        servers_by_cell_by_domain[cell][users[server.user_id]].append(server)
+        servers_by_cell_by_domain[cell][users[server['user_id']]].append(server)
     for zone, items in servers_by_cell_by_domain.items():
         for domain, servers in items.items():
             for metric, value in server_metrics(servers, flavors).items():
@@ -124,8 +126,8 @@ def by_domain(servers, flavors, users, now, sender):
 def by_tenant(servers, flavors, now, sender):
     servers_by_cell_by_tenant = defaultdict(lambda: defaultdict(list))
     for server in servers:
-        cell = getattr(server, 'OS-EXT-AZ:availability_zone')
-        servers_by_cell_by_tenant[cell][server.tenant_id].append(server)
+        cell = server.get('OS-EXT-AZ:availability_zone')
+        servers_by_cell_by_tenant[cell][server['tenant_id']].append(server)
     for zone, items in servers_by_cell_by_tenant.items():
         for tenant, servers in items.items():
             for flavor, metrics in server_metrics1(servers, flavors).items():
@@ -135,7 +137,7 @@ def by_tenant(servers, flavors, now, sender):
 
 
 def change_over_time(servers_by_cell, now, sender):
-    current_servers = dict([(cell, set([server.id for server in servers]))
+    current_servers = dict([(cell, set([server['id'] for server in servers]))
                             for cell, servers in servers_by_cell.items()])
     working_dir = CONFIG.get('metrics', 'working_dir')
     previous_servers_file = path.join(working_dir, "previous_servers.pickle")
@@ -189,7 +191,7 @@ def main1(sender, limit):
     servers_by_cell = defaultdict(list)
 
     for server in servers:
-        cell = getattr(server, 'OS-EXT-AZ:availability_zone')
+        cell = server.get('OS-EXT-AZ:availability_zone')
         servers_by_cell[cell].append(server)
 
     now = int(time.time())
