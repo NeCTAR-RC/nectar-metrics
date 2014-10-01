@@ -95,17 +95,17 @@ def server_metrics1(servers, flavors):
     return metrics
 
 
-def by_cell(servers_by_cell, flavors, now, sender):
-    "Depreciated, since it's now done by the graphite aggregator."
-    for zone, servers in servers_by_cell.items():
+def by_az(servers_by_az, flavors, now, sender):
+    """Group the data by az."""
+    for zone, servers in servers_by_az.items():
         for metric, value in server_metrics(servers, flavors).items():
-            sender.send_graphite_cell(zone, metric, value, now)
+            sender.send_graphite_az(zone, metric, value, now)
 
 
 def by_domain(servers, flavors, users, now, sender):
-    servers_by_cell_by_domain = defaultdict(lambda: defaultdict(list))
+    servers_by_az_by_domain = defaultdict(lambda: defaultdict(list))
     for server in servers:
-        cell = server.get('OS-EXT-AZ:availability_zone')
+        az = server.get('OS-EXT-AZ:availability_zone')
 
         if server['user_id'] in users and users[server['user_id']] is None:
             logger.info("skipping unknown user %s" % server['user_id'])
@@ -118,9 +118,9 @@ def by_domain(servers, flavors, users, now, sender):
             return True
 
         domain = users[server['user_id']]
-        servers_by_cell_by_domain[cell][domain].append(server)
+        servers_by_az_by_domain[az][domain].append(server)
 
-    for zone, items in servers_by_cell_by_domain.items():
+    for zone, items in servers_by_az_by_domain.items():
         for domain, servers in items.items():
             for metric, value in server_metrics(servers, flavors).items():
                 if metric not in ['used_vcpus']:
@@ -140,9 +140,9 @@ def by_tenant(servers, flavors, now, sender):
                 sender.send_graphite_tenant(tenant, flavor, metric, value, now)
 
 
-def change_over_time(servers_by_cell, now, sender):
-    current_servers = dict([(cell, set([server['id'] for server in servers]))
-                            for cell, servers in servers_by_cell.items()])
+def change_over_time(servers_by_az, now, sender):
+    current_servers = dict([(az, set([server['id'] for server in servers]))
+                            for az, servers in servers_by_az.items()])
     working_dir = CONFIG.get('metrics', 'working_dir')
     previous_servers_file = path.join(working_dir, "previous_servers.pickle")
 
@@ -163,12 +163,12 @@ def change_over_time(servers_by_cell, now, sender):
         intersection = servers.intersection(previous_zone_servers)
 
         instances_deleted = len(previous_zone_servers) - len(intersection)
-        sender.send_graphite_cell(zone, 'instances_deleted',
-                                  instances_deleted, now)
+        sender.send_graphite_az(zone, 'instances_deleted',
+                                instances_deleted, now)
 
         instances_created = len(servers) - len(intersection)
-        sender.send_graphite_cell(zone, 'instances_created',
-                                  instances_created, now)
+        sender.send_graphite_az(zone, 'instances_created',
+                                instances_created, now)
 
 
 def main1(sender, limit):
@@ -192,16 +192,17 @@ def main1(sender, limit):
 
     servers = [server.to_dict() for server in all_servers(nclient, limit)]
     flavors = all_flavors(nclient, servers)
-    servers_by_cell = defaultdict(list)
+    servers_by_az = defaultdict(list)
 
     for server in servers:
-        cell = server.get('OS-EXT-AZ:availability_zone')
-        servers_by_cell[cell].append(server)
+        az = server.get('OS-EXT-AZ:availability_zone')
+        servers_by_az[az].append(server)
 
     now = int(time.time())
     by_domain(servers, flavors, users, now, sender)
     by_tenant(servers, flavors, now, sender)
-    change_over_time(servers_by_cell, now, sender)
+    by_az(servers_by_az, flavors, now, sender)
+    change_over_time(servers_by_az, now, sender)
     sender.flush()
 
 

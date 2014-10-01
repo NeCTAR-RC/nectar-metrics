@@ -23,14 +23,14 @@ class BaseSender(object):
         raise NotImplemented()
 
     def send_graphite_nectar(self, metric, value, time):
-        return self.send_metric("cells.%s" % metric,  value, time)
+        return self.send_metric("az.%s" % metric,  value, time)
 
-    def send_graphite_cell(self, cell, metric, value, time):
-        return self.send_metric("cells.%s.%s" % (cell, metric), value, time)
+    def send_graphite_az(self, az, metric, value, time):
+        return self.send_metric("az.%s.%s" % (az, metric), value, time)
 
-    def send_graphite_domain(self, cell, domain, metric, value, time):
-        return self.send_metric("cells.%s.domains.%s.%s"
-                                % (cell, domain, metric),
+    def send_graphite_domain(self, az, domain, metric, value, time):
+        return self.send_metric("az.%s.domains.%s.%s"
+                                % (az, domain, metric),
                                 value, time)
 
     def send_graphite_tenant(self, tenant, flavor, metric, value, time):
