@@ -34,18 +34,27 @@ def client(username=None, password=None, tenant=None, url=None):
     return conn
 
 
-def all_servers(client):
+def all_servers(client, limit=None):
     servers = []
     marker = None
+    opts = {"all_tenants": True}
+    if limit:
+        opts['limit'] = limit
 
     while True:
-        opts = {"all_tenants": True}
         if marker:
             opts["marker"] = marker
-        res = client.servers.list(search_opts=opts)
-        if not res:
+        result = client.servers.list(search_opts=opts)
+
+        if not result:
             break
-        servers.extend(res)
+
+        servers.extend(result)
+
+        # Quit if we have got enough servers.
+        if limit and len(servers) >= int(limit):
+            break
+
         marker = servers[-1].id
     return servers
 
@@ -156,7 +165,7 @@ def change_over_time(servers_by_cell, now, sender):
                                   instances_created, now)
 
 
-def main1(sender):
+def main1(sender, limit):
     username = CONFIG.get('openstack', 'user')
     key = CONFIG.get('openstack', 'passwd')
     tenant_name = CONFIG.get('openstack', 'name')
@@ -175,7 +184,7 @@ def main1(sender):
             email = email.replace('.', '_')
         users[user.id] = email
 
-    servers = all_servers(nclient)
+    servers = [server.to_dict() for server in all_servers(nclient, limit)]
     flavors = all_flavors(nclient, servers)
     servers_by_cell = defaultdict(list)
 
@@ -202,6 +211,9 @@ def main():
                         help='Carbon Port.')
     parser.add_argument('--config', default=config.CONFIG_FILE, type=str,
                         help='Config file path.')
+    parser.add_argument(
+        '--limit', default=None,
+        help='Limit the response to some servers only.')
     args = parser.parse_args()
     config.read(args.config)
 
@@ -230,4 +242,4 @@ def main():
     elif args.protocol == 'debug':
         sender = DummySender()
 
-    main1(sender)
+    main1(sender, args.limit)

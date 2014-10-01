@@ -46,9 +46,6 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
-    data_files=[
-        ('/etc/nectar', ['metrics.ini']),
-    ],
     entry_points={
         'console_scripts':
         ['nectar-metrics-nova = nectar_metrics.nova:main',
