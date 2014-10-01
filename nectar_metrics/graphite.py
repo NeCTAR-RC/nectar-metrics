@@ -29,19 +29,24 @@ class BaseSender(object):
         raise NotImplemented()
 
     def send_graphite_nectar(self, metric, value, time):
-        raise NotImplemented()
+        return self.send_metric("cells.%s" % metric,  value, time)
 
     def send_graphite_cell(self, cell, metric, value, time):
-        raise NotImplemented()
+        return self.send_metric("cells.%s.%s" % (cell, metric), value, time)
 
     def send_graphite_domain(self, cell, domain, metric, value, time):
-        raise NotImplemented()
+        return self.send_metric("cells.%s.domains.%s.%s"
+                                % (cell, domain, metric),
+                                value, time)
 
-    def send_graphite_tenant(self, cell, tenants, flavor, metric, value, time):
-        raise NotImplemented()
+    def send_graphite_tenant(self, tenant, flavor, metric, value, time):
+        return self.send_metric("tenants.%s.%s.%s" % (tenant, flavor, metric),
+                                value, time)
 
     def send_graphite_tenant1(self, cell, tenants, metric, value, time):
-        raise NotImplemented()
+        return self.send_metric("cells.%s.tenants.%s.%s"
+                                % (cell, tenants, metric),
+                                value, time)
 
 
 class DummySender(BaseSender):
@@ -50,24 +55,6 @@ class DummySender(BaseSender):
         message = self.format_metric(metric, value, now)
         print message
         return message
-
-    def send_graphite_nectar(self, metric, value, time):
-        return self.send_metric("cells.%s" % metric,  value, time)
-
-    def send_graphite_cell(self, cell, metric, value, time):
-        return self.send_metric("cells.%s.%s" % (cell, metric), value, time)
-
-    def send_graphite_domain(self, cell, domain, metric, value, time):
-        return self.send_metric("cells.%s.domains.%s.%s" % (cell, domain, metric),
-                                value, time)
-
-    def send_graphite_tenant(self, cell, tenants, flavor, metric, value, time):
-        return self.send_metric("cells.%s.tenants.%s.%s.%s" % (cell, tenants, flavor, metric),
-                                value, time)
-
-    def send_graphite_tenant1(self, cell, tenants, metric, value, time):
-        return self.send_metric("cells.%s.tenants.%s.%s" % (cell, tenants, metric),
-                                value, time)
 
 
 class SocketMetricSender(BaseSender):
@@ -101,24 +88,6 @@ class SocketMetricSender(BaseSender):
             self.reconnect()
         self.sock.sendall(message)
         return message
-
-    def send_graphite_nectar(self, metric, value, time):
-        return self.send_metric("cells.%s" % metric,  value, time)
-
-    def send_graphite_cell(self, cell, metric, value, time):
-        return self.send_metric("cells.%s.%s" % (cell, metric), value, time)
-
-    def send_graphite_domain(self, cell, domain, metric, value, time):
-        return self.send_metric("cells.%s.domains.%s.%s" % (cell, domain, metric),
-                                value, time)
-
-    def send_graphite_tenant(self, cell, tenants, flavor, metric, value, time):
-        return self.send_metric("cells.%s.tenants.%s.%s.%s" % (cell, tenants, flavor, metric),
-                                value, time)
-
-    def send_graphite_tenant1(self, cell, tenants, metric, value, time):
-        return self.send_metric("cells.%s.tenants.%s.%s" % (cell, tenants, metric),
-                                value, time)
 
 
 class PickleSocketMetricSender(SocketMetricSender):
