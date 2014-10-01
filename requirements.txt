@@ -1,2 +1,3 @@
-wheel==0.23.0
-
+python-keystoneclient
+python-cinderclient
+python-novaclient
