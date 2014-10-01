@@ -124,16 +124,15 @@ def by_domain(servers, flavors, users, now, sender):
 
 
 def by_tenant(servers, flavors, now, sender):
-    servers_by_cell_by_tenant = defaultdict(lambda: defaultdict(list))
+    servers_by_tenant = defaultdict(list)
     for server in servers:
-        cell = server.get('OS-EXT-AZ:availability_zone')
-        servers_by_cell_by_tenant[cell][server['tenant_id']].append(server)
-    for zone, items in servers_by_cell_by_tenant.items():
-        for tenant, servers in items.items():
-            for flavor, metrics in server_metrics1(servers, flavors).items():
-                for metric, value in metrics.items():
-                    sender.send_graphite_tenant(zone, tenant, flavor,
-                                                metric, value, now)
+        servers_by_tenant[server['tenant_id']].append(server)
+    for tenant, servers in servers_by_tenant.items():
+        for flavor, metrics in server_metrics1(servers, flavors).items():
+            for metric, value in metrics.items():
+                if metric not in ['used_vcpus', 'total_instances']:
+                    continue
+                sender.send_graphite_tenant(tenant, flavor, metric, value, now)
 
 
 def change_over_time(servers_by_cell, now, sender):
