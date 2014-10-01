@@ -1,21 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
+from pip.req import parse_requirements
+
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
-
-requirements = [
-    'python-keystoneclient',
-    'python-cinderclient',
-    'python-novaclient',
-]
+requirements = parse_requirements("requirements.txt")
 
 setup(
     name='nectar-metrics',
@@ -30,7 +26,8 @@ setup(
     ],
     package_dir={'nectar_metrics': 'nectar_metrics'},
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=[str(r.req) for r in requirements],
+
     license="GPLv3+",
     zip_safe=False,
     keywords='nectar-metrics',
