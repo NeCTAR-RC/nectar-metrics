@@ -32,31 +32,31 @@ def test_server_metrics():
          'used_vcpus': 14}
 
 
-cells = {'zone1': servers}
+azs = {'zone1': servers}
 
 
 class TestSender():
     def __init__(self):
         self.graphite_domain = []
-        self.graphite_cell = []
+        self.graphite_az = []
         self.graphite_tenant = []
 
     def send_graphite_domain(self, *args):
         self.graphite_domain.append(args)
 
-    def send_graphite_cell(self, *args):
-        self.graphite_cell.append(args)
+    def send_graphite_az(self, *args):
+        self.graphite_az.append(args)
 
     def send_graphite_tenant(self, *args):
         self.graphite_tenant.append(args)
 
 
-def test_by_cell():
+def test_by_az():
     """A simple by_cell metric count test"""
     sender = TestSender()
-    nova.by_cell(cells, flavors, 'sentinel', sender)
+    nova.by_az(azs, flavors, 'sentinel', sender)
 
-    assert sender.graphite_cell == \
+    assert sender.graphite_az == \
         [('zone1', 'total_instances', 9, 'sentinel'),
          ('zone1', 'used_memory', 14, 'sentinel'),
          ('zone1', 'used_vcpus', 14, 'sentinel'),
