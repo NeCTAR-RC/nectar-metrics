@@ -96,7 +96,7 @@ def server_metrics1(servers, flavors):
 
 
 def by_cell(servers_by_cell, flavors, now, sender):
-    "Depreciated, since it's now done by the graphite aggregator."
+    """Group the data by cell."""
     for zone, servers in servers_by_cell.items():
         for metric, value in server_metrics(servers, flavors).items():
             sender.send_graphite_cell(zone, metric, value, now)
@@ -201,6 +201,7 @@ def main1(sender, limit):
     now = int(time.time())
     by_domain(servers, flavors, users, now, sender)
     by_tenant(servers, flavors, now, sender)
+    by_cell(servers_by_cell, flavors, now, sender)
     change_over_time(servers_by_cell, now, sender)
     sender.flush()
 
