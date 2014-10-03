@@ -51,13 +51,16 @@ def volume_metrics(volumes):
 
 
 def by_tenant(volumes, now, sender):
-    volumes_by_tenant = defaultdict(list)
+    volumes_by_az_by_tenant = defaultdict(lambda: defaultdict(list))
     for volume in volumes:
+        az = volume.availability_zone
         tenant_id = getattr(volume, 'os-vol-tenant-attr:tenant_id')
-        volumes_by_tenant[tenant_id].append(volume)
-    for tenant, volumes in volumes_by_tenant.items():
-        for metric, value in volume_metrics(volumes).items():
-            sender.send_graphite_tenant1(tenant, metric, value, now)
+        volumes_by_az_by_tenant[az][tenant_id].append(volume)
+        for zone, items in volumes_by_az_by_tenant.items():
+            for tenant, volumes in items.items():
+                for metric, value in volume_metrics(volumes).items():
+                    sender.send_graphite_tenant(zone, tenant, metric,
+                                                value, now)
 
 
 def main1(sender):

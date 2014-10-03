@@ -78,9 +78,12 @@ def test_by_tenant():
     sender = TestSender()
     nova.by_tenant(servers, flavors, 'sentinel', sender)
     assert sender.graphite_tenant == \
-        [(10, 1, 'total_instances', 5, 'sentinel'),
-         (10, 1, 'used_vcpus', 5, 'sentinel'),
-         (20, 2, 'total_instances', 3, 'sentinel'),
-         (20, 2, 'used_vcpus', 6, 'sentinel'),
-         (30, 3, 'total_instances', 1, 'sentinel'),
-         (30, 3, 'used_vcpus', 3, 'sentinel')]
+        [('zone1', 10, 'total_instances', 5, 'sentinel'),
+         ('zone1', 10, 'used_memory', 5, 'sentinel'),
+         ('zone1', 10, 'used_vcpus', 5, 'sentinel'),
+         ('zone1', 20, 'total_instances', 3, 'sentinel'),
+         ('zone1', 20, 'used_memory', 6, 'sentinel'),
+         ('zone1', 20, 'used_vcpus', 6, 'sentinel'),
+         ('zone1', 30, 'total_instances', 1, 'sentinel'),
+         ('zone1', 30, 'used_memory', 3, 'sentinel'),
+         ('zone1', 30, 'used_vcpus', 3, 'sentinel')]
