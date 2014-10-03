@@ -13,14 +13,7 @@ from nectar_metrics.graphite import (PickleSocketMetricSender,
                                      DummySender, SocketMetricSender)
 from nectar_metrics.keystone import client as keystone_client
 
-if __name__ == '__main__':
-    LOG_NAME = __file__
-else:
-    LOG_NAME = __name__
-
-logger = logging.getLogger(LOG_NAME)
-
-
+logger = logging.getLogger(__name__)
 flavor = {}
 
 

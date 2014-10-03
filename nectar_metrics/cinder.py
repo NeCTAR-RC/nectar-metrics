@@ -1,9 +1,6 @@
 import os
 import time
-import socket
 import logging
-import pickle
-import struct
 from collections import defaultdict
 
 from cinderclient.v1 import client as cinder_client
@@ -12,15 +9,9 @@ from nectar_metrics import config
 from nectar_metrics.config import CONFIG
 from nectar_metrics.graphite import (PickleSocketMetricSender,
                                      DummySender, SocketMetricSender)
-from nectar_metrics.keystone import client as keystone_client
-from nectar_metrics.nova import client as nova_client
 
-if __name__ == '__main__':
-    LOG_NAME = __file__
-else:
-    LOG_NAME = __name__
 
-logger = logging.getLogger(LOG_NAME)
+logger = logging.getLogger(__name__)
 
 
 def client(username=None, password=None, tenant=None, url=None):
