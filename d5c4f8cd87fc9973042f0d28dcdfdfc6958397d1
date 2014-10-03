@@ -22,6 +22,30 @@
       "revId": "d5c4f8cd87fc9973042f0d28dcdfdfc6958397d1",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_1b2ba783",
+        "filename": "requirements.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-03T00:37:00Z",
+      "side": 1,
+      "message": "these requirements are only used during development, the setup.py contains the actual list of requirements.\n\nI could move these into the tox.ini or rename this file to requirements-dev.txt?  Also all the requirements are listed in the setup.py, should they be moved out to this file?\n\nAt the moment this isn\u0027t consistent across all our projects.  Perhaps we should decide on a standard configuration?",
+      "parentUuid": "3afa9182_a01ce214",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 6
+      },
+      "revId": "d5c4f8cd87fc9973042f0d28dcdfdfc6958397d1",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
     }
   ]
 }
