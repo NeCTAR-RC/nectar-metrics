@@ -92,10 +92,10 @@ def by_az(servers_by_az, flavors, now, sender):
     """Group the data by az."""
     for zone, servers in servers_by_az.items():
         for metric, value in server_metrics(servers, flavors).items():
-            sender.send_graphite_az(zone, metric, value, now)
+            sender.send_by_az(zone, metric, value, now)
 
 
-def by_domain(servers, flavors, users, now, sender):
+def by_az_by_domain(servers, flavors, users, now, sender):
     servers_by_az_by_domain = defaultdict(lambda: defaultdict(list))
     for server in servers:
         az = server.get('OS-EXT-AZ:availability_zone')
@@ -118,19 +118,34 @@ def by_domain(servers, flavors, users, now, sender):
             for metric, value in server_metrics(servers, flavors).items():
                 if metric not in ['used_vcpus']:
                     continue
-                sender.send_graphite_domain(zone, domain, metric, value, now)
+                sender.send_by_az_by_domain(zone, domain, metric, value, now)
 
 
 def by_tenant(servers, flavors, now, sender):
     servers_by_tenant = defaultdict(list)
     for server in servers:
+        cell = server.get('OS-EXT-AZ:availability_zone')
         servers_by_tenant[server['tenant_id']].append(server)
     for tenant, servers in servers_by_tenant.items():
-        for flavor, metrics in server_metrics1(servers, flavors).items():
-            for metric, value in metrics.items():
-                if metric not in ['used_vcpus', 'total_instances']:
+        for metric, value in server_metrics(servers, flavors).items():
+            if metric not in ['used_vcpus', 'total_instances',
+                              'used_memory']:
+                continue
+            sender.send_by_tenant(tenant, metric, value, now)
+
+
+def by_az_by_tenant(servers, flavors, now, sender):
+    servers_by_cell_by_tenant = defaultdict(lambda: defaultdict(list))
+    for server in servers:
+        cell = server.get('OS-EXT-AZ:availability_zone')
+        servers_by_cell_by_tenant[cell][server['tenant_id']].append(server)
+    for zone, items in servers_by_cell_by_tenant.items():
+        for tenant, servers in items.items():
+            for metric, value in server_metrics(servers, flavors).items():
+                if metric not in ['used_vcpus', 'total_instances',
+                                  'used_memory']:
                     continue
-                sender.send_graphite_tenant(tenant, flavor, metric, value, now)
+                sender.send_by_az_by_tenant(zone, tenant, metric, value, now)
 
 
 def change_over_time(servers_by_az, now, sender):
@@ -156,15 +171,13 @@ def change_over_time(servers_by_az, now, sender):
         intersection = servers.intersection(previous_zone_servers)
 
         instances_deleted = len(previous_zone_servers) - len(intersection)
-        sender.send_graphite_az(zone, 'instances_deleted',
-                                instances_deleted, now)
+        sender.send_by_az(zone, 'instances_deleted', instances_deleted, now)
 
         instances_created = len(servers) - len(intersection)
-        sender.send_graphite_az(zone, 'instances_created',
-                                instances_created, now)
+        sender.send_by_az(zone, 'instances_created', instances_created, now)
 
 
-def main1(sender, limit):
+def do_report(sender, limit):
     username = CONFIG.get('openstack', 'user')
     key = CONFIG.get('openstack', 'passwd')
     tenant_name = CONFIG.get('openstack', 'name')
@@ -192,9 +205,10 @@ def main1(sender, limit):
         servers_by_az[az].append(server)
 
     now = int(time.time())
-    by_domain(servers, flavors, users, now, sender)
     by_tenant(servers, flavors, now, sender)
     by_az(servers_by_az, flavors, now, sender)
+    by_az_by_tenant(servers, flavors, now, sender)
+    by_az_by_domain(servers, flavors, users, now, sender)
     change_over_time(servers_by_az, now, sender)
     sender.flush()
 
@@ -242,4 +256,4 @@ def main():
     elif args.protocol == 'debug':
         sender = DummySender()
 
-    main1(sender, args.limit)
+    do_report(sender, args.limit)
