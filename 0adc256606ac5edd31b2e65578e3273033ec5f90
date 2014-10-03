@@ -22,6 +22,30 @@
       "revId": "0adc256606ac5edd31b2e65578e3273033ec5f90",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_c6714679",
+        "filename": "MANIFEST.in",
+        "patchSetId": 8
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-03T07:14:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_66cfb2b1",
+      "range": {
+        "startLine": 8,
+        "startChar": 21,
+        "endLine": 8,
+        "endChar": 24
+      },
+      "revId": "0adc256606ac5edd31b2e65578e3273033ec5f90",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
     }
   ]
 }
