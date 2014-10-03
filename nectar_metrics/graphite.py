@@ -29,16 +29,13 @@ class BaseSender(object):
         return self.send_metric("az.%s.%s" % (az, metric), value, time)
 
     def send_graphite_domain(self, az, domain, metric, value, time):
-        return self.send_metric("az.%s.domains.%s.%s"
+        return self.send_metric("az.%s.domain.%s.%s"
                                 % (az, domain, metric),
                                 value, time)
 
-    def send_graphite_tenant(self, tenant, flavor, metric, value, time):
-        return self.send_metric("tenants.%s.%s.%s" % (tenant, flavor, metric),
-                                value, time)
-
-    def send_graphite_tenant1(self, tenants, metric, value, time):
-        return self.send_metric("tenants.%s.%s" % (tenants, metric),
+    def send_graphite_tenant(self, az, tenant, metric, value, time):
+        return self.send_metric("az.%s.tenant.%s.%s"
+                                % (az, tenant, metric),
                                 value, time)
 
 
