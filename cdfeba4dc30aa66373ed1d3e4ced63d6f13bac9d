@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_e619e27a",
+        "filename": "requirements-dev.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-03T06:38:36Z",
+      "side": 1,
+      "message": "rename me to test-requirements.txt",
+      "revId": "cdfeba4dc30aa66373ed1d3e4ced63d6f13bac9d",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
