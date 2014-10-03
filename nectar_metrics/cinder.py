@@ -84,15 +84,20 @@ def main1(sender):
 def main():
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-v', '--verbose', action='count', default=0,
-                        help="Increase verbosity (specify multiple times for more)")
-    parser.add_argument('--protocol', choices=['debug', 'carbon', 'carbon_pickle'],
-                        required=True)
-    parser.add_argument('--carbon-host', help='Carbon Host.')
-    parser.add_argument('--carbon-port', default=2003, type=int,
-                        help='Carbon Port.')
-    parser.add_argument('--config', default=config.CONFIG_FILE, type=str,
-                        help='Config file path.')
+    parser.add_argument(
+        '-v', '--verbose', action='count', default=0,
+        help="Increase verbosity (specify multiple times for more)")
+    parser.add_argument(
+        '--protocol', choices=['debug', 'carbon', 'carbon_pickle'],
+        required=True)
+    parser.add_argument(
+        '--carbon-host', help='Carbon Host.')
+    parser.add_argument(
+        '--carbon-port', default=2003, type=int,
+        help='Carbon Port.')
+    parser.add_argument(
+        '--config', default=config.CONFIG_FILE, type=str,
+        help='Config file path.')
     args = parser.parse_args()
     config.read(args.config)
 
