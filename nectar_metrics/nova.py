@@ -109,13 +109,13 @@ def by_domain(servers, flavors, users, now, sender):
 
         if server['user_id'] in users and users[server['user_id']] is None:
             logger.info("skipping unknown user %s" % server['user_id'])
-            return True
+            continue
 
         if server['user_id'] not in users:
             logger.error(
                 "user %s doesn't exist but is currently owner of server %s"
                 % (server['user_id'], server['id']))
-            return True
+            continue
 
         domain = users[server['user_id']]
         servers_by_cell_by_domain[cell][domain].append(server)
