@@ -22,23 +22,22 @@ class BaseSender(object):
     def send_metric(self, metric, value, now):
         raise NotImplemented()
 
-    def send_graphite_nectar(self, metric, value, time):
-        return self.send_metric("az.%s" % metric,  value, time)
-
-    def send_graphite_az(self, az, metric, value, time):
+    def send_by_az(self, az, metric, value, time):
         return self.send_metric("az.%s.%s" % (az, metric), value, time)
 
-    def send_graphite_domain(self, az, domain, metric, value, time):
-        return self.send_metric("az.%s.domains.%s.%s"
+    def send_by_az_by_domain(self, az, domain, metric, value, time):
+        return self.send_metric("az.%s.domain.%s.%s"
                                 % (az, domain, metric),
                                 value, time)
 
-    def send_graphite_tenant(self, tenant, flavor, metric, value, time):
-        return self.send_metric("tenants.%s.%s.%s" % (tenant, flavor, metric),
+    def send_by_tenant(self, tenant, metric, value, time):
+        return self.send_metric("tenant.%s.%s"
+                                % (tenant, metric),
                                 value, time)
 
-    def send_graphite_tenant1(self, tenants, metric, value, time):
-        return self.send_metric("tenants.%s.%s" % (tenants, metric),
+    def send_by_az_by_tenant(self, az, tenant, metric, value, time):
+        return self.send_metric("az.%s.tenant.%s.%s"
+                                % (az, tenant, metric),
                                 value, time)
 
 
