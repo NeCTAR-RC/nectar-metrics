@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_e630c2ea",
+        "filename": "nectar_metrics/graphite.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-03T06:48:27Z",
+      "side": 1,
+      "message": "we might want to rename this to az",
+      "range": {
+        "startLine": 26,
+        "startChar": 33,
+        "endLine": 26,
+        "endChar": 38
+      },
+      "revId": "c0b1f2544c452dd0d54117f8093e7c5510fc5b1e",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_464d5672",
+        "filename": "nectar_metrics/graphite.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-03T06:48:27Z",
+      "side": 1,
+      "message": "and this to project",
+      "range": {
+        "startLine": 37,
+        "startChar": 33,
+        "endLine": 37,
+        "endChar": 40
+      },
+      "revId": "c0b1f2544c452dd0d54117f8093e7c5510fc5b1e",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
