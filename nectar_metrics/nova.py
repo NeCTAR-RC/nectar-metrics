@@ -106,16 +106,20 @@ def by_domain(servers, flavors, users, now, sender):
     servers_by_cell_by_domain = defaultdict(lambda: defaultdict(list))
     for server in servers:
         cell = server.get('OS-EXT-AZ:availability_zone')
+
         if server['user_id'] in users and users[server['user_id']] is None:
             logger.info("skipping unknown user %s" % server['user_id'])
             return True
+
         if server['user_id'] not in users:
             logger.error(
                 "user %s doesn't exist but is currently owner of server %s"
                 % (server['user_id'], server['id']))
             return True
-        servers_by_cell_by_domain[cell][users[server['user_id']]]\
-            .append(server)
+
+        domain = users[server['user_id']]
+        servers_by_cell_by_domain[cell][domain].append(server)
+
     for zone, items in servers_by_cell_by_domain.items():
         for domain, servers in items.items():
             for metric, value in server_metrics(servers, flavors).items():
