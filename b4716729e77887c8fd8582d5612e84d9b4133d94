@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_e62ba292",
+        "filename": "nectar_metrics/cinder.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-05T22:36:07Z",
+      "side": 1,
+      "message": "Is the indentation wrong here? You\u0027re still adding stuff to volumes_by_az_by_tenant.\n\n*cough* *test* *cough*",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 59
+      },
+      "revId": "b4716729e77887c8fd8582d5612e84d9b4133d94",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
