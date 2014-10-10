@@ -5,6 +5,7 @@ from collections import defaultdict
 
 from cinderclient.v1 import client as cinder_client
 
+from nectar_metrics import log
 from nectar_metrics import config
 from nectar_metrics.config import CONFIG
 from nectar_metrics.graphite import (PickleSocketMetricSender,
@@ -115,15 +116,12 @@ def main():
     args = parser.parse_args()
     config.read(args.config)
 
-    log_level = logging.WARNING
+    log_level = 'WARNING'
     if args.verbose == 1:
-        log_level = logging.INFO
+        log_level = 'INFO'
     elif args.verbose >= 2:
-        log_level = logging.DEBUG
-
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s %(name)s %(levelname)s %(message)s')
+        log_level = 'DEBUG'
+    log.setup('cinder.log', 'INFO', log_level)
 
     if args.protocol == 'carbon':
         if not args.carbon_host:
@@ -140,4 +138,5 @@ def main():
     elif args.protocol == 'debug':
         sender = DummySender()
 
+    logger.info("Running Report")
     do_report(sender, args.limit)
