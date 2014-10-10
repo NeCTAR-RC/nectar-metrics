@@ -6,6 +6,7 @@ from urlparse import urlsplit
 
 import MySQLdb
 
+from nectar_metrics import log
 from nectar_metrics import config
 from nectar_metrics.config import CONFIG
 from nectar_metrics.graphite import (PickleSocketMetricSender,
@@ -59,9 +60,10 @@ def by_idp(sender, users, time):
         elif idp in ODD_IDPS:
             users_by_idp[ODD_IDPS[idp].replace('.', '_')].append(user)
         elif idp == 'idp.fake.nectar.org.au':
+            logger.debug("Unknown IDP %s" % idp)
             continue
         else:
-            raise Exception("Unknown IDP %s" % idp)
+            logger.warning("Unknown IDP %s" % idp)
 
     for idp, users in users_by_idp.items():
         sender.send_metric('users.%s.total' % idp, len(users), time)
@@ -76,7 +78,6 @@ def report_metrics(sender, from_time, to_time):
     while from_time < to_time:
         now = int(from_time.strftime("%s"))
         users = list(list_users(db, from_time))
-        logger.info("Processing: %s" % from_time)
         count(sender, users, now)
         by_idp(sender, users, now)
         from_time = from_time + timedelta(hours=1)
@@ -93,6 +94,9 @@ def main():
     parser.add_argument(
         '-v', '--verbose', action='count', default=0,
         help="Increase verbosity (specify multiple times for more)")
+    parser.add_argument(
+        '-q', '--quiet', action='store_true',
+        help="Don't print any logging output")
     parser.add_argument(
         '--protocol', choices=['debug', 'carbon', 'carbon_pickle'],
         required=True)
@@ -113,15 +117,14 @@ def main():
     args = parser.parse_args()
     config.read(args.config)
 
-    log_level = logging.WARNING
+    log_level = 'WARNING'
     if args.verbose == 1:
-        log_level = logging.INFO
+        log_level = 'INFO'
     elif args.verbose >= 2:
-        log_level = logging.DEBUG
-
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s %(name)s %(levelname)s %(message)s')
+        log_level = 'DEBUG'
+    elif args.quiet:
+        log_level = None
+    log.setup('rcshibboleth.log', 'INFO', log_level)
 
     if args.protocol == 'carbon':
         if not args.carbon_host:
@@ -138,4 +141,5 @@ def main():
     elif args.protocol == 'debug':
         sender = DummySender()
 
+    logger.info("Running Report")
     report_metrics(sender, args.from_date, args.to_date)

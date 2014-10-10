@@ -7,6 +7,7 @@ from collections import defaultdict
 
 from novaclient.v1_1 import client as nova_client
 
+from nectar_metrics import log
 from nectar_metrics import config
 from nectar_metrics.config import CONFIG
 from nectar_metrics.graphite import (PickleSocketMetricSender,
@@ -217,6 +218,8 @@ def main():
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='count', default=0,
                         help="Increase verbosity (specify multiple times for more)")
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help="Don't print any logging output")
     parser.add_argument('--protocol', choices=['debug', 'carbon', 'carbon_pickle'],
                         required=True)
     parser.add_argument('--carbon-host', help='Carbon Host.')
@@ -230,15 +233,14 @@ def main():
     args = parser.parse_args()
     config.read(args.config)
 
-    log_level = logging.WARNING
+    log_level = 'WARNING'
     if args.verbose == 1:
-        log_level = logging.INFO
+        log_level = 'INFO'
     elif args.verbose >= 2:
-        log_level = logging.DEBUG
-
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s %(name)s %(levelname)s %(message)s')
+        log_level = 'DEBUG'
+    elif args.quiet:
+        log_level = None
+    log.setup('nova.log', 'INFO', log_level)
 
     if args.protocol == 'carbon':
         if not args.carbon_host:
@@ -255,4 +257,5 @@ def main():
     elif args.protocol == 'debug':
         sender = DummySender()
 
+    logger.info("Running Report")
     do_report(sender, args.limit)
