@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import logging
 from collections import defaultdict
@@ -37,7 +38,11 @@ def all_volumes(c_client, limit=None):
     while True:
         if marker:
             opts["marker"] = marker
-        res = c_client.volumes.list(search_opts=opts)
+        try:
+            res = c_client.volumes.list(search_opts=opts)
+        except Exception as exception:
+            logger.exception(exception)
+            sys.exit(1)
         if not res:
             break
         volumes.extend(res)

@@ -1,5 +1,6 @@
 import os
 from os import path
+import sys
 import time
 import logging
 import pickle
@@ -38,7 +39,12 @@ def all_servers(client, limit=None):
     while True:
         if marker:
             opts["marker"] = marker
-        result = client.servers.list(search_opts=opts)
+
+        try:
+            result = client.servers.list(search_opts=opts)
+        except Exception as exception:
+            logger.exception(exception)
+            sys.exit(1)
 
         if not result:
             break
