@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_a964cae5",
+        "filename": "nectar_metrics/keystone.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-13T04:46:36Z",
+      "side": 1,
+      "message": "Does a network request actually happen here? You used to need to call authenticate() before the client actually did anything.",
+      "revId": "ff13fe740d7f7806fb51775da6ed06fb89e03e08",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
