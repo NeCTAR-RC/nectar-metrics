@@ -195,7 +195,7 @@ def do_report(sender, limit):
             email = email.replace('.', '_')
         users[user.id] = email
 
-    servers = [server.to_dict() for server in all_servers(nclient, limit)]
+    servers = [server._info for server in all_servers(nclient, limit)]
     flavors = all_flavors(nclient, servers)
     servers_by_az = defaultdict(list)
 
