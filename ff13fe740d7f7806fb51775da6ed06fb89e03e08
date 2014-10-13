@@ -16,6 +16,24 @@
       "revId": "ff13fe740d7f7806fb51775da6ed06fb89e03e08",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_c94af626",
+        "filename": "nectar_metrics/keystone.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-13T07:03:07Z",
+      "side": 1,
+      "message": "Yes.\n\n Traceback (most recent call last):\n   File \"/usr/bin/nectar-metrics-nova\", line 9, in \u003cmodule\u003e\n     load_entry_point(\u0027nectar-metrics\u003d\u003d0.1.0\u0027, \u0027console_scripts\u0027, \u0027nectar-metrics-nova\u0027)()\n   File \"/opt/nectar-metrics/nectar_metrics/nova.py\", line 258, in main\n     do_report(sender, args.limit)\n   File \"/opt/nectar-metrics/nectar_metrics/nova.py\", line 185, in do_report\n     kclient \u003d keystone_client(username, key, tenant_name, url)\n   File \"/opt/nectar-metrics/nectar_metrics/keystone.py\", line 8, in client\n     auth_url\u003dauth_url)\n   File \"/usr/lib/python2.7/dist-packages/keystoneclient/v2_0/client.py\", line 144, in __init__\n     self.authenticate()\n   File \"/usr/lib/python2.7/dist-packages/keystoneclient/utils.py\", line 318, in inner\n     return func(*args, **kwargs)\n   File \"/usr/lib/python2.7/dist-packages/keystoneclient/httpclient.py\", line 392, in authenticate\n     resp \u003d self.get_raw_token_from_identity_service(**kwargs)\n   File \"/usr/lib/python2.7/dist-packages/keystoneclient/v2_0/client.py\", line 179, in get_raw_token_from_identity_service\n     \"%s\" % e)\n keystoneclient.apiclient.exceptions.AuthorizationFailure: Authorization Failed: An unexpected error prevented the server from fulfilling your request. (HTTP 500)",
+      "parentUuid": "3afa9182_a964cae5",
+      "revId": "ff13fe740d7f7806fb51775da6ed06fb89e03e08",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
     }
   ]
 }
