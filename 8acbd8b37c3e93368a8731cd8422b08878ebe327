@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_e9725248",
+        "filename": "nectar_metrics/graphite.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-14T05:30:29Z",
+      "side": 0,
+      "message": "Hrm. Aren\u0027t you losing the last n metrics (where n \u003d self.count % self.reconnect_at)? Since things only get sent in full batches... or does flush get called somewhere else?",
+      "revId": "8acbd8b37c3e93368a8731cd8422b08878ebe327",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
