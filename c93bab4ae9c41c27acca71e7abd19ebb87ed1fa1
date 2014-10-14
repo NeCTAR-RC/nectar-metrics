@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_4963a61a",
+        "filename": "nectar_metrics/whisper.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-14T22:10:22Z",
+      "side": 1,
+      "message": "whisper.log\n\nIt would be worth abstracting this whole main function since at least some of it is shared between all the senders.",
+      "range": {
+        "startLine": 88,
+        "startChar": 15,
+        "endLine": 88,
+        "endChar": 19
+      },
+      "revId": "c93bab4ae9c41c27acca71e7abd19ebb87ed1fa1",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
