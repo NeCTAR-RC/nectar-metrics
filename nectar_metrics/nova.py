@@ -8,11 +8,8 @@ from collections import defaultdict
 
 from novaclient.v1_1 import client as nova_client
 
-from nectar_metrics import log
-from nectar_metrics import config
 from nectar_metrics.config import CONFIG
-from nectar_metrics.graphite import (PickleSocketMetricSender,
-                                     DummySender, SocketMetricSender)
+from nectar_metrics.cli import Main
 from nectar_metrics.keystone import client as keystone_client
 
 logger = logging.getLogger(__name__)
@@ -220,48 +217,10 @@ def do_report(sender, limit):
 
 
 def main():
-    from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-v', '--verbose', action='count', default=0,
-                        help="Increase verbosity (specify multiple times for more)")
-    parser.add_argument('-q', '--quiet', action='store_true',
-                        help="Don't print any logging output")
-    parser.add_argument('--protocol', choices=['debug', 'carbon', 'carbon_pickle'],
-                        required=True)
-    parser.add_argument('--carbon-host', help='Carbon Host.')
-    parser.add_argument('--carbon-port', default=2003, type=int,
-                        help='Carbon Port.')
-    parser.add_argument('--config', default=config.CONFIG_FILE, type=str,
-                        help='Config file path.')
+    parser = Main('nova')
     parser.add_argument(
         '--limit', default=None,
         help='Limit the response to some servers only.')
     args = parser.parse_args()
-    config.read(args.config)
-
-    log_level = 'WARNING'
-    if args.verbose == 1:
-        log_level = 'INFO'
-    elif args.verbose >= 2:
-        log_level = 'DEBUG'
-    elif args.quiet:
-        log_level = None
-    log.setup('nova.log', 'INFO', log_level)
-
-    if args.protocol == 'carbon':
-        if not args.carbon_host:
-            parser.error('argument --carbon-host is required')
-        if not args.carbon_port:
-            parser.error('argument --carbon-port is required')
-        sender = SocketMetricSender(args.carbon_host, args.carbon_port)
-    elif args.protocol == 'carbon_pickle':
-        if not args.carbon_host:
-            parser.error('argument --carbon-host is required')
-        if not args.carbon_port:
-            parser.error('argument --carbon-port is required')
-        sender = PickleSocketMetricSender(args.carbon_host, args.carbon_port)
-    elif args.protocol == 'debug':
-        sender = DummySender()
-
     logger.info("Running Report")
-    do_report(sender, args.limit)
+    do_report(parser.sender(), args.limit)
