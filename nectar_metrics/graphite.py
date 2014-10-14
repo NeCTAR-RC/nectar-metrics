@@ -2,6 +2,7 @@ import socket
 import logging
 import pickle
 import struct
+import time
 
 
 logger = logging.getLogger(__name__)
@@ -52,6 +53,7 @@ class DummySender(BaseSender):
 class SocketMetricSender(BaseSender):
     sock = None
     reconnect_at = 100
+    flooding_at = 20000
 
     def __init__(self, host, port):
         super(SocketMetricSender, self).__init__()
@@ -63,7 +65,7 @@ class SocketMetricSender(BaseSender):
     def connect(self):
         if self.sock:
             self.sock.close()
-            self.log.info("Reconnecting")
+            self.log.info("Reconnecting, %s sent so far." % self.count)
         else:
             self.log.info("Connecting")
         self.sock = socket.socket()
@@ -71,13 +73,16 @@ class SocketMetricSender(BaseSender):
         self.log.info("Connected")
 
     def reconnect(self):
-        self.count = 1
         self.connect()
 
     def send_metric(self, metric, value, now):
         message = self.format_metric(metric, value, now)
-        if self.count > self.reconnect_at:
+        self.count += 1
+        if self.count % self.reconnect_at == 0:
             self.reconnect()
+        if self.count % self.flooding_at == 0:
+            self.log.info("Flooding the server, sleeping for 60.")
+            time.sleep(60)
         self.sock.sendall(message)
         return message
 
@@ -95,11 +100,14 @@ class PickleSocketMetricSender(SocketMetricSender):
         self.buffered_metrics = []
 
     def send_metric(self, metric, value, now):
-        self.count = self.count + 1
+        self.count += 1
         self.buffered_metrics.append((metric, (now, float(value))))
-        if self.count > self.reconnect_at:
+        if self.count % self.reconnect_at == 0:
             self.flush()
             self.reconnect()
+        if self.count % self.flooding_at == 0:
+            self.log.info("Flooding the server, sleeping for 60.")
+            time.sleep(60)
         return (metric, (now, float(value)))
 
     def flush(self):
