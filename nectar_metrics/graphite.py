@@ -3,6 +3,7 @@ import logging
 import pickle
 import struct
 import time
+import sys
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ class DummySender(BaseSender):
 
     def send_metric(self, metric, value, now):
         message = self.format_metric(metric, value, now)
-        print message
+        sys.stdout.write(message)
         return message
 
 
