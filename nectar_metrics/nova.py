@@ -1,6 +1,7 @@
 import os
 from os import path
 import sys
+import shutil
 import time
 import logging
 import pickle
@@ -160,11 +161,18 @@ def change_over_time(servers_by_az, now, sender):
     if not os.path.exists(previous_servers_file):
         pickle.dump(current_servers, open(previous_servers_file, 'w'))
 
-    previous_servers = pickle.load(open(previous_servers_file))
+    try:
+        previous_servers = pickle.load(open(previous_servers_file))
+    except EOFError:
+        logger.warning("Invalid data in pickle %s" % previous_servers_file)
+        pickle.dump(current_servers, open(previous_servers_file, 'w'))
+        previous_servers = current_servers
+
     # Override the pickle each time no matter what.  this will
     # prevent massive launch rates if the script fails fro a
     # while.
-    pickle.dump(current_servers, open(previous_servers_file, 'w'))
+    pickle.dump(current_servers, open(previous_servers_file + '.tmp', 'w'))
+    shutil.move(previous_servers_file + '.tmp', previous_servers_file)
     for zone, servers in current_servers.items():
         if zone not in previous_servers:
             # If the zone isn't in the list of previous servers
