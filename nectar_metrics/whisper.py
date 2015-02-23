@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def send_file(sender, filepath, metricpath, limit=None):
     try:
-        time_info, values = whisper.fetch(filepath, 0)
+        time_info, values = whisper.fetch(filepath, 1325376000)
     except whisper.CorruptWhisperFile:
         logger.warning("Corrupt whisper file %s" % filepath)
         return
