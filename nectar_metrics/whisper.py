@@ -33,7 +33,7 @@ def paths_in_directory(directory):
         for filename in filenames:
             filepath = path.join(dirpath, filename)
             if not filename.endswith('.wsp'):
-                logger.inf("Skipping %s" % filepath)
+                logger.info("Skipping %s" % filepath)
                 continue
             # convert /var/lib/graphite/server/metric.wsp to
             # server.metric
