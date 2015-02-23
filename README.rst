@@ -79,7 +79,7 @@ Cinder
 
 Cinder gathers usage information about current cinder usage.::
 
-   ± nectar-metrics-cinder --help
+   $ nectar-metrics-cinder --help
    usage: nectar-metrics-cinder [-h] [-v] [-q] --protocol
                                 {debug,carbon,carbon_pickle}
                                 [--carbon-host CARBON_HOST]
@@ -102,10 +102,50 @@ Cinder gathers usage information about current cinder usage.::
 
 Cinder metrics are grouped by tenant and by az by tenant::
 
-   ± nectar-metrics-cinder --protocol debug --limit 1
+   $ nectar-metrics-cinder --protocol debug --limit 1
    tenant.f4fff40d98984cea9e39af597456001b.used_volume_size 1000.00 1415354196
    tenant.f4fff40d98984cea9e39af597456001b.total_volumes 1.00 1415354196
    az.NCI.tenant.f4fff40d98984cea9e39af597456001b.used_volume_size 1000.00 1415354196
    az.NCI.tenant.f4fff40d98984cea9e39af597456001b.total_volumes 1.00 1415354196
 
-  
+RCShibboleth
+------------
+
+RCShibboleth queries the RCShibboleth database and gathers details of
+the current user registrations.::
+
+   $ nectar-metrics-rcshibboleth --help
+   usage: nectar-metrics-rcshibboleth [-h] [-v] [-q] --protocol
+                                      {debug,carbon,carbon_pickle}
+                                      [--carbon-host CARBON_HOST]
+                                      [--carbon-port CARBON_PORT]
+                                      [--config CONFIG] [--from-date FROM_DATE]
+                                      [--to-date TO_DATE]
+
+   optional arguments:
+     -h, --help            show this help message and exit
+     -v, --verbose         Increase verbosity (specify multiple times for more)
+                           (default: 0)
+     -q, --quiet           Don't print any logging output (default: False)
+     --protocol {debug,carbon,carbon_pickle}
+     --carbon-host CARBON_HOST
+                           Carbon Host. (default: None)
+     --carbon-port CARBON_PORT
+                           Carbon Port. (default: 2003)
+     --config CONFIG       Config file path. (default: /etc/nectar/metrics.ini)
+     --from-date FROM_DATE
+                           When to backfill data from. (default: 2015-02-23
+                           15:59:54.720779)
+     --to-date TO_DATE     When to backfill data to. (default: 2015-02-23
+                           15:59:54.720840)
+
+
+The only metric that is reported is the current registrations grouped by IdP::
+
+   $ nectar-metrics-rcshibboleth --protocol debug
+   users.total 5018.00 1424666333
+   users.idp_cc_swin_edu_au.total 59.00 1424666333
+   users.aaf_latrobe_edu_au.total 40.00 1424666333
+   users.idp1_griffith_edu_au.total 83.00 1424666333
+   users.idp_csu_edu_au.total 17.00 1424666333
+   users.idp_murdoch_edu_au.total 37.00 1424666333
