@@ -8,6 +8,7 @@ import pickle
 from collections import defaultdict
 
 from novaclient.v1_1 import client as nova_client
+from novaclient.v1_1.contrib import cells
 
 from nectar_metrics.config import CONFIG
 from nectar_metrics.cli import Main
@@ -187,6 +188,21 @@ def change_over_time(servers_by_az, now, sender):
         sender.send_by_az(zone, 'instances_created', instances_created, now)
 
 
+def cell_capacities(nclient, now, sender):
+    cellm = cells.CellsManager(nclient)
+    report_cells = CONFIG.get('openstack', 'cells').split(',')
+    ram_sizes = CONFIG.get('openstack', 'ram_sizes').split(',')
+    for cell_name in report_cells:
+        cell = cellm.capacities(cell_name)
+        units = cell.capacities['ram_free']['units_by_mb']
+        for size in ram_sizes:
+            try:
+                sender.send_by_cell(cell_name, 'capacity_%s' % size,
+                                    units[size], now)
+            except KeyError:
+                pass
+
+
 def do_report(sender, limit):
     username = CONFIG.get('openstack', 'user')
     key = CONFIG.get('openstack', 'passwd')
@@ -220,6 +236,7 @@ def do_report(sender, limit):
     by_az_by_tenant(servers, flavors, now, sender)
     by_az_by_domain(servers, flavors, users, now, sender)
     change_over_time(servers_by_az, now, sender)
+    cell_capacities(nclient, now, sender)
     sender.flush()
 
 

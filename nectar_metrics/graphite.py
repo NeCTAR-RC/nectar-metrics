@@ -42,6 +42,9 @@ class BaseSender(object):
                                 % (az, tenant, metric),
                                 value, time)
 
+    def send_by_cell(self, cell, metric, value, time):
+        return self.send_metric("cell.%s.%s" % (cell, metric), value, time)
+
 
 class DummySender(BaseSender):
 
