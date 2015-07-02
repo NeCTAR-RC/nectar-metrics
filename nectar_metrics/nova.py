@@ -195,7 +195,10 @@ def cell_capacities(nclient, now, sender):
     size_totals = {}
     for cell_name in report_cells:
         cell = cellm.capacities(cell_name)
-        units = cell.capacities['ram_free']['units_by_mb']
+        try:
+            units = cell.capacities['ram_free']['units_by_mb']
+        except KeyError:
+            continue
         for size in ram_sizes:
             try:
                 free_slots = units[size]
