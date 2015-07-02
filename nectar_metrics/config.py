@@ -15,6 +15,12 @@ class ConfigurationDict(UserDict):
                 return self.data[section][key]
         return default
 
+    def get_list(self, section, key, default=[]):
+        if section in self.data:
+            if key in self.data[section]:
+                return self.data[section][key].split(',')
+        return default
+
     def set(self, section, key, value):
         if section not in self.data:
             self.data[section] = {}

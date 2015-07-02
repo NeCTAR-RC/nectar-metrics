@@ -190,17 +190,25 @@ def change_over_time(servers_by_az, now, sender):
 
 def cell_capacities(nclient, now, sender):
     cellm = cells.CellsManager(nclient)
-    report_cells = CONFIG.get('openstack', 'cells').split(',')
-    ram_sizes = CONFIG.get('openstack', 'ram_sizes').split(',')
+    report_cells = CONFIG.get_list('openstack', 'cells')
+    ram_sizes = CONFIG.get_list('openstack', 'ram_sizes')
+    size_totals = {}
     for cell_name in report_cells:
         cell = cellm.capacities(cell_name)
         units = cell.capacities['ram_free']['units_by_mb']
         for size in ram_sizes:
             try:
-                sender.send_by_cell(cell_name, 'capacity_%s' % size,
-                                    units[size], now)
+                free_slots = units[size]
             except KeyError:
-                pass
+                continue
+            sender.send_by_cell(cell_name, 'capacity_%s' % size,
+                                free_slots, now)
+            if size in size_totals:
+                size_totals[size] += int(free_slots)
+            else:
+                size_totals[size] = int(free_slots)
+    for size, slots in size_totals.items():
+        sender.send_metric('cell.capacity_%s' % size, slots, now)
 
 
 def do_report(sender, limit):
