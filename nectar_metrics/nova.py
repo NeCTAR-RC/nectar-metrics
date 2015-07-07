@@ -194,7 +194,10 @@ def cell_capacities(nclient, now, sender):
     ram_sizes = CONFIG.get_list('openstack', 'ram_sizes')
     size_totals = {}
     for cell_name in report_cells:
-        cell = cellm.capacities(cell_name)
+        try:
+            cell = cellm.capacities(cell_name)
+        except:
+            continue
         try:
             units = cell.capacities['ram_free']['units_by_mb']
         except KeyError:
