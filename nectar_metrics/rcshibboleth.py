@@ -4,10 +4,9 @@ import pickle
 from collections import defaultdict
 from urlparse import urlsplit
 
-import MySQLdb
-
 from nectar_metrics.config import CONFIG
 from nectar_metrics.cli import Main
+from nectar_metrics.db import connection
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +21,6 @@ ODD_IDPS = {
     'urn:mace:federation.org.au:testfed:mq.edu.au':
     'idp.mq.edu.au',
 }
-
-
-def connection(host, db, user, password):
-    return MySQLdb.connect(host=host,
-                           user=user,
-                           passwd=password,
-                           db=db)
 
 
 def list_users(db, time=datetime.now()):

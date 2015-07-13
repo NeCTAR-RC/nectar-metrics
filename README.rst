@@ -74,6 +74,37 @@ hosts.::
    az.monash-01.instances_deleted 0.00 1415353638
    az.monash-01.instances_created 0.00 1415353638
 
+Nova-DB
+----
+
+Nova-DB metrics::
+   $ nectar-metrics-nova-db --help
+   usage: nectar-metrics-nova-db [-h] [-v] [-q] --protocol
+                                 {debug,carbon,carbon_pickle}
+                                 [--carbon-host CARBON_HOST]
+                                 [--carbon-port CARBON_PORT] [--config CONFIG]
+
+   optional arguments:
+     -h, --help            show this help message and exit
+     -v, --verbose         Increase verbosity (specify multiple times for more)
+                           (default: 0)
+     -q, --quiet           Don't print any logging output (default: False)
+     --protocol {debug,carbon,carbon_pickle}
+     --carbon-host CARBON_HOST
+                           Carbon Host. (default: None)
+     --carbon-port CARBON_PORT
+                           Carbon Port. (default: 2003)
+     --config CONFIG       Config file path. (default: /etc/nectar/metrics.ini)
+
+Nova-DB currently collects instance faults and groups by AZ::
+
+   $ nectar-metrics-nova-db --protocol debug
+   az.pawsey-01.instance_faults 2.00 1436661000
+   az.QRIScloud.instance_faults 6.00 1436661000
+   az.NCI.instance_faults 0.00 1436661000
+   az.tasmania.instance_faults 0.00 1436661000
+   az.qld.instance_faults 0.00 1436661000
+
 Cinder
 ------
 
