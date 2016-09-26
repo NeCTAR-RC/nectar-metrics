@@ -2,8 +2,9 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from nectar_metrics import log
 from nectar_metrics import config
-from nectar_metrics.graphite import (PickleSocketMetricSender,
-                                     DummySender, SocketMetricSender)
+from nectar_metrics.senders.base import DummySender
+from nectar_metrics.senders.graphite import (PickleSocketMetricSender,
+                                             SocketMetricSender)
 
 
 class Main(object):
