@@ -31,29 +31,31 @@ def test_by_az():
     """A simple by_cell metric count test"""
     sender = TestSender()
     nova.by_az(azs, flavors, 'sentinel', sender)
-
-    assert sender.by_az == \
+    output = sorted(sender.by_az, key=lambda tup: tup[1])
+    assert output == \
         [('zone1', 'total_instances', 9, 'sentinel'),
+         ('zone1', 'used_disk', 14, 'sentinel'),
          ('zone1', 'used_memory', 14, 'sentinel'),
-         ('zone1', 'used_vcpus', 14, 'sentinel'),
-         ('zone1', 'used_disk', 14, 'sentinel')]
+         ('zone1', 'used_vcpus', 14, 'sentinel')]
 
 
 def test_by_az_by_domain():
     """A simple by_domain metric count test"""
     sender = TestSender()
     nova.by_az_by_domain(servers, flavors, users, 'sentinel', sender)
-    assert sender.by_az_by_domain == \
-        [('zone1', 'user2', 'used_vcpus', 6, 'sentinel'),
-         ('zone1', 'user3', 'used_vcpus', 3, 'sentinel'),
-         ('zone1', 'user1', 'used_vcpus', 5, 'sentinel')]
+    output = sorted(sender.by_az_by_domain, key=lambda tup: tup[1])
+    assert output == \
+    [('zone1', 'user1', 'used_vcpus', 5, 'sentinel'),
+     ('zone1', 'user2', 'used_vcpus', 6, 'sentinel'),
+     ('zone1', 'user3', 'used_vcpus', 3, 'sentinel')]
 
 
 def test_by_az_by_tenant():
     """A simple by_tenant metric count test"""
     sender = TestSender()
     nova.by_az_by_tenant(servers, flavors, 'sentinel', sender)
-    assert sender.by_az_by_tenant == \
+    output = sorted(sender.by_az_by_tenant, key=lambda tup: (tup[1], tup[2]))
+    assert output == \
         [('zone1', 10, 'total_instances', 5, 'sentinel'),
          ('zone1', 10, 'used_memory', 5, 'sentinel'),
          ('zone1', 10, 'used_vcpus', 5, 'sentinel'),
@@ -69,7 +71,8 @@ def test_by_tenant():
     """A simple by_tenant metric count test"""
     sender = TestSender()
     nova.by_tenant(servers, flavors, 'sentinel', sender)
-    assert sender.by_tenant == \
+    output = sorted(sender.by_tenant, key=lambda tup: (tup[0], tup[1]))
+    assert output == \
         [(10, 'total_instances', 5, 'sentinel'),
          (10, 'used_memory', 5, 'sentinel'),
          (10, 'used_vcpus', 5, 'sentinel'),
