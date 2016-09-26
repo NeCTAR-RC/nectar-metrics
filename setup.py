@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
+from setuptools import setup
+import uuid
 from pip.req import parse_requirements
 
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
-requirements = parse_requirements("requirements.txt")
+requirements = parse_requirements("requirements.txt", session=uuid.uuid1())
 
 setup(
     name='nectar-metrics',

@@ -4,25 +4,18 @@ import time
 import logging
 from collections import defaultdict
 
-from cinderclient.v1 import client as cinder_client
+from cinderclient import client as cinder_client
 
 from nectar_metrics.cli import Main
 from nectar_metrics.config import CONFIG
-
+from nectar_metrics import keystone
 
 logger = logging.getLogger(__name__)
 
 
-def client(username=None, password=None, tenant=None, url=None):
-    url = os.environ.get('OS_AUTH_URL', url)
-    username = os.environ.get('OS_USERNAME', username)
-    password = os.environ.get('OS_PASSWORD', password)
-    tenant = os.environ.get('OS_TENANT_NAME', tenant)
-    assert url and username and password and tenant
-    return cinder_client.Client(username=username,
-                                api_key=password,
-                                project_id=tenant,
-                                auth_url=url)
+def client():
+    auth_session = keystone.get_auth_session()
+    return cinder_client.Client('2', session=auth_session)
 
 
 def all_volumes(c_client, limit=None):
@@ -83,11 +76,7 @@ def by_az_by_tenant(volumes, now, sender):
 
 
 def do_report(sender, limit):
-    username = CONFIG.get('openstack', 'user')
-    key = CONFIG.get('openstack', 'passwd')
-    tenant_name = CONFIG.get('openstack', 'name')
-    url = CONFIG.get('openstack', 'url')
-    c_client = client(username, key, tenant_name, url)
+    c_client = client()
     volumes = [volume._info for volume in all_volumes(c_client, limit)]
     now = int(time.time())
     by_tenant(volumes, now, sender)
