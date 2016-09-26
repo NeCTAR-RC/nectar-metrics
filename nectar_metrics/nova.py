@@ -7,25 +7,21 @@ import logging
 import pickle
 from collections import defaultdict
 
-from novaclient.v1_1 import client as nova_client
-from novaclient.v1_1.contrib import cells
+from novaclient import client as nova_client
+from novaclient.v2.contrib import cells
 
 from nectar_metrics.config import CONFIG
 from nectar_metrics.cli import Main
-from nectar_metrics.keystone import client as keystone_client
+from nectar_metrics.keystone import client as keystone_client, get_auth_session
 
 logger = logging.getLogger(__name__)
 flavor = {}
+NOVA_VERSION = '2'
 
-
-def client(username=None, password=None, tenant=None, url=None):
-    url = os.environ.get('OS_AUTH_URL', url)
-    username = os.environ.get('OS_USERNAME', username)
-    password = os.environ.get('OS_PASSWORD', password)
-    tenant = os.environ.get('OS_TENANT_NAME', tenant)
-    conn = nova_client.Client(username=username, api_key=password,
-                              project_id=tenant, auth_url=url)
-    return conn
+def client(username, password, tenant, url):
+    auth_session = get_auth_session()
+    return nova_client.Client(NOVA_VERSION,
+                              session=auth_session)
 
 
 def all_servers(client, limit=None):
