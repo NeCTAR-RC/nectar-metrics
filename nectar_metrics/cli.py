@@ -5,6 +5,7 @@ from nectar_metrics import config
 from nectar_metrics.senders.base import DummySender
 from nectar_metrics.senders.graphite import (PickleSocketMetricSender,
                                              SocketMetricSender)
+from nectar_metrics.senders.gnocchi import GnocchiSender
 
 
 class Main(object):
@@ -18,7 +19,7 @@ class Main(object):
             '-q', '--quiet', action='store_true',
             help="Don't print any logging output")
         self.parser.add_argument(
-            '--protocol', choices=['debug', 'carbon', 'carbon_pickle'],
+            '--protocol', choices=['debug', 'carbon', 'carbon_pickle', 'gnocchi'],
             required=True)
         self.parser.add_argument(
             '--carbon-host', help='Carbon Host.')
@@ -59,6 +60,8 @@ class Main(object):
                 self.parser.error('argument --carbon-port is required')
             sender = PickleSocketMetricSender(args.carbon_host,
                                               args.carbon_port)
+        elif args.protocol == 'gnocchi':
+            sender = GnocchiSender()
         elif args.protocol == 'debug':
             sender = DummySender()
 
