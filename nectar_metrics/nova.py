@@ -211,7 +211,7 @@ def cell_capacities(nclient, now, sender):
             else:
                 size_totals[size] = int(free_slots)
     for size, slots in size_totals.items():
-        sender.send_metric('cell.capacity_%s' % size, slots, now)
+        sender.send_global('cell', 'capacity_%s' % size, slots, now)
 
 
 def do_report(sender, limit):

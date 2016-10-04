@@ -44,7 +44,7 @@ def list_users(db, time=datetime.now()):
 
 
 def count(sender, users, time):
-    sender.send_metric('users.total', len(users), time)
+    sender.send_global('users', 'total', len(users), time)
 
 
 def by_idp(sender, users, time):
@@ -63,7 +63,7 @@ def by_idp(sender, users, time):
             logger.warning("Unknown IDP %s" % idp)
 
     for idp, users in users_by_idp.items():
-        sender.send_metric('users.%s.total' % idp, len(users), time)
+        sender.send_by_idp(idp, 'total', len(users), time)
 
 
 def report_metrics(sender, from_time, to_time):
