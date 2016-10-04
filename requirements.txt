@@ -4,3 +4,4 @@ python-novaclient
 MySQL-python
 whisper
 pymysql
+gnocchiclient
