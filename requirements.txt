@@ -3,3 +3,4 @@ python-cinderclient
 python-novaclient
 MySQL-python
 whisper
+pymysql

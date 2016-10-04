@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 import uuid
 from pip.req import parse_requirements
 
@@ -12,15 +12,13 @@ requirements = parse_requirements("requirements.txt", session=uuid.uuid1())
 
 setup(
     name='nectar-metrics',
-    version='0.1.0',
+    version='0.2.0',
     description='Metrics collection for the NeCTAR Research Cloud.',
     long_description=readme + '\n\n' + history,
     author='Russell Sim',
     author_email='russell.sim@gmail.com',
     url='https://github.com/NeCTAR-RC/nectar-metrics',
-    packages=[
-        'nectar_metrics',
-    ],
+    packages=find_packages(exclude=['tests', 'local']),
     package_dir={'nectar_metrics': 'nectar_metrics'},
     include_package_data=True,
     install_requires=[str(r.req) for r in requirements],
