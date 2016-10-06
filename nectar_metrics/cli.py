@@ -6,6 +6,7 @@ from nectar_metrics.senders.base import DummySender
 from nectar_metrics.senders.graphite import (PickleSocketMetricSender,
                                              SocketMetricSender)
 from nectar_metrics.senders.gnocchi import GnocchiSender
+from nectar_metrics.senders.composite import GnocchiGraphiteSender
 
 
 class Main(object):
@@ -20,7 +21,8 @@ class Main(object):
             help="Don't print any logging output")
         self.parser.add_argument(
             '--protocol', choices=['debug', 'carbon',
-                                   'carbon_pickle', 'gnocchi'],
+                                   'carbon_pickle', 'gnocchi',
+                                   'gnocchi_graphite'],
             required=True)
         self.parser.add_argument(
             '--carbon-host', help='Carbon Host.')
@@ -63,6 +65,8 @@ class Main(object):
                                               args.carbon_port)
         elif args.protocol == 'gnocchi':
             sender = GnocchiSender()
+        elif args.protocol == 'gnocchi_graphite':
+            sender = GnocchiGraphiteSender(args.carbon_host, args.carbon_port)
         elif args.protocol == 'debug':
             sender = DummySender()
 
