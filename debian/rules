@@ -22,5 +22,4 @@ include /usr/share/dpkg/default.mk
 export PYBUILD_NAME=nectar_metrics
 
 %:
-	dh $@ --with python2 --buildsystem=pybuild
-
+	dh $@ --with python2
