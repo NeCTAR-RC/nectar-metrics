@@ -43,6 +43,8 @@ setup(
         ['nectar-metrics-nova = nectar_metrics.nova:main',
          'nectar-metrics-cinder = nectar_metrics.cinder:main',
          'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
-         'nectar-metrics-whisper = nectar_metrics.whisper:main']
+         'nectar-metrics-whisper = nectar_metrics.whisper:main'],
+        'ceilometer.poll.central':
+        [ 'nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster'],
     },
 )
