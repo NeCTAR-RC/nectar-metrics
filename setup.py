@@ -10,6 +10,16 @@ readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 requirements = parse_requirements("requirements.txt", session=uuid.uuid1())
 
+entry_points = {
+    'console_scripts':
+    ['nectar-metrics-nova = nectar_metrics.nova:main',
+     'nectar-metrics-cinder = nectar_metrics.cinder:main',
+     'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
+     'nectar-metrics-whisper = nectar_metrics.whisper:main'],
+    'ceilometer.poll.central':
+    ['nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster'],
+}
+
 setup(
     name='nectar-metrics',
     version='0.2.0',
@@ -38,11 +48,5 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
-    entry_points={
-        'console_scripts':
-        ['nectar-metrics-nova = nectar_metrics.nova:main',
-         'nectar-metrics-cinder = nectar_metrics.cinder:main',
-         'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
-         'nectar-metrics-whisper = nectar_metrics.whisper:main']
-    },
+    entry_points=entry_points,
 )
