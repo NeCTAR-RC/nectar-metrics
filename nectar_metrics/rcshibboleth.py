@@ -34,7 +34,7 @@ def connection(host, db, user, password):
 def list_users(db, time=datetime.now()):
     cursor = db.cursor()
     cursor.execute("SELECT user_id, email, shibboleth_attributes FROM user"
-                   " WHERE state = 'created' AND terms < '%s'" % time)
+                   " WHERE state = 'created' AND registered_at < '%s'" % time)
     while True:
         row = cursor.fetchone()
         if not row:
