@@ -22,6 +22,10 @@ entry_points = {
      'nectar-metrics-whisper = nectar_metrics.whisper:main'],
     'ceilometer.poll.central':
     ['nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster'], # noqa
+    'ceilometer.poll.objectstore':
+    ['nectar.swift = nectar_metrics.ceilometer.objectstore.swift:SwiftDiskPollster'], # noqa
+    'ceilometer.discover.objectstore':
+    ['swift_disks = nectar_metrics.ceilometer.objectstore.discovery:SwiftDiskDiscovery'], # noqa
 }
 
 setup(
