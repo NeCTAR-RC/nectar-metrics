@@ -34,7 +34,7 @@ class SwiftDiskPollster(plugin_base.PollsterBase):
     def default_discovery(self):
         return 'swift_disks'
 
-    def _make_sample(self, metric, value, disk):
+    def _make_sample(self, metric, value, disk, unit='B'):
         host = self.conf.host
         region = self.conf.swift.region_name
         resource = region + host + disk
@@ -43,7 +43,7 @@ class SwiftDiskPollster(plugin_base.PollsterBase):
         return sample.Sample(
             name='swift.disk.%s' % metric,
             type=sample.TYPE_GAUGE,
-            unit='B',
+            unit=unit,
             volume=value,
             user_id=None,
             project_id=None,
@@ -59,16 +59,19 @@ class SwiftDiskPollster(plugin_base.PollsterBase):
                 continue
 
             device_name = disk['device']
-            available = disk['avail']
-            used = disk['used']
-            size = disk['size']
-
+            available = int(disk['avail'])
+            used = int(disk['used'])
+            size = int(disk['size'])
+            utilisation = (float(used) / float(size)) * 100
             samples.append(
                 self._make_sample('available', available, device_name))
             samples.append(
                 self._make_sample('used', used, device_name))
             samples.append(
                 self._make_sample('size', size, device_name))
+            samples.append(
+                self._make_sample('utilisation', utilisation, device_name,
+                                  unit='%'))
 
         sample_iters = []
         sample_iters.append(samples)
