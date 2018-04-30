@@ -1,0 +1,19 @@
+[Unit]
+Description=nectar-ceilometer-agent-swift
+After=swift-object.service ntp.service
+
+[Service]
+User=ceilometer
+Group=ceilometer
+Type=simple
+WorkingDirectory=/var/lib/ceilometer
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /var/lock/ceilometer /var/log/ceilometer /var/lib/ceilometer
+ExecStartPre=/bin/chown ceilometer:ceilometer /var/lock/ceilometer /var/log/ceilometer /var/lib/ceilometer
+ExecStart=/usr/bin/ceilometer-polling --polling-namespaces objectstore
+Restart=on-failure
+LimitNOFILE=65535
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target
