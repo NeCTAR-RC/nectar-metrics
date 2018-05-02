@@ -7,8 +7,7 @@ Build-Depends:
  python-all (>= 2.6),
  python-setuptools,
  python-pip (>= 1.2),
- dh-python,
- dh-systemd
+ dh-python
 Build-Depends-Indep:
  python-cinderclient,
  python-novaclient,
@@ -22,12 +21,3 @@ Architecture: any
 Depends: ${misc:Depends}, ${python:Depends}
 Description: Metrics collection for the Nectar Research Cloud.
  nectar-metrics, Metrics collection for the Nectar Research Cloud.
-
-Package: nectar-ceilometer-agent-swift
-Architecture: any
-Depends:
- ${misc:Depends},
- python-nectar-metrics (= ${binary:Version}),
- ceilometer-common
-Description: Metrics collection for the Nectar Research Cloud.
- This package contains the swift pollsters to be run on storage nodes
