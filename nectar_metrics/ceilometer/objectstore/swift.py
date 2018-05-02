@@ -1,6 +1,4 @@
-import hashlib
 import itertools
-import uuid
 
 from oslo_log import log
 from oslo_config import cfg
@@ -37,8 +35,7 @@ class SwiftDiskPollster(plugin_base.PollsterBase):
     def _make_sample(self, metric, value, disk):
         host = self.conf.host
         region = self.conf.swift.region_name
-        resource = region + host + disk
-        resource_id = str(uuid.UUID(hashlib.sha1(resource).hexdigest()[:32]))
+        resource_id = "-".join([region, host, disk])
 
         return sample.Sample(
             name='swift.disk.%s' % metric,
