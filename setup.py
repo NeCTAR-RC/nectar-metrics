@@ -21,11 +21,14 @@ entry_points = {
      'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
      'nectar-metrics-whisper = nectar_metrics.whisper:main'],
     'ceilometer.poll.central':
-    ['nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster'], # noqa
+    ['nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster',
+     'nectar.allocations = nectar_metrics.ceilometer.allocation.pollster:AllocationPollster'], # noqa
     'ceilometer.poll.objectstore':
     ['nectar.swift = nectar_metrics.ceilometer.objectstore.swift:SwiftDiskPollster'], # noqa
     'ceilometer.discover.objectstore':
     ['swift_disks = nectar_metrics.ceilometer.objectstore.discovery:SwiftDiskDiscovery'], # noqa
+    'ceilometer.discover.central':
+    ['all_allocations = nectar_metrics.ceilometer.allocations.discovery:AllocationDiscovery'], # noqa
 }
 
 setup(
