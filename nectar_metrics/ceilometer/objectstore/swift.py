@@ -50,9 +50,16 @@ class SwiftDiskPollster(plugin_base.PollsterBase):
 
     def get_samples(self, manager, cache, resources):
         samples = []
+        host = CONF.host
+        region = CONF.swift.region_name
+        if not host or not region:
+            LOG.error("""host or region missing, host=%s region=%s.
+                      Please check your configuration""" % (host, region))
+            raise
         for disk in resources:
             mounted = disk['mounted']
             if not mounted:
+                LOG.warn("Skipping %s, not mounted" % disk['device'])
                 continue
 
             device_name = disk['device']
