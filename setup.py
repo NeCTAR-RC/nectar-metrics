@@ -28,7 +28,7 @@ entry_points = {
     'ceilometer.discover.objectstore':
     ['swift_disks = nectar_metrics.ceilometer.objectstore.discovery:SwiftDiskDiscovery'], # noqa
     'ceilometer.discover.central':
-    ['all_allocations = nectar_metrics.ceilometer.allocations.discovery:AllocationDiscovery'], # noqa
+    ['all_allocations = nectar_metrics.ceilometer.allocation.discovery:AllocationDiscovery'], # noqa
 }
 
 setup(
