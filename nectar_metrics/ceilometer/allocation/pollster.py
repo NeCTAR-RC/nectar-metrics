@@ -23,7 +23,7 @@ class AllocationPollster(plugin_base.PollsterBase):
     def default_discovery(self):
         return 'all_allocations'
 
-    def _make_sample(self, metric, value, resource_id, unit='B'):
+    def _make_sample(self, metric, value, resource_id, unit='GB'):
 
         return sample.Sample(
             name='quota.%s' % metric,
@@ -52,30 +52,18 @@ class AllocationPollster(plugin_base.PollsterBase):
 
             for quota in allocation['quotas']:
                 if quota['resource'] == 'object.object':
-                    swift_allocated = int(quota['quota']) * 1024 * 1024 * 1024
+                    swift_allocated = int(quota['quota'])
 
             swift_total += swift_allocated
             samples.append(
                 self._make_sample('swift', swift_allocated,
                                   allocation['project_id']))
-            samples.append(
-                self._make_sample('swift.raw', swift_allocated * 3,
-                                  allocation['project_id']))
 
         samples.append(sample.Sample(
             name='global.allocations.quota.swift',
             type=sample.TYPE_GAUGE,
-            unit='B',
+            unit='GB',
             volume=swift_total,
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
-        )
-        samples.append(sample.Sample(
-            name='global.allocations.quota.swift.raw',
-            type=sample.TYPE_GAUGE,
-            unit='B',
-            volume=swift_total * 3,
             user_id=None,
             project_id=None,
             resource_id='global-stats')
