@@ -1,3 +1,4 @@
+from collections import defaultdict
 import itertools
 
 from oslo_log import log
@@ -31,16 +32,20 @@ class AllocationPollster(plugin_base.PollsterBase):
             unit=unit,
             volume=value,
             user_id=None,
-            project_id=None,
+            project_id=resource_id,
             resource_id=resource_id)
 
     def get_samples(self, manager, cache, resources):
         samples = []
         swift_total = 0
+        cinder_totals = defaultdict(int)
+        counts = {'deleted': 0, 'active': 0, 'pending': 0}
         for allocation in resources:
-            swift_allocated = 0
             if allocation['status'] == 'D':
+                counts['deleted'] += 1
                 continue
+            if allocation['status'] == 'E':
+                counts['pending'] += 1
             if allocation['status'] != 'A':
                 allocation = self.api.get_last_approved(allocation['id'])
                 if not allocation:
@@ -50,14 +55,24 @@ class AllocationPollster(plugin_base.PollsterBase):
             if not allocation['project_id']:
                 continue
 
+            counts['active'] += 1
+
             for quota in allocation['quotas']:
                 if quota['resource'] == 'object.object':
                     swift_allocated = int(quota['quota'])
+                    samples.append(
+                        self._make_sample('swift', swift_allocated,
+                                          allocation['project_id']))
+                    swift_total += swift_allocated
+                elif quota['resource'] == 'volume.gigabytes':
+                    zone = quota['zone']
+                    cinder_allocated = int(quota['quota'])
+                    samples.append(
+                        self._make_sample('cinder.%s' % zone,
+                                          cinder_allocated,
+                                          allocation['project_id']))
+                    cinder_totals[zone] += cinder_allocated
 
-            swift_total += swift_allocated
-            samples.append(
-                self._make_sample('swift', swift_allocated,
-                                  allocation['project_id']))
 
         samples.append(sample.Sample(
             name='global.allocations.quota.swift',
@@ -68,6 +83,26 @@ class AllocationPollster(plugin_base.PollsterBase):
             project_id=None,
             resource_id='global-stats')
         )
+        for zone, total in cinder_totals.items():
+            samples.append(sample.Sample(
+                name='global.allocations.quota.cinder.%s' % zone,
+                type=sample.TYPE_GAUGE,
+                unit='GB',
+                volume=total,
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats')
+            )
+        for status, count in counts.items():
+            samples.append(sample.Sample(
+                name='global.allocations.%s' % status,
+                type=sample.TYPE_GAUGE,
+                unit='Allocation',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats')
+            )
 
         sample_iters = []
         sample_iters.append(samples)
