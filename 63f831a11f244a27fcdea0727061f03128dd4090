@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7e0b175_ba304677",
+        "filename": "nectar_metrics/ceilometer/f5/discovery.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2018-07-02T05:42:52Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 62,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 75
+      },
+      "revId": "63f831a11f244a27fcdea0727061f03128dd4090",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
