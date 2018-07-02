@@ -15,22 +15,31 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 requirements = parse_requirements("requirements.txt", session=uuid.uuid1())
 
 entry_points = {
-    'console_scripts':
-    ['nectar-metrics-nova = nectar_metrics.nova:main',
-     'nectar-metrics-cinder = nectar_metrics.cinder:main',
-     'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
-     'nectar-metrics-whisper = nectar_metrics.whisper:main'],
-    'ceilometer.poll.central':
-    ['nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster',
-     'nectar.cinder_pools = nectar_metrics.ceilometer.volume.cinder:CinderPoolPollster', # noqa
-     'nectar.allocations = nectar_metrics.ceilometer.allocation.pollster:AllocationPollster'], # noqa
-    'ceilometer.poll.objectstore':
-    ['nectar.swift = nectar_metrics.ceilometer.objectstore.swift:SwiftDiskPollster'], # noqa
-    'ceilometer.discover.objectstore':
-    ['swift_disks = nectar_metrics.ceilometer.objectstore.discovery:SwiftDiskDiscovery'], # noqa
-    'ceilometer.discover.central':
-    ['all_allocations = nectar_metrics.ceilometer.allocation.discovery:AllocationDiscovery', # noqa
-     'cinder_pools = nectar_metrics.ceilometer.volume.discovery:PoolDiscovery'], # noqa
+    'console_scripts': [
+        'nectar-metrics-nova = nectar_metrics.nova:main',
+        'nectar-metrics-cinder = nectar_metrics.cinder:main',
+        'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
+        'nectar-metrics-whisper = nectar_metrics.whisper:main',
+    ],
+    'ceilometer.poll.central': [
+        'nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster', # noqa
+        'nectar.cinder_pools = nectar_metrics.ceilometer.volume.cinder:CinderPoolPollster', # noqa
+        'nectar.allocations = nectar_metrics.ceilometer.allocation.pollster:AllocationPollster', # noqa
+    ],
+    'ceilometer.builder.poll.central': [
+        'f5_virtualservers = nectar_metrics.ceilometer.f5.pollster:F5VirtualServerPollster', # noqa
+    ],
+    'ceilometer.poll.objectstore': [
+        'nectar.swift = nectar_metrics.ceilometer.objectstore.swift:SwiftDiskPollster', # noqa
+    ],
+    'ceilometer.discover.objectstore': [
+        'swift_disks = nectar_metrics.ceilometer.objectstore.discovery:SwiftDiskDiscovery', # noqa
+    ],
+    'ceilometer.discover.central': [
+        'all_allocations = nectar_metrics.ceilometer.allocation.discovery:AllocationDiscovery', # noqa
+        'cinder_pools = nectar_metrics.ceilometer.volume.discovery:PoolDiscovery', # noqa
+        'f5_loadbalancers = nectar_metrics.ceilometer.f5.discovery:F5Discovery', # noqa
+    ],
 }
 
 setup(
@@ -52,7 +61,7 @@ setup(
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)', # noqa
         'Natural Language :: English',
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.6',
