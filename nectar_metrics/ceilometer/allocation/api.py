@@ -27,8 +27,8 @@ class AllocationAPI(object):
         conf.register_opts(OPTS, group=opt_group)
 
         session = requests.Session()
-        session.auth = (self.conf.allocations.api_username,
-                        self.conf.allocations.api_password)
+        #session.auth = (self.conf.allocations.api_username,
+        #                self.conf.allocations.api_password)
         self.session = session
 
     def json_get(self, url, params):
