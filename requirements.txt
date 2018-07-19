@@ -4,3 +4,4 @@ python-novaclient
 whisper
 pymysql
 gnocchiclient
+nectarallocationclient
