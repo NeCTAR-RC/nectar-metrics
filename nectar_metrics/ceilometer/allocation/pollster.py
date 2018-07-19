@@ -1,13 +1,14 @@
 from collections import defaultdict
 import itertools
 
+from nectarallocationclient import client
+from nectarallocationclient import exceptions
+from nectarallocationclient import states
 from oslo_log import log
 
 from ceilometer.agent import plugin_base
 from ceilometer import sample
-
-from nectar_metrics.ceilometer.allocation import api
-
+from ceilometer import keystone_client
 
 LOG = log.getLogger(__name__)
 
@@ -18,7 +19,13 @@ class AllocationPollster(plugin_base.PollsterBase):
 
     def __init__(self, conf):
         super(AllocationPollster, self).__init__(conf)
-        self.api = api.AllocationAPI(conf)
+        creds = conf.service_credentials
+        self.client = client.Client(
+            version='1',
+            session=keystone_client.get_session(conf),
+            region_name=creds.region_name,
+            interface=creds.interface,
+        )
 
     @property
     def default_discovery(self):
@@ -41,37 +48,41 @@ class AllocationPollster(plugin_base.PollsterBase):
         cinder_totals = defaultdict(int)
         counts = {'deleted': 0, 'active': 0, 'pending': 0}
         for allocation in resources:
-            if allocation['status'] == 'D':
+            LOG.debug(str(allocation.id) + ": " + allocation.status)
+            if allocation.status == states.DELETED:
                 counts['deleted'] += 1
                 continue
-            if allocation['status'] == 'E':
+            if allocation.status == states.SUBMITTED:
                 counts['pending'] += 1
-            if allocation['status'] != 'A':
-                allocation = self.api.get_last_approved(allocation['id'])
-                if not allocation:
+            if allocation.status != states.APPROVED:
+                try:
+                    allocation = self.client.allocations.get_last_approved(
+                        parent_request=allocation.id)
+                except exceptions.AllocationDoesNotExist:
                     continue
 
-            LOG.debug("Processing %s" % allocation['id'])
-            if not allocation['project_id']:
+            LOG.debug("Processing %s" % allocation.id)
+            if not allocation.project_id:
                 continue
 
-            counts['active'] += 1
-
-            for quota in allocation['quotas']:
-                if quota['resource'] == 'object.object':
-                    swift_allocated = int(quota['quota'])
-                    samples.append(
-                        self._make_sample('swift', swift_allocated,
-                                          allocation['project_id']))
-                    swift_total += swift_allocated
-                elif quota['resource'] == 'volume.gigabytes':
-                    zone = quota['zone']
-                    cinder_allocated = int(quota['quota'])
-                    samples.append(
-                        self._make_sample('cinder.%s' % zone,
-                                          cinder_allocated,
-                                          allocation['project_id']))
-                    cinder_totals[zone] += cinder_allocated
+            swift_allocated = allocation.get_allocated_swift_quota()
+            if swift_allocated['object']:
+                swift_allocated = int(swift_allocated['object'])
+                samples.append(
+                    self._make_sample('swift', swift_allocated,
+                                      allocation.project_id))
+                swift_total += swift_allocated
+            cinder_allocated = allocation.get_allocated_cinder_quota()
+            if cinder_allocated:
+                for k, v in allocation.get_allocated_cinder_quota().items():
+                    if k.startswith('gigabytes_'):
+                        zone = k.split('_')[1]
+                        q = int(v)
+                        samples.append(
+                            self._make_sample('cinder.%s' % zone,
+                                              q,
+                                              allocation.project_id))
+                        cinder_totals[zone] += q
 
 
         samples.append(sample.Sample(
