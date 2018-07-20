@@ -52,9 +52,10 @@ class AllocationPollster(plugin_base.PollsterBase):
             if allocation.status == states.DELETED:
                 counts['deleted'] += 1
                 continue
-            if allocation.status == states.SUBMITTED:
+            elif allocation.status == states.SUBMITTED:
                 counts['pending'] += 1
-            if allocation.status != states.APPROVED:
+                continue
+            elif allocation.status != states.APPROVED:
                 try:
                     allocation = self.client.allocations.get_last_approved(
                         parent_request=allocation.id)
@@ -64,6 +65,8 @@ class AllocationPollster(plugin_base.PollsterBase):
             LOG.debug("Processing %s" % allocation.id)
             if not allocation.project_id:
                 continue
+
+            counts['active'] += 1
 
             swift_allocated = allocation.get_allocated_swift_quota()
             if swift_allocated['object']:
