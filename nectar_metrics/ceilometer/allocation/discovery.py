@@ -22,4 +22,4 @@ class AllocationDiscovery(plugin_base.DiscoveryBase):
 
     def discover(self, manager, param=None):
         """Discover object server disks."""
-        return self.client.allocations.list(parent_request_isnull=True)
+        return self.client.allocations.list(parent_request__isnull=True)
