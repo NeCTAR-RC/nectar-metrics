@@ -1,6 +1,12 @@
 from oslo_log import log
 
-from ceilometer.agent import plugin_base
+try:
+    # queens
+    from ceilometer.polling import plugin_base
+except ImportError:
+    # < queens
+    from ceilometer.agent import plugin_base
+
 from nectarallocationclient import client
 
 from ceilometer import keystone_client

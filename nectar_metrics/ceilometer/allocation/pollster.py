@@ -6,7 +6,13 @@ from nectarallocationclient import exceptions
 from nectarallocationclient import states
 from oslo_log import log
 
-from ceilometer.agent import plugin_base
+try:
+    # queens
+    from ceilometer.polling import plugin_base
+except ImportError:
+    # < queens
+    from ceilometer.agent import plugin_base
+
 from ceilometer import sample
 from ceilometer import keystone_client
 

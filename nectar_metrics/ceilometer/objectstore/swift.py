@@ -3,7 +3,13 @@ import itertools
 from oslo_log import log
 from oslo_config import cfg
 
-from ceilometer.agent import plugin_base
+try:
+    # queens
+    from ceilometer.polling import plugin_base
+except ImportError:
+    # < queens
+    from ceilometer.agent import plugin_base
+
 from ceilometer import sample
 
 
