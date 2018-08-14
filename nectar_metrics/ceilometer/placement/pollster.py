@@ -43,7 +43,7 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
 
     def _make_total_sample(self, metric, value, unit):
         return sample.Sample(
-            name='global.resource_providers.%s' % metric,
+            name='global.resource_provider.%s' % metric,
             type=sample.TYPE_GAUGE,
             unit=unit,
             volume=value,
