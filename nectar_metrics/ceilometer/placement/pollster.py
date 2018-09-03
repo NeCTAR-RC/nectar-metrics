@@ -53,8 +53,8 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
 
     @staticmethod
     def _get_capacity(resource):
-        return (int(resource['total']) *
-                int(resource['allocation_ratio'])) - int(resource['reserved'])
+        return (resource['total'] *
+                resource['allocation_ratio']) - resource['reserved']
 
     def get_samples(self, manager, cache, resources):
         samples = []
