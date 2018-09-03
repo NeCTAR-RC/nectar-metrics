@@ -51,6 +51,11 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
             project_id=None,
             resource_id='global-stats')
 
+    @staticmethod
+    def _get_capacity(resource):
+        return (int(resource['total']) *
+                int(resource['allocation_ratio'])) - int(resource['reserved'])
+
     def get_samples(self, manager, cache, resources):
         samples = []
         vcpu_usage = 0
@@ -82,23 +87,26 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
                                       resource_provider, 'GB'))
                 disk_usage += usages.DISK_GB
             if hasattr(capacity, 'VCPU'):
+                total = self._get_capacity(capacity.VCPU)
                 samples.append(
                     self._make_sample('capacity.vcpu',
-                                      capacity.VCPU['total'],
+                                      total,
                                       resource_provider, 'VCPU'))
-                vcpu_capacity += capacity.VCPU['total']
+                vcpu_capacity += total
             if hasattr(capacity, 'MEMORY_MB'):
+                total = self._get_capacity(capacity.MEMORY_MB)
                 samples.append(
                     self._make_sample('capacity.memory',
-                                      capacity.MEMORY_MB['total'],
+                                      total,
                                       resource_provider, 'MB'))
-                memory_capacity += capacity.MEMORY_MB['total']
+                memory_capacity += total
             if hasattr(capacity, 'DISK_GB'):
+                total = self._get_capacity(capacity.DISK_GB)
                 samples.append(
                     self._make_sample('capacity.disk',
-                                      capacity.DISK_GB['total'],
+                                      total,
                                       resource_provider, 'GB'))
-                disk_capacity += capacity.DISK_GB['total']
+                disk_capacity += total
 
         samples.append(
             self._make_total_sample('usage.vcpu', vcpu_usage, 'VCPU'))
