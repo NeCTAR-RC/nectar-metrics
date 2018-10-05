@@ -2,6 +2,7 @@ python-keystoneclient
 python-cinderclient
 python-novaclient
 whisper
+placementclient
 pymysql
 gnocchiclient
 nectarallocationclient
