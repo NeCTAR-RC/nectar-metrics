@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "518b0484_239e15cd",
+        "filename": "nectar_metrics/ceilometer/container_infra/discovery.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2018-10-09T21:39:07Z",
+      "side": 1,
+      "message": "We will be at queens by the time this lands in prod so can remove the non queens option",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 41
+      },
+      "revId": "7b74580c277d456cc6ba7bb7fb8b3d74f1460045",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa6c78d0_b4597da0",
+        "filename": "nectar_metrics/ceilometer/container_infra/pollster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2018-10-09T21:39:07Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 44
+      },
+      "revId": "7b74580c277d456cc6ba7bb7fb8b3d74f1460045",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73e69540_d916e4f0",
+        "filename": "nectar_metrics/ceilometer/container_infra/pollster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2018-10-09T21:39:07Z",
+      "side": 1,
+      "message": "don\u0027t think this is needed",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 9
+      },
+      "revId": "7b74580c277d456cc6ba7bb7fb8b3d74f1460045",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
