@@ -1,5 +1,6 @@
 python-keystoneclient
 python-cinderclient
+python-magnumclient
 python-novaclient
 whisper
 pymysql
