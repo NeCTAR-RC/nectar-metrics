@@ -92,23 +92,24 @@ class NovaQuotaAllocationPollster(AllocationPollsterBase):
             if not allocation.project_id:
                 continue
 
-            nova_allocated = allocation.get_allocated_swift_quota()
+            nova_allocated = allocation.get_allocated_nova_quota()
             if nova_allocated:
+                LOG.debug(str(nova_allocated))
                 cores = nova_allocated.get('cores')
                 ram = nova_allocated.get('ram')
                 instances = nova_allocated.get('instances')
                 if cores is not None:
                     self._make_sample('nova.cores', cores,
                                       allocation.project_id)
-                    cores_total += 1
+                    cores_total += cores
                 if ram:
                     self._make_sample('nova.ram', ram,
                                       allocation.project_id)
-                    ram_total += 1
+                    ram_total += ram
                 if instances:
                     self._make_sample('nova.instances', instances,
                                       allocation.project_id)
-                    instances_total += 1
+                    instances_total += instances
 
         samples.append(sample.Sample(
             name='global.allocations.quota.nova.cores',
