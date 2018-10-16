@@ -48,6 +48,8 @@ class AllocationStatusPollster(AllocationPollsterBase):
     def get_samples(self, manager, cache, resources):
         samples = []
         counts = {'deleted': 0, 'active': 0, 'pending': 0}
+        home_totals = defaultdict(int)
+
         for allocation in resources:
             if allocation.status == states.DELETED:
                 counts['deleted'] += 1
@@ -59,6 +61,7 @@ class AllocationStatusPollster(AllocationPollsterBase):
             if not allocation.project_id:
                 continue
             counts['active'] += 1
+            home_totals[allocation.allocation_home] += 1
 
         for status, count in counts.items():
             samples.append(sample.Sample(
@@ -69,6 +72,17 @@ class AllocationStatusPollster(AllocationPollsterBase):
                 user_id=None,
                 project_id=None,
                 resource_id='global-stats')
+            )
+
+        for home, count in home_totals.items():
+            samples.append(sample.Sample(
+                name='allocations.active',
+                type=sample.TYPE_GAUGE,
+                unit='Allocation',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id=home)
             )
 
         sample_iters = []
@@ -83,6 +97,10 @@ class NovaQuotaAllocationPollster(AllocationPollsterBase):
         cores_total = 0
         ram_total = 0
         instances_total = 0
+        cores_home_totals = defaultdict(int)
+        ram_home_totals = defaultdict(int)
+        instances_home_totals = defaultdict(int)
+
         for allocation in resources:
             if allocation.status == states.DELETED:
                 continue
@@ -102,14 +120,17 @@ class NovaQuotaAllocationPollster(AllocationPollsterBase):
                     self._make_sample('nova.cores', cores,
                                       allocation.project_id)
                     cores_total += cores
+                    cores_home_totals[allocation.allocation_home] += cores
                 if ram:
                     self._make_sample('nova.ram', ram,
                                       allocation.project_id)
                     ram_total += ram
+                    ram_home_totals[allocation.allocation_home] += ram
                 if instances:
                     self._make_sample('nova.instances', instances,
                                       allocation.project_id)
                     instances_total += instances
+                    instances_home_totals[allocation.allocation_home] += instances
 
         samples.append(sample.Sample(
             name='global.allocations.quota.nova.cores',
@@ -138,6 +159,37 @@ class NovaQuotaAllocationPollster(AllocationPollsterBase):
             project_id=None,
             resource_id='global-stats')
         )
+        for home, count in cores_home_totals.items():
+            samples.append(sample.Sample(
+                name='allocations.quota.nova.cores',
+                type=sample.TYPE_GAUGE,
+                unit='VCPU',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id=home)
+            )
+        for home, count in ram_home_totals.items():
+            samples.append(sample.Sample(
+                name='allocations.quota.nova.ram',
+                type=sample.TYPE_GAUGE,
+                unit='GB',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id=home)
+            )
+        for home, count in instances_home_totals.items():
+            samples.append(sample.Sample(
+                name='allocations.quota.nova.instances',
+                type=sample.TYPE_GAUGE,
+                unit='Instances',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id=home)
+            )
+
         sample_iters = []
         sample_iters.append(samples)
         return itertools.chain(*sample_iters)
@@ -189,6 +241,8 @@ class SwiftQuotaAllocationPollster(AllocationPollsterBase):
     def get_samples(self, manager, cache, resources):
         samples = []
         swift_total = 0
+        home_totals = defaultdict(int)
+
         for allocation in resources:
             if allocation.status == states.DELETED:
                 continue
@@ -205,6 +259,7 @@ class SwiftQuotaAllocationPollster(AllocationPollsterBase):
                     self._make_sample('swift', swift_allocated,
                                       allocation.project_id))
                 swift_total += swift_allocated
+                home_totals[allocation.allocation_home] += swift_allocated
 
         samples.append(sample.Sample(
             name='global.allocations.quota.swift',
@@ -215,6 +270,17 @@ class SwiftQuotaAllocationPollster(AllocationPollsterBase):
             project_id=None,
             resource_id='global-stats')
         )
+        for home, count in home_totals.items():
+            samples.append(sample.Sample(
+                name='allocations.quota.swift',
+                type=sample.TYPE_GAUGE,
+                unit='GB',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id=home)
+            )
+
         sample_iters = []
         sample_iters.append(samples)
         return itertools.chain(*sample_iters)
