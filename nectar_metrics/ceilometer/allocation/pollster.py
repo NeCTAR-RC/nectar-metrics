@@ -113,7 +113,6 @@ class NovaQuotaAllocationPollster(AllocationPollsterBase):
             home = allocation.allocation_home
             nova_allocated = allocation.get_allocated_nova_quota()
             if nova_allocated:
-                LOG.debug(str(nova_allocated))
                 cores = nova_allocated.get('cores')
                 ram = nova_allocated.get('ram')
                 instances = nova_allocated.get('instances')
