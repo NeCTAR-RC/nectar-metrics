@@ -24,7 +24,10 @@ entry_points = {
     'ceilometer.poll.central': [
         'nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster', # noqa
         'nectar.cinder_pools = nectar_metrics.ceilometer.volume.cinder:CinderPoolPollster', # noqa
-        'nectar.allocations = nectar_metrics.ceilometer.allocation.pollster:AllocationPollster', # noqa
+        'nectar.allocations.status = nectar_metrics.ceilometer.allocation.pollster:AllocationStatusPollster', # noqa
+        'nectar.allocations.novaquota = nectar_metrics.ceilometer.allocation.pollster:NovaQuotaAllocationPollster', # noqa
+        'nectar.allocations.cinderquota = nectar_metrics.ceilometer.allocation.pollster:CinderQuotaAllocationPollster', # noqa
+        'nectar.allocations.swiftquota = nectar_metrics.ceilometer.allocation.pollster:SwiftQuotaAllocationPollster', # noqa
         'nectar.resource_providers = nectar_metrics.ceilometer.placement.pollster:ResourceProviderPollster', # noqa
         'nectar.container_infra = nectar_metrics.ceilometer.container_infra.pollster:MagnumClusterPollster', # noqa
     ],

@@ -6,25 +6,19 @@ from nectarallocationclient import exceptions
 from nectarallocationclient import states
 from oslo_log import log
 
-try:
-    # queens
-    from ceilometer.polling import plugin_base
-except ImportError:
-    # < queens
-    from ceilometer.agent import plugin_base
-
+from ceilometer.polling import plugin_base
 from ceilometer import sample
 from ceilometer import keystone_client
 
 LOG = log.getLogger(__name__)
 
 
-class AllocationPollster(plugin_base.PollsterBase):
+class AllocationPollsterBase(plugin_base.PollsterBase):
     """ Collect stats on allocations
     """
 
     def __init__(self, conf):
-        super(AllocationPollster, self).__init__(conf)
+        super(AllocationPollsterBase, self).__init__(conf)
         creds = conf.service_credentials
         self.client = client.Client(
             version='1',
@@ -48,39 +42,121 @@ class AllocationPollster(plugin_base.PollsterBase):
             project_id=resource_id,
             resource_id=resource_id)
 
+
+
+class AllocationStatusPollster(AllocationPollsterBase):
+    
     def get_samples(self, manager, cache, resources):
         samples = []
-        swift_total = 0
-        cinder_totals = defaultdict(int)
         counts = {'deleted': 0, 'active': 0, 'pending': 0}
         for allocation in resources:
-            LOG.debug(str(allocation.id) + ": " + allocation.status)
             if allocation.status == states.DELETED:
                 counts['deleted'] += 1
                 continue
             elif allocation.status == states.SUBMITTED:
                 counts['pending'] += 1
                 continue
-            elif allocation.status != states.APPROVED:
-                try:
-                    allocation = self.client.allocations.get_last_approved(
-                        parent_request=allocation.id)
-                except exceptions.AllocationDoesNotExist:
-                    continue
 
-            LOG.debug("Processing %s" % allocation.id)
+            if not allocation.project_id:
+                continue
+            counts['active'] += 1
+
+        for status, count in counts.items():
+            samples.append(sample.Sample(
+                name='global.allocations.%s' % status,
+                type=sample.TYPE_GAUGE,
+                unit='Allocation',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats')
+            )
+
+        sample_iters = []
+        sample_iters.append(samples)
+        return itertools.chain(*sample_iters)
+
+
+class NovaQuotaAllocationPollster(AllocationPollsterBase):
+
+    def get_samples(self, manager, cache, resources):
+        samples = []
+        cores_total = 0
+        ram_total = 0
+        instances_total = 0
+        for allocation in resources:
+            if allocation.status == states.DELETED:
+                continue
+            elif allocation.status == states.SUBMITTED:
+                continue
+
             if not allocation.project_id:
                 continue
 
-            counts['active'] += 1
+            nova_allocated = allocation.get_allocated_swift_quota()
+            if nova_allocated:
+                cores = nova_allocated.get('cores')
+                ram = nova_allocated.get('ram')
+                instances = nova_allocated.get('instances')
+                if cores is not None:
+                    self._make_sample('nova.cores', cores,
+                                      allocation.project_id)
+                    cores_total += 1
+                if ram:
+                    self._make_sample('nova.ram', ram,
+                                      allocation.project_id)
+                    ram_total += 1
+                if instances:
+                    self._make_sample('nova.instances', instances,
+                                      allocation.project_id)
+                    instances_total += 1
 
-            swift_allocated = allocation.get_allocated_swift_quota()
-            if swift_allocated['object']:
-                swift_allocated = int(swift_allocated['object'])
-                samples.append(
-                    self._make_sample('swift', swift_allocated,
-                                      allocation.project_id))
-                swift_total += swift_allocated
+        samples.append(sample.Sample(
+            name='global.allocations.quota.nova.cores',
+            type=sample.TYPE_GAUGE,
+            unit='VCPU',
+            volume=cores_total,
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
+        samples.append(sample.Sample(
+            name='global.allocations.quota.nova.ram',
+            type=sample.TYPE_GAUGE,
+            unit='GB',
+            volume=ram_total,
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
+        samples.append(sample.Sample(
+            name='global.allocations.quota.nova.instances',
+            type=sample.TYPE_GAUGE,
+            unit='Instances',
+            volume=instances_total,
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
+        sample_iters = []
+        sample_iters.append(samples)
+        return itertools.chain(*sample_iters)
+
+
+class CinderQuotaAllocationPollster(AllocationPollsterBase):
+
+    def get_samples(self, manager, cache, resources):
+        samples = []
+        cinder_totals = defaultdict(int)
+        for allocation in resources:
+            if allocation.status == states.DELETED:
+                continue
+            elif allocation.status == states.SUBMITTED:
+                continue
+
+            if not allocation.project_id:
+                continue
+
             cinder_allocated = allocation.get_allocated_cinder_quota()
             if cinder_allocated:
                 for k, v in allocation.get_allocated_cinder_quota().items():
@@ -93,16 +169,6 @@ class AllocationPollster(plugin_base.PollsterBase):
                                               allocation.project_id))
                         cinder_totals[zone] += q
 
-
-        samples.append(sample.Sample(
-            name='global.allocations.quota.swift',
-            type=sample.TYPE_GAUGE,
-            unit='GB',
-            volume=swift_total,
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
-        )
         for zone, total in cinder_totals.items():
             samples.append(sample.Sample(
                 name='global.allocations.quota.cinder.%s' % zone,
@@ -113,17 +179,43 @@ class AllocationPollster(plugin_base.PollsterBase):
                 project_id=None,
                 resource_id='global-stats')
             )
-        for status, count in counts.items():
-            samples.append(sample.Sample(
-                name='global.allocations.%s' % status,
-                type=sample.TYPE_GAUGE,
-                unit='Allocation',
-                volume=count,
-                user_id=None,
-                project_id=None,
-                resource_id='global-stats')
-            )
+        sample_iters = []
+        sample_iters.append(samples)
+        return itertools.chain(*sample_iters)
 
+
+class SwiftQuotaAllocationPollster(AllocationPollsterBase):
+
+    def get_samples(self, manager, cache, resources):
+        samples = []
+        swift_total = 0
+        for allocation in resources:
+            if allocation.status == states.DELETED:
+                continue
+            elif allocation.status == states.SUBMITTED:
+                continue
+
+            if not allocation.project_id:
+                continue
+
+
+            swift_allocated = allocation.get_allocated_swift_quota()
+            if swift_allocated['object']:
+                swift_allocated = int(swift_allocated['object'])
+                samples.append(
+                    self._make_sample('swift', swift_allocated,
+                                      allocation.project_id))
+                swift_total += swift_allocated
+
+        samples.append(sample.Sample(
+            name='global.allocations.quota.swift',
+            type=sample.TYPE_GAUGE,
+            unit='GB',
+            volume=swift_total,
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
         sample_iters = []
         sample_iters.append(samples)
         return itertools.chain(*sample_iters)
