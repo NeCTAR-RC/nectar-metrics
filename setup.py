@@ -30,6 +30,7 @@ entry_points = {
         'nectar.allocations.swiftquota = nectar_metrics.ceilometer.allocation.pollster:SwiftQuotaAllocationPollster', # noqa
         'nectar.resource_providers = nectar_metrics.ceilometer.placement.pollster:ResourceProviderPollster', # noqa
         'nectar.container_infra = nectar_metrics.ceilometer.container_infra.pollster:MagnumClusterPollster', # noqa
+        'nectar.container_infra = nectar_metrics.ceilometer.network.pollster:NetworkIPAvailabilityPollster', # noqa
     ],
     'ceilometer.builder.poll.central': [
         'f5_virtualservers = nectar_metrics.ceilometer.f5.pollster:F5VirtualServerPollster', # noqa
@@ -46,6 +47,7 @@ entry_points = {
         'resource_providers = nectar_metrics.ceilometer.placement.discovery:ResourceProviderDiscovery', # noqa
         'f5_loadbalancers = nectar_metrics.ceilometer.f5.discovery:F5Discovery', # noqa
         'container_infra = nectar_metrics.ceilometer.container_infra.discovery:MagnumClusterDiscovery', # noqa
+        'network_ip_availability = nectar_metrics.ceilometer.network.discovery:NetworkIPAvailabilityDiscovery', # noqa
     ],
 }
 
