@@ -24,6 +24,10 @@ class GnocchiGraphiteSender(base.BaseSender):
         self.gnocchi.send_by_az_by_tenant(az, tenant, metric, value, time)
         self.graphite.send_by_az_by_tenant(az, tenant, metric, value, time)
 
+    def send_by_az_by_home(self, az, home, metric, value, time):
+        self.gnocchi.send_by_az_by_tenant(az, home, metric, value, time)
+        self.graphite.send_by_az_by_tenant(az, home, metric, value, time)
+
     def send_by_idp(self, idp, metric, value, time):
         self.gnocchi.send_by_idp(idp, metric, value, time)
         self.graphite.send_by_idp(idp, metric, value, time)
