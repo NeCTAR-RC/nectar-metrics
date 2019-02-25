@@ -38,6 +38,11 @@ class BaseSender(object):
                                 % (az, tenant, metric),
                                 value, time)
 
+    def send_by_az_by_home(self, az, home, metric, value, time):
+        return self.send_metric("az.%s.allocation_home.%s.%s"
+                                % (az, home, metric),
+                                value, time)
+
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric("users.%s.%s" % (idp, metric), value, time)
 
