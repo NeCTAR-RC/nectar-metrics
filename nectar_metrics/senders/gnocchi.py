@@ -67,6 +67,10 @@ class GnocchiSender(base.BaseSender):
         metric = "%s-%s" % (metric, az)
         self.send_metric('project', tenant, metric, value, time)
 
+    def send_by_az_by_home(self, az, home, metric, value, time):
+        metric = "%s-%s" % (metric, az)
+        self.send_metric('allocation_home', home, metric, value, time)
+
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric('idp', idp, metric, value, time)
 
