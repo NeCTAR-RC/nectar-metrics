@@ -7,12 +7,21 @@ import logging
 import pickle
 from collections import defaultdict
 
+from nectarallocationclient import client as allocation_client
+from nectarallocationclient import exceptions
+from nectarallocationclient import states
+
 from novaclient import client as nova_client
-from novaclient.v2.contrib import cells
+
+try:
+    from novaclient.v2 import cells
+except ImportError:
+    from novaclient.v2.contrib import cells
 
 from nectar_metrics.config import CONFIG
 from nectar_metrics.cli import Main
 from nectar_metrics.keystone import client as keystone_client, get_auth_session
+
 
 logger = logging.getLogger(__name__)
 flavor = {}
@@ -150,6 +159,25 @@ def by_az_by_tenant(servers, flavors, now, sender):
                 sender.send_by_az_by_tenant(zone, tenant, metric, value, now)
 
 
+def by_az_by_home(servers, flavors, allocations, now, sender):
+    servers_by_az_by_home = defaultdict(lambda: defaultdict(list))
+    for server in servers:
+        az = server.get('OS-EXT-AZ:availability_zone')
+
+        home = 'none'  # default when no allocation found (e.g. PTs)
+        if server['tenant_id'] in allocations:
+            home = allocations[server['tenant_id']]
+
+        servers_by_az_by_home[az][home].append(server)
+
+    for zone, items in servers_by_az_by_home.items():
+        for home, servers in items.items():
+            for metric, value in server_metrics(servers, flavors).items():
+                if metric not in ['used_vcpus']:
+                    continue
+                sender.send_by_az_by_home(zone, home, metric, value, now)
+
+
 def change_over_time(servers_by_az, now, sender):
     current_servers = dict([(az, set([server['id'] for server in servers]))
                             for az, servers in servers_by_az.items()])
@@ -214,10 +242,39 @@ def cell_capacities(nclient, now, sender):
         sender.send_global('cell', 'capacity_%s' % size, slots, now)
 
 
+def get_active_allocations():
+    auth_session = get_auth_session()
+    aclient = allocation_client.Client('1', session=auth_session)
+
+    active_allocations = {}
+
+    # All approved allocations
+    allocations = aclient.allocations.list(parent_request__isnull=True)
+
+    for allocation in allocations:
+        if (allocation.status == states.DELETED
+                or allocation.status == states.SUBMITTED):
+            continue
+        elif allocation.status != states.APPROVED:
+            try:
+                allocation = aclient.allocations.get_last_approved(
+                    parent_request=allocation.id)
+            except exceptions.AllocationDoesNotExist:
+                continue
+
+        if not allocation.project_id:
+            continue
+
+        active_allocations[allocation.project_id] = allocation.allocation_home
+
+    return active_allocations
+
+
 def do_report(sender, limit):
     nclient = client()
     kclient = keystone_client()
     users = {}
+    logger.info('Fetching user list...')
     for user in kclient.users.list():
         if not getattr(user, 'email', None):
             users[user.id] = None
@@ -229,10 +286,17 @@ def do_report(sender, limit):
             email = email.replace('.', '_')
         users[user.id] = email
 
-    servers = [server._info for server in all_servers(nclient, limit)]
-    flavors = all_flavors(nclient, servers)
-    servers_by_az = defaultdict(list)
+    logger.info('Fetching server list...')
+    servers = [server._info for server in all_servers(nclient, limit)
+               if getattr(server, 'OS-EXT-AZ:availability_zone')]
 
+    logger.info('Fetching flavor list...')
+    flavors = all_flavors(nclient, servers)
+
+    logger.info('Fetching allocations list...')
+    allocations = get_active_allocations()
+
+    servers_by_az = defaultdict(list)
     for server in servers:
         az = server.get('OS-EXT-AZ:availability_zone')
         servers_by_az[az].append(server)
@@ -242,6 +306,7 @@ def do_report(sender, limit):
     by_az(servers_by_az, flavors, now, sender)
     by_az_by_tenant(servers, flavors, now, sender)
     by_az_by_domain(servers, flavors, users, now, sender)
+    by_az_by_home(servers, flavors, allocations, now, sender)
     change_over_time(servers_by_az, now, sender)
     cell_capacities(nclient, now, sender)
     sender.flush()
