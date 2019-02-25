@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "573ebf8e_411377d0",
+        "filename": "nectar_metrics/nova.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-02-25T00:44:15Z",
+      "side": 1,
+      "message": "should we do something for instances that don\u0027t have a home. Maybe put them in the fake home called \"internal\" or something?",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 169,
+        "endChar": 58
+      },
+      "revId": "083f8cef6936e6d71b2b482ec62f2a764bd80f6c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b73b1e4_8fd5ca08",
+        "filename": "nectar_metrics/senders/composite.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-02-25T00:44:15Z",
+      "side": 1,
+      "message": "home",
+      "range": {
+        "startLine": 28,
+        "startChar": 35,
+        "endLine": 28,
+        "endChar": 41
+      },
+      "revId": "083f8cef6936e6d71b2b482ec62f2a764bd80f6c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "449f6546_022fde8f",
+        "filename": "nectar_metrics/senders/composite.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-02-25T00:44:15Z",
+      "side": 1,
+      "message": "home",
+      "range": {
+        "startLine": 29,
+        "startChar": 36,
+        "endLine": 29,
+        "endChar": 42
+      },
+      "revId": "083f8cef6936e6d71b2b482ec62f2a764bd80f6c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
