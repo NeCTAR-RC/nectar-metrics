@@ -12,7 +12,8 @@ Build-Depends-Indep:
  python-cinderclient,
  python-novaclient,
  python-keystoneclient,
- python-gnocchiclient
+ python-gnocchiclient,
+ python-nectarallocationclient
 Standards-Version: 3.9.5
 Homepage: https://github.com/NeCTAR-RC/nectar-metrics
 
@@ -21,7 +22,6 @@ Architecture: any
 Depends:
  ${misc:Depends},
  ${python:Depends},
- python-nectarallocationclient,
  python-placementclient
 Description: Metrics collection for the Nectar Research Cloud.
  nectar-metrics, Metrics collection for the Nectar Research Cloud.
