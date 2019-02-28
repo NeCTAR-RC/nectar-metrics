@@ -159,14 +159,16 @@ def by_az_by_tenant(servers, flavors, now, sender):
                 sender.send_by_az_by_tenant(zone, tenant, metric, value, now)
 
 
-def by_az_by_home(servers, flavors, allocations, now, sender):
+def by_az_by_home(servers, flavors, allocations, project_cache, now, sender):
     servers_by_az_by_home = defaultdict(lambda: defaultdict(list))
     for server in servers:
         az = server.get('OS-EXT-AZ:availability_zone')
 
-        home = 'none'  # default when no allocation found (e.g. PTs)
+        home = 'none'  # default if not an allocation or PT
         if server['tenant_id'] in allocations:
             home = allocations[server['tenant_id']]
+        elif project_cache[server['tenant_id']].name.startswith('pt-'):
+            home = 'PT'
 
         servers_by_az_by_home[az][home].append(server)
 
@@ -274,6 +276,7 @@ def do_report(sender, limit):
     nclient = client()
     kclient = keystone_client()
     users = {}
+    project_cache = {}
     logger.info('Fetching user list...')
     for user in kclient.users.list():
         if not getattr(user, 'email', None):
@@ -285,6 +288,10 @@ def do_report(sender, limit):
         else:
             email = email.replace('.', '_')
         users[user.id] = email
+
+    logger.info('Fethcing projects...')
+    for project in kclient.projects.list():
+        project_cache[project.id] = project
 
     logger.info('Fetching server list...')
     servers = [server._info for server in all_servers(nclient, limit)
@@ -306,7 +313,7 @@ def do_report(sender, limit):
     by_az(servers_by_az, flavors, now, sender)
     by_az_by_tenant(servers, flavors, now, sender)
     by_az_by_domain(servers, flavors, users, now, sender)
-    by_az_by_home(servers, flavors, allocations, now, sender)
+    by_az_by_home(servers, flavors, allocations, project_cache, now, sender)
     change_over_time(servers_by_az, now, sender)
     cell_capacities(nclient, now, sender)
     sender.flush()
