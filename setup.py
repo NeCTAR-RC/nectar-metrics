@@ -22,6 +22,7 @@ entry_points = {
         'nectar-metrics-whisper = nectar_metrics.whisper:main',
     ],
     'ceilometer.poll.central': [
+        'nectar.instances = nectar_metrics.ceilometer.compute.pollster:ComputePollster', # noqa
         'nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster', # noqa
         'nectar.cinder_pools = nectar_metrics.ceilometer.volume.cinder:CinderPoolPollster', # noqa
         'nectar.allocations.status = nectar_metrics.ceilometer.allocation.pollster:AllocationStatusPollster', # noqa
@@ -43,6 +44,7 @@ entry_points = {
     ],
     'ceilometer.discover.central': [
         'all_allocations = nectar_metrics.ceilometer.allocation.discovery:AllocationDiscovery', # noqa
+        'all_instances = nectar_metrics.ceilometer.compute.discovery:InstanceAllDiscovery', # noqa
         'cinder_pools = nectar_metrics.ceilometer.volume.discovery:PoolDiscovery', # noqa
         'resource_providers = nectar_metrics.ceilometer.placement.discovery:ResourceProviderDiscovery', # noqa
         'f5_loadbalancers = nectar_metrics.ceilometer.f5.discovery:F5Discovery', # noqa
