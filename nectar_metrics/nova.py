@@ -25,7 +25,7 @@ from nectar_metrics.keystone import client as keystone_client, get_auth_session
 
 logger = logging.getLogger(__name__)
 flavor = {}
-NOVA_VERSION = '2'
+NOVA_VERSION = '2.60'
 
 
 def client():
@@ -64,50 +64,27 @@ def all_servers(client, limit=None):
     return servers
 
 
-def all_flavors(client, servers):
-    flavor_ids = set()
-    for server in servers:
-        flavor_ids.add(server['flavor']['id'])
-    flavors = {}
-    for flavor_id in flavor_ids:
-        flavor = client.flavors.get(flavor_id)
-        flavors[flavor.id] = {'disk': flavor.disk,
-                              'ram': flavor.ram,
-                              'vcpus': flavor.vcpus}
-    return flavors
-
-
-def server_metrics(servers, flavors):
+def server_metrics(servers):
     """Generate a dict containing the total counts of vcpus, ram, disk as
     well as the total number of servers."""
     metrics = defaultdict(int)
     metrics['total_instances'] = len(servers)
     for server in servers:
-        metrics['used_vcpus'] += flavors[server['flavor']['id']]['vcpus']
-        metrics['used_memory'] += flavors[server['flavor']['id']]['ram']
-        metrics['used_disk'] += flavors[server['flavor']['id']]['disk']
+        if 'flavor' in server:
+            metrics['used_vcpus'] += server['flavor']['vcpus']
+            metrics['used_memory'] += server['flavor']['ram']
+            metrics['used_disk'] += server['flavor']['disk']
     return metrics
 
 
-def server_metrics1(servers, flavors):
-    metrics = defaultdict(lambda: defaultdict(int))
-    for server in servers:
-        name = server['flavor']['id']
-        metrics[name]['total_instances'] += 1
-        metrics[name]['used_vcpus'] += flavors[server['flavor']['id']]['vcpus']
-        metrics[name]['used_memory'] += flavors[server['flavor']['id']]['ram']
-        metrics[name]['used_disk'] += flavors[server['flavor']['id']]['disk']
-    return metrics
-
-
-def by_az(servers_by_az, flavors, now, sender):
+def by_az(servers_by_az, now, sender):
     """Group the data by az."""
     for zone, servers in servers_by_az.items():
-        for metric, value in server_metrics(servers, flavors).items():
+        for metric, value in server_metrics(servers).items():
             sender.send_by_az(zone, metric, value, now)
 
 
-def by_az_by_domain(servers, flavors, users, now, sender):
+def by_az_by_domain(servers, users, now, sender):
     servers_by_az_by_domain = defaultdict(lambda: defaultdict(list))
     for server in servers:
         az = server.get('OS-EXT-AZ:availability_zone')
@@ -127,39 +104,39 @@ def by_az_by_domain(servers, flavors, users, now, sender):
 
     for zone, items in servers_by_az_by_domain.items():
         for domain, servers in items.items():
-            for metric, value in server_metrics(servers, flavors).items():
+            for metric, value in server_metrics(servers).items():
                 if metric not in ['used_vcpus']:
                     continue
                 sender.send_by_az_by_domain(zone, domain, metric, value, now)
 
 
-def by_tenant(servers, flavors, now, sender):
+def by_tenant(servers, now, sender):
     servers_by_tenant = defaultdict(list)
     for server in servers:
         servers_by_tenant[server['tenant_id']].append(server)
     for tenant, servers in servers_by_tenant.items():
-        for metric, value in server_metrics(servers, flavors).items():
+        for metric, value in server_metrics(servers).items():
             if metric not in ['used_vcpus', 'total_instances',
                               'used_memory']:
                 continue
             sender.send_by_tenant(tenant, metric, value, now)
 
 
-def by_az_by_tenant(servers, flavors, now, sender):
+def by_az_by_tenant(servers, now, sender):
     servers_by_cell_by_tenant = defaultdict(lambda: defaultdict(list))
     for server in servers:
         cell = server.get('OS-EXT-AZ:availability_zone')
         servers_by_cell_by_tenant[cell][server['tenant_id']].append(server)
     for zone, items in servers_by_cell_by_tenant.items():
         for tenant, servers in items.items():
-            for metric, value in server_metrics(servers, flavors).items():
+            for metric, value in server_metrics(servers).items():
                 if metric not in ['used_vcpus', 'total_instances',
                                   'used_memory']:
                     continue
                 sender.send_by_az_by_tenant(zone, tenant, metric, value, now)
 
 
-def by_az_by_home(servers, flavors, allocations, project_cache, now, sender):
+def by_az_by_home(servers, allocations, project_cache, now, sender):
     servers_by_az_by_home = defaultdict(lambda: defaultdict(list))
     for server in servers:
         az = server.get('OS-EXT-AZ:availability_zone')
@@ -174,7 +151,7 @@ def by_az_by_home(servers, flavors, allocations, project_cache, now, sender):
 
     for zone, items in servers_by_az_by_home.items():
         for home, servers in items.items():
-            for metric, value in server_metrics(servers, flavors).items():
+            for metric, value in server_metrics(servers).items():
                 if metric not in ['used_vcpus']:
                     continue
                 sender.send_by_az_by_home(zone, home, metric, value, now)
@@ -297,9 +274,6 @@ def do_report(sender, limit):
     servers = [server._info for server in all_servers(nclient, limit)
                if getattr(server, 'OS-EXT-AZ:availability_zone')]
 
-    logger.info('Fetching flavor list...')
-    flavors = all_flavors(nclient, servers)
-
     logger.info('Fetching allocations list...')
     allocations = get_active_allocations()
 
@@ -309,11 +283,11 @@ def do_report(sender, limit):
         servers_by_az[az].append(server)
 
     now = int(time.time())
-    by_tenant(servers, flavors, now, sender)
-    by_az(servers_by_az, flavors, now, sender)
-    by_az_by_tenant(servers, flavors, now, sender)
-    by_az_by_domain(servers, flavors, users, now, sender)
-    by_az_by_home(servers, flavors, allocations, project_cache, now, sender)
+    by_tenant(servers, now, sender)
+    by_az(servers_by_az, now, sender)
+    by_az_by_tenant(servers, now, sender)
+    by_az_by_domain(servers, users, now, sender)
+    by_az_by_home(servers, allocations, project_cache, now, sender)
     change_over_time(servers_by_az, now, sender)
     cell_capacities(nclient, now, sender)
     sender.flush()
