@@ -70,10 +70,13 @@ def all_flavors(client, servers):
         flavor_ids.add(server['flavor']['id'])
     flavors = {}
     for flavor_id in flavor_ids:
-        flavor = client.flavors.get(flavor_id)
-        flavors[flavor.id] = {'disk': flavor.disk,
-                              'ram': flavor.ram,
-                              'vcpus': flavor.vcpus}
+        try:
+            flavor = client.flavors.get(flavor_id)
+            flavors[flavor.id] = {'disk': flavor.disk,
+                                  'ram': flavor.ram,
+                                  'vcpus': flavor.vcpus}
+        except Exception:
+            logger.warning('Flavor %s not found', flavor_id)
     return flavors
 
 
@@ -83,20 +86,11 @@ def server_metrics(servers, flavors):
     metrics = defaultdict(int)
     metrics['total_instances'] = len(servers)
     for server in servers:
-        metrics['used_vcpus'] += flavors[server['flavor']['id']]['vcpus']
-        metrics['used_memory'] += flavors[server['flavor']['id']]['ram']
-        metrics['used_disk'] += flavors[server['flavor']['id']]['disk']
-    return metrics
-
-
-def server_metrics1(servers, flavors):
-    metrics = defaultdict(lambda: defaultdict(int))
-    for server in servers:
-        name = server['flavor']['id']
-        metrics[name]['total_instances'] += 1
-        metrics[name]['used_vcpus'] += flavors[server['flavor']['id']]['vcpus']
-        metrics[name]['used_memory'] += flavors[server['flavor']['id']]['ram']
-        metrics[name]['used_disk'] += flavors[server['flavor']['id']]['disk']
+        flavor_id = server['flavor']['id']
+        if flavor_id in flavors:
+            metrics['used_vcpus'] += flavors[flavor_id]['vcpus']
+            metrics['used_memory'] += flavors[flavor_id]['ram']
+            metrics['used_disk'] += flavors[flavor_id]['disk']
     return metrics
 
 
