@@ -21,6 +21,9 @@ ODD_IDPS = {
 
     'urn:mace:federation.org.au:testfed:mq.edu.au':
     'idp.mq.edu.au',
+
+    'urn:mace:aaf.edu.au:idp:468d3d0153e23dda76af9397bddf20ca':
+    'idp.des.qld.gov.au',
 }
 
 
