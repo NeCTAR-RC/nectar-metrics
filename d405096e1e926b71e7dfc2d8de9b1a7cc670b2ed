@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a03a389a_aba1799e",
+        "filename": "nectar_metrics/ceilometer/application_catalog/discovery.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-06-18T22:48:22Z",
+      "side": 1,
+      "message": "Could just be called EnvironmentDiscovery",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 32
+      },
+      "revId": "d405096e1e926b71e7dfc2d8de9b1a7cc670b2ed",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9644cfc_0ffc1ba2",
+        "filename": "nectar_metrics/ceilometer/application_catalog/discovery.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-06-18T22:48:22Z",
+      "side": 1,
+      "message": "Can\u0027t you just pass this to the client as opposed to this?\n\nEg.\n\nclient.Client(version\u003d\u00271\u0027, ..., service_type\u003d\u0027application-catalog\u0027) ?",
+      "range": {
+        "startLine": 13,
+        "startChar": 40,
+        "endLine": 13,
+        "endChar": 74
+      },
+      "revId": "d405096e1e926b71e7dfc2d8de9b1a7cc670b2ed",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb5e0482_4a63e183",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-06-18T22:48:22Z",
+      "side": 1,
+      "message": "EnvironmentPollster",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 31
+      },
+      "revId": "d405096e1e926b71e7dfc2d8de9b1a7cc670b2ed",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
