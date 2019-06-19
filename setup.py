@@ -20,6 +20,7 @@ entry_points = {
         'nectar-metrics-cinder = nectar_metrics.cinder:main',
         'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
         'nectar-metrics-whisper = nectar_metrics.whisper:main',
+        'analytics-generate-cache = nectar_metrics.analytics.generate_cache:main',
     ],
     'ceilometer.poll.central': [
         'nectar.instances = nectar_metrics.ceilometer.compute.pollster:ComputePollster', # noqa
