@@ -1,3 +1,4 @@
+import collections
 import itertools
 
 from ceilometer.polling import plugin_base
@@ -18,7 +19,7 @@ class EnvironmentPollster(plugin_base.PollsterBase):
         samples = []
 
         total = sample.Sample(
-            name='global.application_catalog.environments',
+            name='global.application_catalog.environments.total',
             type=sample.TYPE_GAUGE,
             unit='environments',
             volume=len(resources),
@@ -27,6 +28,23 @@ class EnvironmentPollster(plugin_base.PollsterBase):
             resource_id='global-stats')
 
         samples.append(total)
+
+        env_stats = collections.defaultdict(int)
+        for env in resources:
+            env_stats[env.status] += 1
+
+        for stats in env_stats:
+            s = sample.Sample(
+                name="global.application_catalog.environments.{}"
+                     .format(stats),
+                type=sample.TYPE_GAUGE,
+                unit="environments",
+                volume=env_stats[stats],
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats'
+                )
+            samples.append(s)
 
         sample_iters = []
         sample_iters.append(samples)
