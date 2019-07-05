@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0330047_b8768f29",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000077
+      },
+      "writtenOn": "2019-07-05T07:35:25Z",
+      "side": 1,
+      "message": "Should be status instead?",
+      "revId": "f20cee2cc8029262fef3c39c38008c839163bf9c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
