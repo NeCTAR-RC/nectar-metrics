@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1dc7253_533464c2",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-07-05T06:47:57Z",
+      "side": 1,
+      "message": "this should stay as environments, the unit is a unit of measurement like m/s or GB etc.\n\nThe name of the sample is the thing that should change",
+      "range": {
+        "startLine": 40,
+        "startChar": 21,
+        "endLine": 40,
+        "endChar": 53
+      },
+      "revId": "78819dec7a1f68a331af787a79cbcbc35e4aa5d5",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
