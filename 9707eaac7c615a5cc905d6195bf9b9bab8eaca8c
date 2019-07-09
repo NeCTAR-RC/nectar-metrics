@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "466b5453_63ef4131",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-07-09T00:45:15Z",
+      "side": 1,
+      "message": "we should keep the existing stat the same because it is already in prod.",
+      "range": {
+        "startLine": 22,
+        "startChar": 57,
+        "endLine": 22,
+        "endChar": 63
+      },
+      "revId": "9707eaac7c615a5cc905d6195bf9b9bab8eaca8c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
