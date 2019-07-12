@@ -20,7 +20,7 @@ class MagnumClusterPollster(plugin_base.PollsterBase):
         total = sample.Sample(
             name='global.container_infra.clusters',
             type=sample.TYPE_GAUGE,
-            unit=None,
+            unit='clusters',
             volume=len(resources),
             user_id=None,
             project_id=None,
