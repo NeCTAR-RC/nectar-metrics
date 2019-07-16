@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dace000e_92dfd009",
+        "filename": "nectar_metrics/ceilometer/application_catalog/discovery.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000190
+      },
+      "writtenOn": "2019-07-16T06:32:55Z",
+      "side": 1,
+      "message": "actually defaultdict not used?",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 35
+      },
+      "revId": "d1bc2ef0eb15fbb7ee5a506cde71793fe597ec40",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
