@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "faac8f9e_9b60a5fd",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000190
+      },
+      "writtenOn": "2019-07-16T06:32:55Z",
+      "side": 1,
+      "message": "can be removed if the __init__ in PackagePollster is not needed",
+      "range": {
+        "startLine": 4,
+        "startChar": 23,
+        "endLine": 4,
+        "endChar": 38
+      },
+      "revId": "6770e6ac4118ad8301a9ba0bc40560d91bcc83cf",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a462142e_0fc7f2dc",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1000190
+      },
+      "writtenOn": "2019-07-16T06:32:55Z",
+      "side": 1,
+      "message": "this can be inherited from _BaseDiscovery?",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 9
+      },
+      "revId": "6770e6ac4118ad8301a9ba0bc40560d91bcc83cf",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a9e34a8_0e790087",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1000190
+      },
+      "writtenOn": "2019-07-16T06:32:55Z",
+      "side": 1,
+      "message": "I am not sure I understand correctly should the name here be equal to `global.application_catalog.packages`?",
+      "range": {
+        "startLine": 94,
+        "startChar": 22,
+        "endLine": 94,
+        "endChar": 62
+      },
+      "revId": "6770e6ac4118ad8301a9ba0bc40560d91bcc83cf",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
