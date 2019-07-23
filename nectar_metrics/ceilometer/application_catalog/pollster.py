@@ -72,26 +72,31 @@ class PackagePollster(plugin_base.PollsterBase):
         for env in environment_list:
             # NOTE(andybotting): The environment list doesn't provide all the
             # details we require, so must get each environment individually
-            environment = self.client.environments.get(env.id)
-            for services in environment.services:
-                for val in services.values():
-                    if type(val) == dict:
-                        t = val.get('type')
-                        if t and t.find('/') > 0:
-                            package = t.split('/')[0]
-                            package_totals[package] += 1
+            try:
+                environment = self.client.environments.get(env.id)
+                if environment.services:
+                    for services in environment.services:
+                        for val in services.values():
+                            if type(val) == dict:
+                                t = val.get('type')
+                                if t and t.find('/') > 0:
+                                    package = t.split('/')[0]
+                                    package_totals[package] += 1
+            except Exception as e:
+                LOG.warning('Failed to add stats for package %s: %s',
+                            package, e)
 
-        for package, count in package_totals.items():
-            s = sample.Sample(
-                name='application_catalog_package.environments',
-                type=sample.TYPE_GAUGE,
-                unit='packages',
-                volume=count,
-                user_id=None,
-                project_id=None,
-                resource_id=package,
-            )
-            samples.append(s)
+            for package, count in package_totals.items():
+                s = sample.Sample(
+                    name='application_catalog_package.environments',
+                    type=sample.TYPE_GAUGE,
+                    unit='packages',
+                    volume=count,
+                    user_id=None,
+                    project_id=None,
+                    resource_id=package,
+                )
+                samples.append(s)
 
         sample_iters = []
         sample_iters.append(samples)
