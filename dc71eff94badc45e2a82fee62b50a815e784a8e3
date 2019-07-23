@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67c2c316_9c72aaaf",
+        "filename": "nectar_metrics/ceilometer/application_catalog/discovery.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-07-23T02:26:00Z",
+      "side": 1,
+      "message": "implicit relative imports deprecated in python3, best to use absolute",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 32
+      },
+      "revId": "dc71eff94badc45e2a82fee62b50a815e784a8e3",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "902888a4_ec7e75e7",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-07-23T02:26:00Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 32
+      },
+      "revId": "dc71eff94badc45e2a82fee62b50a815e784a8e3",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
