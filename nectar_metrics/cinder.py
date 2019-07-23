@@ -1,4 +1,3 @@
-import os
 import sys
 import time
 import logging
@@ -7,7 +6,6 @@ from collections import defaultdict
 from cinderclient import client as cinder_client
 
 from nectar_metrics.cli import Main
-from nectar_metrics.config import CONFIG
 from nectar_metrics import keystone
 
 logger = logging.getLogger(__name__)

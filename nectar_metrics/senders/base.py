@@ -18,7 +18,7 @@ class BaseSender(object):
         return self.message_fmt % (metric, value, now)
 
     def send_metric(self, metric, value, now):
-        raise NotImplemented()
+        raise NotImplementedError
 
     def send_by_az(self, az, metric, value, time):
         return self.send_metric("az.%s.%s" % (az, metric), value, time)

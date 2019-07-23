@@ -1,6 +1,15 @@
 import os
-from UserDict import UserDict
-from ConfigParser import SafeConfigParser
+
+try:
+    from UserDict import UserDict
+except ImportError:
+    # py3
+    from collections import UserDict
+
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import SafeConfigParser
 
 
 CONFIG_FILE = '/etc/nectar/metrics.ini'
@@ -26,6 +35,7 @@ class ConfigurationDict(UserDict):
             self.data[section] = {}
         self.data[section][key] = value
         return value
+
 
 CONFIG = ConfigurationDict()
 

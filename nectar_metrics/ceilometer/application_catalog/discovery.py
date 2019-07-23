@@ -1,4 +1,3 @@
-from ceilometer import keystone_client
 from ceilometer.polling import plugin_base
 
 from nectar_metrics.ceilometer.application_catalog.common import murano_client

@@ -200,7 +200,7 @@ def cell_capacities(nclient, now, sender):
     for cell_name in report_cells:
         try:
             cell = cellm.capacities(cell_name)
-        except:
+        except Exception:
             continue
         try:
             units = cell.capacities['ram_free']['units_by_mb']

@@ -1,5 +1,3 @@
-import os
-import sys
 import logging
 
 from keystoneauth1.identity import v3

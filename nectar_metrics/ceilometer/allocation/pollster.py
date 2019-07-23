@@ -2,7 +2,6 @@ from collections import defaultdict
 import itertools
 
 from nectarallocationclient import client
-from nectarallocationclient import exceptions
 from nectarallocationclient import states
 from oslo_log import log
 
