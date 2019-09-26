@@ -61,6 +61,7 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
         vcpu_usage = 0
         memory_usage = 0
         disk_usage = 0
+        cores_capacity = 0
         vcpu_capacity = 0
         memory_capacity = 0
         disk_capacity = 0
@@ -87,6 +88,12 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
                                       resource_provider, 'GB'))
                 disk_usage += usages.DISK_GB
             if hasattr(capacity, 'VCPU'):
+                samples.append(
+                    self._make_sample('capacity.cores',
+                                      capacity.VCPU['total'],
+                                      resource_provider, 'Cores'))
+                cores_capacity += capacity.VCPU['total']
+
                 total = self._get_capacity(capacity.VCPU)
                 samples.append(
                     self._make_sample('capacity.vcpu',
@@ -114,6 +121,8 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
             self._make_total_sample('usage.memory', memory_usage, 'MB'))
         samples.append(
             self._make_total_sample('usage.disk', disk_usage, 'GB'))
+        samples.append(
+            self._make_total_sample('capacity.cores', cores_capacity, 'cores'))
         samples.append(
             self._make_total_sample('capacity.vcpu', vcpu_capacity, 'VCPU'))
         samples.append(
