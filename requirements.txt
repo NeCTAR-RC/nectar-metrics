@@ -7,3 +7,5 @@ whisper
 pymysql
 gnocchiclient
 nectarallocationclient
+numpy
+pandas
