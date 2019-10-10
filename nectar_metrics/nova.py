@@ -13,11 +13,6 @@ from nectarallocationclient import states
 
 from novaclient import client as nova_client
 
-try:
-    from novaclient.v2 import cells
-except ImportError:
-    from novaclient.v2.contrib import cells
-
 from nectar_metrics.config import CONFIG
 from nectar_metrics.cli import Main
 from nectar_metrics.keystone import client as keystone_client, get_auth_session
@@ -123,11 +118,11 @@ def by_tenant(servers, now, sender):
 
 
 def by_az_by_tenant(servers, now, sender):
-    servers_by_cell_by_tenant = defaultdict(lambda: defaultdict(list))
+    servers_by_az_by_tenant = defaultdict(lambda: defaultdict(list))
     for server in servers:
-        cell = server.get('OS-EXT-AZ:availability_zone')
-        servers_by_cell_by_tenant[cell][server['tenant_id']].append(server)
-    for zone, items in servers_by_cell_by_tenant.items():
+        az = server.get('OS-EXT-AZ:availability_zone')
+        servers_by_az_by_tenant[az][server['tenant_id']].append(server)
+    for zone, items in servers_by_az_by_tenant.items():
         for tenant, servers in items.items():
             for metric, value in server_metrics(servers).items():
                 if metric not in ['used_vcpus', 'total_instances',
@@ -190,35 +185,6 @@ def change_over_time(servers_by_az, now, sender):
 
         instances_created = len(servers) - len(intersection)
         sender.send_by_az(zone, 'instances_created', instances_created, now)
-
-
-def cell_capacities(nclient, now, sender):
-    cellm = cells.CellsManager(nclient)
-    report_cells = CONFIG.get_list('openstack', 'cells')
-    ram_sizes = CONFIG.get_list('openstack', 'ram_sizes')
-    size_totals = {}
-    for cell_name in report_cells:
-        try:
-            cell = cellm.capacities(cell_name)
-        except Exception:
-            continue
-        try:
-            units = cell.capacities['ram_free']['units_by_mb']
-        except KeyError:
-            continue
-        for size in ram_sizes:
-            try:
-                free_slots = units[size]
-            except KeyError:
-                continue
-            sender.send_by_cell(cell_name, 'capacity_%s' % size,
-                                free_slots, now)
-            if size in size_totals:
-                size_totals[size] += int(free_slots)
-            else:
-                size_totals[size] = int(free_slots)
-    for size, slots in size_totals.items():
-        sender.send_global('cell', 'capacity_%s' % size, slots, now)
 
 
 def get_active_allocations():
@@ -289,7 +255,6 @@ def do_report(sender, limit):
     by_az_by_domain(servers, users, now, sender)
     by_az_by_home(servers, allocations, project_cache, now, sender)
     change_over_time(servers_by_az, now, sender)
-    cell_capacities(nclient, now, sender)
     sender.flush()
 
 

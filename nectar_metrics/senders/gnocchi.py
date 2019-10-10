@@ -74,9 +74,6 @@ class GnocchiSender(base.BaseSender):
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric('idp', idp, metric, value, time)
 
-    def send_by_cell(self, cell, metric, value, time):
-        self.send_metric('nova-cell', cell, metric, value, time)
-
     def send_global(self, resource, metric, value, time):
         return self.send_metric('generic', 'global-stats',
                                 "%s-%s" % (resource, metric), value, time)
