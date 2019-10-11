@@ -2,9 +2,12 @@ import logging
 from datetime import datetime, timedelta
 import pickle
 from collections import defaultdict
-from urlparse import urlsplit
+try:
+    from urlparse import urlsplit
+except ImportError:
+    from urllib.parse import urlsplit
 
-import MySQLdb
+import pymysql
 
 from nectar_metrics.config import CONFIG
 from nectar_metrics.cli import Main
@@ -28,22 +31,23 @@ ODD_IDPS = {
 
 
 def connection(host, db, user, password):
-    return MySQLdb.connect(host=host,
+    return pymysql.connect(host=host,
                            user=user,
                            passwd=password,
                            db=db)
 
 
 def list_users(db, time=datetime.now()):
-    cursor = db.cursor()
-    cursor.execute("SELECT user_id, email, shibboleth_attributes FROM user"
-                   " WHERE state = 'created' AND registered_at < '%s'" % time)
-    while True:
-        row = cursor.fetchone()
-        if not row:
-            break
-        yield {'id': row[0], 'email': row[1],
-               'attributes': pickle.loads(row[2])}
+    with db.cursor() as cursor:
+
+        cursor.execute("SELECT user_id, email, shibboleth_attributes FROM user"
+                       " WHERE state = 'created' AND registered_at < '%s'" % time)
+        while True:
+            row = cursor.fetchone()
+            if not row:
+                break
+            yield {'id': row[0], 'email': row[1],
+                   'attributes': pickle.loads(row[2])}
 
 
 def count(sender, users, time):
