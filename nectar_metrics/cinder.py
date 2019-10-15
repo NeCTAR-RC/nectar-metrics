@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def client():
     auth_session = keystone.get_auth_session()
-    return cinder_client.Client('2', session=auth_session)
+    return cinder_client.Client('3', session=auth_session)
 
 
 def all_volumes(c_client, limit=None):
