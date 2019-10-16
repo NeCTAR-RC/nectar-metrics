@@ -63,7 +63,7 @@ class PickleSocketMetricSender(SocketMetricSender):
         return (metric, (now, float(value)))
 
     def flush(self):
-        payload = pickle.dumps(self.buffered_metrics)
+        payload = pickle.dumps(self.buffered_metrics, protocol=2)
         header = struct.pack("!L", len(payload))
         message = header + payload
         self.sock.sendall(message)

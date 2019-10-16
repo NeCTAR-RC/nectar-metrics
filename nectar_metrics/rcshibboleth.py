@@ -48,7 +48,7 @@ def list_users(db, time=datetime.now()):
             if not row:
                 break
             yield {'id': row[0], 'email': row[1],
-                   'attributes': pickle.loads(row[2])}
+                   'attributes': pickle.loads(row[2], encoding='latin1')}
 
 
 def count(sender, users, time):
