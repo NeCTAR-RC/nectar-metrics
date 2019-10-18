@@ -24,6 +24,7 @@ Architecture: any
 Depends:
  ${misc:Depends},
  ${python3:Depends},
- python3-placementclient
+ python3-placementclient,
+ python3-whisper
 Description: Metrics collection for the Nectar Research Cloud.
  nectar-metrics, Metrics collection for the Nectar Research Cloud.
