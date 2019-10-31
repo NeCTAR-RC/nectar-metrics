@@ -117,12 +117,14 @@ class NovaQuotaAllocationPollster(AllocationPollsterBase):
                 instances = nova_allocated.get('instances')
                 if cores is not None:
                     samples.append(self._make_sample('nova.cores', cores,
-                                                     allocation.project_id))
+                                                     allocation.project_id,
+                                                     units='VCPU')),
                     cores_total += cores
                     cores_home_totals[home] += cores
                 if ram:
                     samples.append(self._make_sample('nova.ram', ram,
-                                                     allocation.project_id))
+                                                     allocation.project_id,
+                                                     unit='MB'))
                     ram_total += ram
                     ram_home_totals[home] += ram
                 if instances:
