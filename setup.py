@@ -32,6 +32,7 @@ entry_points = {
         'nectar.application_catalog.environments = nectar_metrics.ceilometer.application_catalog.pollster:EnvironmentPollster',  # noqa
         'nectar.application_catalog.packages = nectar_metrics.ceilometer.application_catalog.pollster:PackagePollster',  # noqa
         'nectar.network_ip_availability = nectar_metrics.ceilometer.network.pollster:NetworkIPAvailabilityPollster', # noqa
+        'nectar.loadbalancers = nectar_metrics.ceilometer.loadbalancer.pollster:LoadBalancerPollster', # noqa
     ],
     'ceilometer.builder.poll.central': [
         'f5_virtualservers = nectar_metrics.ceilometer.f5.pollster:F5VirtualServerPollster', # noqa
@@ -46,6 +47,7 @@ entry_points = {
         'all_accounts = nectar_metrics.ceilometer.account.discovery:UserDiscovery', # noqa
         'all_allocations = nectar_metrics.ceilometer.allocation.discovery:AllocationDiscovery', # noqa
         'all_instances = nectar_metrics.ceilometer.compute.discovery:InstanceAllDiscovery', # noqa
+        'all_loadbalancers = nectar_metrics.ceilometer.loadbalancer.discovery:LoadBalancerDiscovery', # noqa
         'cinder_pools = nectar_metrics.ceilometer.volume.discovery:PoolDiscovery', # noqa
         'resource_providers = nectar_metrics.ceilometer.placement.discovery:ResourceProviderDiscovery', # noqa
         'f5_loadbalancers = nectar_metrics.ceilometer.f5.discovery:F5Discovery', # noqa
