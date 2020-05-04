@@ -1,16 +1,17 @@
 import logging
 from datetime import datetime, timedelta
-import pickle
+
 from collections import defaultdict
 try:
     from urlparse import urlsplit
 except ImportError:
     from urllib.parse import urlsplit
 
-import pymysql
+from manukaclient import client as manuka_client
 
-from nectar_metrics.config import CONFIG
 from nectar_metrics.cli import Main
+from nectar_metrics import keystone
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,25 +31,8 @@ ODD_IDPS = {
 }
 
 
-def connection(host, db, user, password):
-    return pymysql.connect(host=host,
-                           user=user,
-                           passwd=password,
-                           db=db)
-
-
-def list_users(db, time=datetime.now()):
-    with db.cursor() as cursor:
-
-        cursor.execute("SELECT user_id, email, shibboleth_attributes FROM user"
-                       " WHERE state = 'created' AND registered_at < '%s'" %
-                       time)
-        while True:
-            row = cursor.fetchone()
-            if not row:
-                break
-            yield {'id': row[0], 'email': row[1],
-                   'attributes': pickle.loads(row[2], encoding='latin1')}
+def list_users(client, time=datetime.now()):
+    return client.users.list(registered_at__lt=time, state='created')
 
 
 def count(sender, users, time):
@@ -58,31 +42,30 @@ def count(sender, users, time):
 def by_idp(sender, users, time):
     users_by_idp = defaultdict(list)
     for user in users:
-        idp = user['attributes']['idp']
-        url = urlsplit(idp)
-        if url.netloc:
-            users_by_idp[url.netloc.replace('.', '_')].append(user)
-        elif idp in ODD_IDPS:
-            users_by_idp[ODD_IDPS[idp].replace('.', '_')].append(user)
-        elif idp == 'idp.fake.nectar.org.au':
-            logger.debug("Unknown IDP %s" % idp)
-            continue
-        else:
-            logger.warning("Unknown IDP %s" % idp)
+        for eid in user.external_ids:
+            idp = eid.attributes.get('idp')
+
+            url = urlsplit(idp)
+            if url.netloc:
+                users_by_idp[url.netloc.replace('.', '_')].append(user)
+            elif idp in ODD_IDPS:
+                users_by_idp[ODD_IDPS[idp].replace('.', '_')].append(user)
+            elif idp == 'idp.fake.nectar.org.au':
+                logger.debug("Unknown IDP %s" % idp)
+                continue
+            else:
+                logger.warning("Unknown IDP %s" % idp)
 
     for idp, users in users_by_idp.items():
         sender.send_by_idp(idp, 'total', len(users), time)
 
 
 def report_metrics(sender, from_time, to_time):
-    username = CONFIG.get('rcshibboleth', 'username')
-    password = CONFIG.get('rcshibboleth', 'password')
-    host = CONFIG.get('rcshibboleth', 'host')
-    database = CONFIG.get('rcshibboleth', 'database')
-    db = connection(host, database, username, password)
+    session = keystone.get_auth_session()
+    client = manuka_client.Client('1', session=session)
     while from_time < to_time:
         now = int(from_time.strftime("%s"))
-        users = list(list_users(db, from_time))
+        users = list(list_users(client, from_time))
         count(sender, users, now)
         by_idp(sender, users, now)
         from_time = from_time + timedelta(hours=1)
