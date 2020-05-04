@@ -4,8 +4,8 @@ python-magnumclient
 python-muranoclient
 python-novaclient
 whisper
-pymysql
 gnocchiclient
 nectarallocationclient
+manukaclient
 numpy
 pandas
