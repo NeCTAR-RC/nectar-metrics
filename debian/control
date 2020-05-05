@@ -10,7 +10,9 @@ Build-Depends:
  python3-all (>= 2.6),
  python3-setuptools,
  python3-pip (>= 1.2),
- dh-python
+ dh-python,
+ python3-pbr,
+ python-pbr
 Build-Depends-Indep:
  python-pytest,
  python-pytest-mock,
