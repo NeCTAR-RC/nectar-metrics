@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
-import uuid
+import setuptools
 
-try:  # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError:  # for pip <= 9.0.3
-    from pip.req import parse_requirements
+from pbr.packaging import parse_requirements
 
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
-requirements = parse_requirements("requirements.txt", session=uuid.uuid1())
+
 
 entry_points = {
     'console_scripts': [
@@ -58,7 +54,7 @@ entry_points = {
     ],
 }
 
-setup(
+setuptools.setup(
     name='nectar-metrics',
     version='0.2.0',
     description='Metrics collection for the NeCTAR Research Cloud.',
@@ -66,10 +62,11 @@ setup(
     author='Russell Sim',
     author_email='russell.sim@gmail.com',
     url='https://github.com/NeCTAR-RC/nectar-metrics',
-    packages=find_packages(exclude=['tests', 'local']),
+    packages=setuptools.find_packages(exclude=['tests', 'local']),
     package_dir={'nectar_metrics': 'nectar_metrics'},
+    setup_requires=['pbr>=3.0.0'],
     include_package_data=True,
-    install_requires=[str(r.req) for r in requirements],
+    install_requires=parse_requirements(),
 
     license="GPLv3+",
     zip_safe=False,
