@@ -14,7 +14,7 @@ entry_points = {
     'console_scripts': [
         'nectar-metrics-nova = nectar_metrics.nova:main',
         'nectar-metrics-cinder = nectar_metrics.cinder:main',
-        'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
+        # 'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
         'nectar-metrics-whisper = nectar_metrics.whisper:main',
         'analytics-generate-cache = nectar_metrics.analytics.generate_cache:main', # noqa
     ],
@@ -52,6 +52,12 @@ entry_points = {
         'application_catalog_packages = nectar_metrics.ceilometer.application_catalog.discovery:PackageDiscovery',  # noqa
         'network_ip_availability = nectar_metrics.ceilometer.network.discovery:NetworkIPAvailabilityDiscovery', # noqa
     ],
+    'ceilometer.discover.users': [
+        'all_users = nectar_metrics.ceilometer.user.discovery:UserDiscovery', # noqa
+    ],
+    'ceilometer.poll.users': [
+        'nectar.users = nectar_metrics.ceilometer.user.pollster:UserPollster', # noqa
+    ]
 }
 
 setuptools.setup(
