@@ -14,11 +14,12 @@ entry_points = {
     'console_scripts': [
         'nectar-metrics-nova = nectar_metrics.nova:main',
         'nectar-metrics-cinder = nectar_metrics.cinder:main',
-        'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
+        # 'nectar-metrics-rcshibboleth = nectar_metrics.rcshibboleth:main',
         'nectar-metrics-whisper = nectar_metrics.whisper:main',
         'analytics-generate-cache = nectar_metrics.analytics.generate_cache:main', # noqa
     ],
     'ceilometer.poll.central': [
+        'nectar.users = nectar_metrics.ceilometer.user.pollster:UserPollster', # noqa
         'nectar.instances = nectar_metrics.ceilometer.compute.pollster:ComputePollster', # noqa
         'nectar.volumes = nectar_metrics.ceilometer.volume.cinder:CinderPollster', # noqa
         'nectar.cinder_pools = nectar_metrics.ceilometer.volume.cinder:CinderPoolPollster', # noqa
@@ -42,6 +43,7 @@ entry_points = {
         'swift_disks = nectar_metrics.ceilometer.objectstore.discovery:SwiftDiskDiscovery', # noqa
     ],
     'ceilometer.discover.central': [
+        'all_users = nectar_metrics.ceilometer.user.discovery:UserDiscovery', # noqa
         'all_allocations = nectar_metrics.ceilometer.allocation.discovery:AllocationDiscovery', # noqa
         'all_instances = nectar_metrics.ceilometer.compute.discovery:InstanceAllDiscovery', # noqa
         'cinder_pools = nectar_metrics.ceilometer.volume.discovery:PoolDiscovery', # noqa
