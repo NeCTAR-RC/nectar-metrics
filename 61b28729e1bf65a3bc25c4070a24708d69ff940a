@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f9e3944_93698230",
+        "filename": "nectar_metrics/ceilometer/user/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-06-02T05:26:02Z",
+      "side": 1,
+      "message": "This directory should be account as that is what is registered in the catalog to keep it consistent with other things. There may also be other things under the account service we want to use as well in the future",
+      "revId": "61b28729e1bf65a3bc25c4070a24708d69ff940a",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56b93499_6db00f05",
+        "filename": "nectar_metrics/ceilometer/user/pollster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-06-02T05:26:02Z",
+      "side": 1,
+      "message": "this doesn\u0027t look like it\u0027s used and can be removed",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "61b28729e1bf65a3bc25c4070a24708d69ff940a",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36efb7a2_e805a2d6",
+        "filename": "nectar_metrics/ceilometer/user/pollster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-06-02T05:26:02Z",
+      "side": 1,
+      "message": "for this we should use the existing idp resource in gnocchi and set a metric against that",
+      "revId": "61b28729e1bf65a3bc25c4070a24708d69ff940a",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fd88bb7_960986fb",
+        "filename": "setup.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-06-02T05:26:02Z",
+      "side": 1,
+      "message": "leave this in here",
+      "range": {
+        "startLine": 17,
+        "startChar": 8,
+        "endLine": 17,
+        "endChar": 9
+      },
+      "revId": "61b28729e1bf65a3bc25c4070a24708d69ff940a",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d149bc1_baa2ee70",
+        "filename": "setup.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-06-02T05:26:02Z",
+      "side": 1,
+      "message": "I think this should be called all_user_accounts just in case keystone has a all_users discovery",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 18
+      },
+      "revId": "61b28729e1bf65a3bc25c4070a24708d69ff940a",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
