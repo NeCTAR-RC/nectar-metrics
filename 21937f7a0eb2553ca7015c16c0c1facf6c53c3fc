@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9b041dbf_dad93e42",
+        "filename": "nectar_metrics/ceilometer/account/discovery.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000157
+      },
+      "writtenOn": "2020-06-05T01:25:24Z",
+      "side": 1,
+      "message": "Are there likely to be other kinds of accounts that are not user accounts?  If not, then I think that there is minimal risk that AccountDiscovery will cause any conceptual problems.  If (say) we put projects into the account service (manuka), then we would add a ProjectDiscovery class.",
+      "parentUuid": "eca36b0f_5d3749b8",
+      "range": {
+        "startLine": 12,
+        "startChar": 6,
+        "endLine": 12,
+        "endChar": 13
+      },
+      "revId": "21937f7a0eb2553ca7015c16c0c1facf6c53c3fc",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71e21a1d_8b4793d2",
         "filename": "nectar_metrics/ceilometer/account/pollster.py",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "21937f7a0eb2553ca7015c16c0c1facf6c53c3fc",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff35285e_a6d98f0a",
+        "filename": "nectar_metrics/ceilometer/account/pollster.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000157
+      },
+      "writtenOn": "2020-06-05T01:25:24Z",
+      "side": 1,
+      "message": "Same response",
+      "parentUuid": "71e21a1d_8b4793d2",
+      "range": {
+        "startLine": 32,
+        "startChar": 6,
+        "endLine": 32,
+        "endChar": 21
+      },
+      "revId": "21937f7a0eb2553ca7015c16c0c1facf6c53c3fc",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
     }
   ]
 }
