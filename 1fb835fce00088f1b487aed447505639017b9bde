@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9306c591_1a576721",
+        "filename": "nectar_metrics/ceilometer/account/pollster.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-06-05T05:38:22Z",
+      "side": 1,
+      "message": "users.total here too",
+      "range": {
+        "startLine": 90,
+        "startChar": 22,
+        "endLine": 90,
+        "endChar": 27
+      },
+      "revId": "1fb835fce00088f1b487aed447505639017b9bde",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
