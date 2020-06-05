@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "65986c3f_ac5a1580",
+        "filename": "nectar_metrics/ceilometer/account/discovery.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-06-05T04:37:52Z",
+      "side": 1,
+      "message": "yeah it\u0027s just my ocd wanting it to all line up and be the same as the other plugins.\n\nservice \u003d account\nresource \u003d user\n\nfor keystone\nservice \u003d identity\nresource \u003d user\n\n\neg. below it does client.users.list",
+      "parentUuid": "9b041dbf_dad93e42",
+      "range": {
+        "startLine": 12,
+        "startChar": 6,
+        "endLine": 12,
+        "endChar": 13
+      },
+      "revId": "21937f7a0eb2553ca7015c16c0c1facf6c53c3fc",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71e21a1d_8b4793d2",
         "filename": "nectar_metrics/ceilometer/account/pollster.py",
         "patchSetId": 6
