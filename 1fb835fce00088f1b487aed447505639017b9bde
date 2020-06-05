@@ -22,6 +22,30 @@
       "revId": "1fb835fce00088f1b487aed447505639017b9bde",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e180b89_b0925365",
+        "filename": "nectar_metrics/ceilometer/account/pollster.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1000157
+      },
+      "writtenOn": "2020-06-05T05:41:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9306c591_1a576721",
+      "range": {
+        "startLine": 90,
+        "startChar": 22,
+        "endLine": 90,
+        "endChar": 27
+      },
+      "revId": "1fb835fce00088f1b487aed447505639017b9bde",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
     }
   ]
 }
