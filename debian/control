@@ -21,7 +21,6 @@ Build-Depends-Indep:
  python-keystoneclient,
  python-gnocchiclient,
  python-nectarallocationclient,
- python-manukaclient,
  python3-pytest,
  python3-pytest-mock,
  python3-cinderclient,
@@ -38,6 +37,7 @@ Architecture: any
 Depends:
  ${misc:Depends},
  ${python:Depends},
+ python-manukaclient,
  python-placementclient,
  python-whisper
 Description: Metrics collection for the Nectar Research Cloud.
