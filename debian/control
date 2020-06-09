@@ -21,6 +21,7 @@ Build-Depends-Indep:
  python-keystoneclient,
  python-gnocchiclient,
  python-nectarallocationclient,
+ python-manukaclient,
  python3-pytest,
  python3-pytest-mock,
  python3-cinderclient,
