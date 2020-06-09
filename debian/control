@@ -38,6 +38,7 @@ Architecture: any
 Depends:
  ${misc:Depends},
  ${python:Depends},
+ python-manukaclient,
  python-placementclient,
  python-whisper
 Description: Metrics collection for the Nectar Research Cloud.
