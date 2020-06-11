@@ -43,6 +43,10 @@ class UserPollster(plugin_base.PollsterBase):
             interface=creds.interface,
         )
 
+    @property
+    def default_discovery(self):
+        return 'all_accounts'
+
     def get_samples(self, manager, cache, resources):
         user_count = 0
         user_with_orcid_count = 0
