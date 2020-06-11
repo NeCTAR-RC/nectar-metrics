@@ -56,7 +56,7 @@ def by_idp(sender, users, time):
                 logger.warning("Unknown IDP %s" % idp)
 
     for idp, users in users_by_idp.items():
-        sender.send_by_idp(idp, 'users.total', len(users), time)
+        sender.send_by_idp(idp, 'total', len(users), time)
 
 
 def report_metrics(sender, from_time, to_time):
