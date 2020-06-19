@@ -38,7 +38,7 @@ class LoadBalancerPollster(plugin_base.PollsterBase):
             volume=total,
             user_id=None,
             project_id=None,
-            resource_id='')
+            resource_id='global-stats')
         )
 
         sample_iters = []
