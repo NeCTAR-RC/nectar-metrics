@@ -1,14 +1,7 @@
-from oslo_log import log
 
-
-try:
-    # queens
-    from ceilometer.polling import plugin_base
-except ImportError:
-    # < queens
-    from ceilometer.agent import plugin_base
+from ceilometer.polling import plugin_base
 from ceilometer import keystone_client
-
+from oslo_log import log
 from placementclient import client
 
 
