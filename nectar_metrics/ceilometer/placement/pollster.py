@@ -1,15 +1,13 @@
 import itertools
 
-try:
-    # queens
-    from ceilometer.polling import plugin_base
-except ImportError:
-    # < queens
-    from ceilometer.agent import plugin_base
+from ceilometer.polling import plugin_base
 from ceilometer import sample
 from ceilometer import keystone_client
-
+from oslo_log import log
 from placementclient import client
+
+
+LOG = log.getLogger(__name__)
 
 
 class ResourceProviderPollster(plugin_base.PollsterBase):
@@ -31,8 +29,11 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
         return 'resource_providers'
 
     def _make_sample(self, metric, value, resource_provider, unit):
+        metric_name = 'resource_provider.%s' % metric,
+        LOG.debug("Making sample for %s, rp=%s, value=%s", metric_name,
+                  resource_provider, value)
         return sample.Sample(
-            name='resource_provider.%s' % metric,
+            name=metric_name,
             type=sample.TYPE_GAUGE,
             unit=unit,
             volume=value,
