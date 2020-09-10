@@ -22,9 +22,10 @@ class F5VirtualServerPollster(GenericHardwareDeclarativePollster):
         """
         samples = []
         definition = self.meter_definition
+        partition = self.conf.f5.partition
         for (value, metadata, extra) in data:
             name = metadata.get('name')
-            if 'NECTAR_RC' not in name:
+            if '/' + partition + '/' not in name:
                 continue
 
             resource_id = name.split('/')[-1]

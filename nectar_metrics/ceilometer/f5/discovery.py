@@ -29,6 +29,9 @@ OPTS = [
     cfg.StrOpt('snmp_priv_password',
                help='SNMP v3 encryption password.',
                secret=True),
+    cfg.StrOpt('partition',
+               default='ARDC',
+               help='Limit results to this F5 partition'),
 ]
 
 
