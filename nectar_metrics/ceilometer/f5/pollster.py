@@ -1,6 +1,16 @@
+from oslo_config import cfg
+
 from ceilometer.hardware.pollsters.generic import \
     GenericHardwareDeclarativePollster
 from ceilometer.hardware.pollsters import util
+
+OPTS = [
+    cfg.StrOpt('partition',
+               default='ARDC',
+               help='Limit results to virtual servers in this parition'),
+]
+
+cfg.CONF.register_opts(OPTS, group='f5')
 
 
 class F5VirtualServerPollster(GenericHardwareDeclarativePollster):
@@ -9,6 +19,7 @@ class F5VirtualServerPollster(GenericHardwareDeclarativePollster):
 
     def __init__(self, conf):
         super(F5VirtualServerPollster, self).__init__(conf)
+        self.partition = conf.f5.partition
 
     @property
     def default_discovery(self):
@@ -22,9 +33,10 @@ class F5VirtualServerPollster(GenericHardwareDeclarativePollster):
         """
         samples = []
         definition = self.meter_definition
+        partition = cfg.CONF.f5.partition
         for (value, metadata, extra) in data:
             name = metadata.get('name')
-            if 'NECTAR_RC' not in name:
+            if '/' + partition + '/' not in name:
                 continue
 
             resource_id = name.split('/')[-1]
