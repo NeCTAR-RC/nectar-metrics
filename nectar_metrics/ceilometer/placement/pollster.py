@@ -30,8 +30,11 @@ class ResourceProviderPollster(plugin_base.PollsterBase):
 
     def _make_sample(self, metric, value, resource_provider, unit):
         metric_name = 'resource_provider.%s' % metric
-        LOG.debug("Making sample for %s, rp=%s, value=%s", metric_name,
-                  resource_provider, value)
+        LOG.debug("Making sample for %s, rp=%s(%s) value=%s",
+                  metric_name,
+                  resource_provider.name,
+                  resource_provider.id,
+                  value)
         return sample.Sample(
             name=metric_name,
             type=sample.TYPE_GAUGE,
