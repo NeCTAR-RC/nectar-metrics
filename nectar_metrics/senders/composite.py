@@ -13,15 +13,15 @@ class GnocchiGraphiteSender(base.BaseSender):
         self.graphite.send_by_az(az, metric, value, time)
 
     def send_by_az_by_domain(self, az, domain, metric, value, time):
-        self.gnocchi.send_by_az_by_domain(az, domain, metric, value, time)
+        # self.gnocchi.send_by_az_by_domain(az, domain, metric, value, time)
         self.graphite.send_by_az_by_domain(az, domain, metric, value, time)
 
     def send_by_tenant(self, tenant, metric, value, time):
-        self.gnocchi.send_by_tenant(tenant, metric, value, time)
+        # self.gnocchi.send_by_tenant(tenant, metric, value, time)
         self.graphite.send_by_tenant(tenant, metric, value, time)
 
     def send_by_az_by_tenant(self, az, tenant, metric, value, time):
-        self.gnocchi.send_by_az_by_tenant(az, tenant, metric, value, time)
+        # self.gnocchi.send_by_az_by_tenant(az, tenant, metric, value, time)
         self.graphite.send_by_az_by_tenant(az, tenant, metric, value, time)
 
     def send_by_az_by_home(self, az, home, metric, value, time):
