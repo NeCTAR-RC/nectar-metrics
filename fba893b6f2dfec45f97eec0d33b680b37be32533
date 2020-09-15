@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ce13323_dbd98875",
+        "filename": "nectar_metrics/senders/composite.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-09-15T06:31:52Z",
+      "side": 1,
+      "message": "Might need to disable this one too",
+      "range": {
+        "startLine": 16,
+        "startChar": 8,
+        "endLine": 16,
+        "endChar": 74
+      },
+      "revId": "fba893b6f2dfec45f97eec0d33b680b37be32533",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
