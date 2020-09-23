@@ -28,6 +28,9 @@ class GnocchiGraphiteSender(base.BaseSender):
         self.gnocchi.send_by_az_by_home(az, home, metric, value, time)
         self.graphite.send_by_az_by_home(az, home, metric, value, time)
 
+    def send_by_host_by_home(self, host, home, metric, value, time):
+        self.gnocchi.send_by_host_by_home(host, home, metric, value, time)
+
     def send_by_idp(self, idp, metric, value, time):
         self.graphite.send_by_idp(idp, metric, value, time)
 
