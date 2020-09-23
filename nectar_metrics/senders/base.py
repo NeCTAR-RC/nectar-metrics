@@ -43,6 +43,12 @@ class BaseSender(object):
                                 % (az, home, metric),
                                 value, time)
 
+    def send_by_host_by_home(self, host, home, metric, value, time):
+        # For debug purposes only.
+        host = host.replace('.', '_').replace('-', '_')
+        metric = "%s.%s" % (home, metric)
+        return self.send_metric("hosts.%s.%s" % (host, metric), value, time)
+
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric("users.%s.%s" % (idp, metric), value, time)
 

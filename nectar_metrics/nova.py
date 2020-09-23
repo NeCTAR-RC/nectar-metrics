@@ -138,7 +138,7 @@ def by_az_by_home(servers, allocations, project_cache, now, sender):
 
         home = 'none'  # default if not an allocation or PT
         if server['tenant_id'] in allocations:
-            home = allocations[server['tenant_id']]
+            home = allocations[server['tenant_id']].allocation_home
         elif project_cache[server['tenant_id']].name.startswith('pt-'):
             home = 'PT'
 
@@ -150,6 +150,38 @@ def by_az_by_home(servers, allocations, project_cache, now, sender):
                 if metric not in ['used_vcpus']:
                     continue
                 sender.send_by_az_by_home(zone, home, metric, value, now)
+
+
+def by_host_by_home(servers, allocations, project_cache, now, sender):
+    servers_by_host_by_home = defaultdict(lambda: defaultdict(list))
+    for server in servers:
+        host = server.get('OS-EXT-SRV-ATTR:hypervisor_hostname')
+
+        if host is None:
+            logger.warning("Server %s has unknown hostname.", server["id"])
+            continue
+
+        home = 'unknown'  # default if not an allocation or PT
+        allocation = allocations.get(server['tenant_id'])
+        if allocation:
+            home = '{}.{}'.format(
+                'national' if allocation.national else 'local',
+                allocation.associated_site
+            )
+        else:
+            project = project_cache[server['tenant_id']]
+            if project.name.startswith('pt-'):
+                home = 'PT'
+            elif getattr(project, 'expiry_status', '') == 'admin':
+                home = 'admin'
+
+        servers_by_host_by_home[host][home].append(server)
+
+    for host, items in servers_by_host_by_home.items():
+        for home, servers in items.items():
+            for metric, value in server_metrics(servers).items():
+                if metric.startswith('used_'):
+                    sender.send_by_host_by_home(host, home, metric, value, now)
 
 
 def change_over_time(servers_by_az, now, sender):
@@ -213,7 +245,7 @@ def get_active_allocations():
         if not allocation.project_id:
             continue
 
-        active_allocations[allocation.project_id] = allocation.allocation_home
+        active_allocations[allocation.project_id] = allocation
 
     return active_allocations
 
@@ -257,6 +289,7 @@ def do_report(sender, limit):
     by_az_by_tenant(servers, now, sender)
     by_az_by_domain(servers, users, now, sender)
     by_az_by_home(servers, allocations, project_cache, now, sender)
+    by_host_by_home(servers, allocations, project_cache, now, sender)
     change_over_time(servers_by_az, now, sender)
     sender.flush()
 

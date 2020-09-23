@@ -21,11 +21,13 @@ class GnocchiSender(base.BaseSender):
         auth = keystone.get_auth_session()
         return client.Client(GNOCCHI_API_VERSION, auth)
 
-    def send_metric(self, resource_type, resource_name, metric, value, time):
+    def send_metric(self, resource_type, resource_name, metric, value, time,
+                    find_by_name=False):
 
+        search_field = 'name' if find_by_name else 'id'
         resources = self.client.resource.search(
             resource_type=resource_type,
-            query={'=': {'id': resource_name}})
+            query={'=': {search_field: resource_name}})
         num_resources = len(resources)
         if num_resources == 1:
             resource = resources[0]
@@ -38,18 +40,17 @@ class GnocchiSender(base.BaseSender):
                            "name: %s" % (resource_type, resource_name))
             return
 
-        try:
-            gmetric = self.client.metric.get(resource_id=resource.get('id'),
-                                             metric=metric)
-        except gnocchi_exc.MetricNotFound:
+        metric_id = resource.get('metrics', {}).get(metric)
+        if not metric_id:
             gmetric = self.client.metric.create(
                 metric={'name': metric, 'resource_id': resource.get('id'),
                         'archive_policy_name': self.archive_policy})
+            metric_id = gmetric.get('id')
 
-        self.log.debug("Resource: %s:%s metric: %s" % (resource_type,
-                                                       resource,
-                                                       metric))
-        self.client.metric.add_measures(metric=gmetric.get('id'),
+        self.log.info("Resource: %s:%s metric: %s" % (resource_type,
+                                                      resource,
+                                                      metric))
+        self.client.metric.add_measures(metric=metric_id,
                                         measures=[dict(timestamp=time,
                                                        value=float(value))])
 
@@ -70,6 +71,12 @@ class GnocchiSender(base.BaseSender):
     def send_by_az_by_home(self, az, home, metric, value, time):
         metric = "%s-%s" % (metric, az)
         self.send_metric('allocation_home', home, metric, value, time)
+
+    def send_by_host_by_home(self, host, home, metric, value, time):
+        _type = 'resource_provider'
+        metric = "%s.usage.%s.%s" % (_type, home,
+                                     metric.replace('used_', '').rstrip('s'))
+        self.send_metric(_type, host, metric, value, time, find_by_name=True)
 
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric('idp', idp, metric, value, time)
