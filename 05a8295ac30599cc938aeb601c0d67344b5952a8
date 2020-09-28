@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cefbb594_506814d8",
+        "filename": "nectar_metrics/nova.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-09-28T03:38:22Z",
+      "side": 1,
+      "message": "Might be better to say something like\n\nServer %s is not on any host, skipping\n\nThis is usually because the instance failed to schedule and is in error but it could also be because the instance is shelved.",
+      "range": {
+        "startLine": 161,
+        "startChar": 27,
+        "endLine": 161,
+        "endChar": 59
+      },
+      "revId": "05a8295ac30599cc938aeb601c0d67344b5952a8",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
