@@ -1,3 +1,5 @@
+import uuid
+
 from nectar_metrics.config import CONFIG
 from nectar_metrics.senders import base
 from nectar_metrics import gnocchi
@@ -11,19 +13,27 @@ class GnocchiSender(base.BaseSender):
         self.archive_policy = CONFIG.get('gnocchi', 'archive_policy')
 
     def send_metric(self, resource_type, resource_name, metric, value, time,
-                    find_by_name=False):
+                    by_name=False, create_resource=True):
 
-        search_field = 'name' if find_by_name else 'id'
+        search_field = 'name' if by_name else 'id'
         resources = self.client.resource.search(
             resource_type=resource_type,
             query={'=': {search_field: resource_name}})
         num_resources = len(resources)
         if num_resources == 1:
             resource = resources[0]
-        elif num_resources < 1:
+        elif num_resources == 0:
+            if not create_resource:
+                self.log.error("Could not find resource %s", resource_name)
+                return
+
+            if by_name:
+                args = {'id': str(uuid.uuid4()), 'name': resource_name}
+            else:
+                args = {'id': resource_name}
             resource = self.client.resource.create(
                 resource_type=resource_type,
-                resource={'id': resource_name})
+                resource=args)
         else:
             self.log.error("More than 1 resource exists for type: %s and "
                            "name: %s" % (resource_type, resource_name))
@@ -65,7 +75,10 @@ class GnocchiSender(base.BaseSender):
         _type = 'resource_provider'
         metric = "%s.usage.%s.%s" % (_type, home,
                                      metric.replace('used_', '').rstrip('s'))
-        self.send_metric(_type, host, metric, value, time, find_by_name=True)
+        # Don't create missing resources, since they should be created by
+        # the resource_provider ceilometer poller.
+        self.send_metric(_type, host, metric, value, time,
+                         by_name=True, create_resource=False)
 
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric('idp', idp, metric, value, time)
