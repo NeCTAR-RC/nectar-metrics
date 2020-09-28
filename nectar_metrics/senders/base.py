@@ -49,6 +49,10 @@ class BaseSender(object):
         metric = "%s.%s" % (home, metric)
         return self.send_metric("hosts.%s.%s" % (host, metric), value, time)
 
+    def send_capacity_by_site(self, site, scope, metric, value, time):
+        return self.send_metric("sites.%s.%s.%s" % (site, scope, metric),
+                                value, time)
+
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric("users.%s.%s" % (idp, metric), value, time)
 

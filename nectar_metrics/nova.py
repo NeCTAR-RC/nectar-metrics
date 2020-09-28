@@ -1,3 +1,4 @@
+import datetime
 import os
 from os import path
 import sys
@@ -15,6 +16,7 @@ from novaclient import client as nova_client
 
 from nectar_metrics.config import CONFIG
 from nectar_metrics.cli import Main
+from nectar_metrics import gnocchi
 from nectar_metrics.keystone import client as keystone_client, get_auth_session
 
 
@@ -254,11 +256,61 @@ def get_active_allocations():
     return active_allocations
 
 
+def get_capacities_by_site():
+    client = gnocchi.get_client()
+    caps = {}
+    for resource in ['vcpu', 'memory', 'disk']:
+        fill_capacities_for_resource(client, caps, resource)
+    logger.info("Site capacities: %s", caps)
+    return caps
+
+
+def fill_capacities_for_resource(client, caps, resource):
+    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+    capacities = client.aggregates.fetch(
+        operations='(aggregate sum '
+                   '(metric resource_provider.capacity.{} '
+                   'mean))'.format(resource),
+        groupby=['site', 'scope'],
+        resource_type='resource_provider',
+        granularity=86400,
+        start=yesterday,
+        fill=0.0,
+        search={}
+    )
+    for cap in capacities:
+        group = cap['group']
+        scope = group['scope']
+        site = group['site']
+
+        if site is None:
+            site = 'unknown'
+        if site not in caps:
+            caps[site] = {}
+        if scope is None:
+            scope = 'unknown'
+        if scope not in caps[site]:
+            caps[site][scope] = {}
+        # Get the most recent metric value.
+        caps[site][scope][resource] = cap['measures']['measures']['aggregated'][-1][2]
+
+
+def capacity_by_site(capacities, now, sender):
+    for site, caps in capacities.items():
+        for cap, resources in caps.items():
+            for res, value in resources.items():
+                sender.send_capacity_by_site(site, cap, res, value, now)
+
+
 def do_report(sender, limit):
     nclient = client()
     kclient = keystone_client()
     users = {}
     project_cache = {}
+
+    logger.info("Getting site capacity information...")
+    capacities = get_capacities_by_site()
+
     logger.info('Fetching user list...')
     for user in kclient.users.list():
         if not getattr(user, 'email', None):
@@ -294,6 +346,7 @@ def do_report(sender, limit):
     by_az_by_domain(servers, users, now, sender)
     by_az_by_home(servers, allocations, project_cache, now, sender)
     by_host_by_home(servers, allocations, project_cache, now, sender)
+    capacity_by_site(capacities, now, sender)
     change_over_time(servers_by_az, now, sender)
     sender.flush()
 
