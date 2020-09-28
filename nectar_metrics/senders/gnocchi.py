@@ -1,24 +1,14 @@
-from gnocchiclient import client
-
 from nectar_metrics.config import CONFIG
 from nectar_metrics.senders import base
-from nectar_metrics import keystone
-
-
-GNOCCHI_API_VERSION = '1'
+from nectar_metrics import gnocchi
 
 
 class GnocchiSender(base.BaseSender):
 
     def __init__(self):
         super(GnocchiSender, self).__init__()
-        self.client = self._get_client()
+        self.client = gnocchi.get_client()
         self.archive_policy = CONFIG.get('gnocchi', 'archive_policy')
-
-    @staticmethod
-    def _get_client():
-        auth = keystone.get_auth_session()
-        return client.Client(GNOCCHI_API_VERSION, auth)
 
     def send_metric(self, resource_type, resource_name, metric, value, time,
                     find_by_name=False):
