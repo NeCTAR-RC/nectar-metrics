@@ -22,6 +22,30 @@
       "revId": "05a8295ac30599cc938aeb601c0d67344b5952a8",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "770a0177_8199a9ef",
+        "filename": "nectar_metrics/nova.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-09-28T03:47:27Z",
+      "side": 1,
+      "message": "Hrm - I wonder if we should be logging a warning at all then. Maybe this should just be a debug message? Would we actually follow up anything if we saw this in prod?",
+      "parentUuid": "cefbb594_506814d8",
+      "range": {
+        "startLine": 161,
+        "startChar": 27,
+        "endLine": 161,
+        "endChar": 59
+      },
+      "revId": "05a8295ac30599cc938aeb601c0d67344b5952a8",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
     }
   ]
 }
