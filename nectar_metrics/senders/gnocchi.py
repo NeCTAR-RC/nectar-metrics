@@ -85,6 +85,11 @@ class GnocchiSender(base.BaseSender):
         self.send_metric('site', site, metric, value, time,
                          by_name=True)
 
+    def send_usage_by_site(self, site, scope, metric, value, time):
+        metric = "usage.%s.%s" % (scope, metric)
+        self.send_metric('site', site, metric, value, time,
+                         by_name=True)
+
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric('idp', idp, metric, value, time)
 
