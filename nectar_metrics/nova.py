@@ -266,18 +266,19 @@ def get_capacities_by_site():
 
 
 def fill_capacities_for_resource(client, caps, resource):
-    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+    an_hour_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
     capacities = client.aggregates.fetch(
         operations='(aggregate sum '
                    '(metric resource_provider.capacity.{} '
                    'mean))'.format(resource),
         groupby=['site', 'scope'],
         resource_type='resource_provider',
-        granularity=86400,
-        start=yesterday,
+        granularity=300,
+        start=an_hour_ago,
         fill=0.0,
         search={}
     )
+    errors = False
     for cap in capacities:
         group = cap['group']
         scope = group['scope']
@@ -292,8 +293,15 @@ def fill_capacities_for_resource(client, caps, resource):
         if scope not in caps[site]:
             caps[site][scope] = {}
         # Get the most recent metric value.
-        measures = cap['measures']['measures']
-        caps[site][scope][resource] = measures['aggregated'][-1][2]
+        measures = cap['measures']['measures']['aggregated']
+        try:
+            caps[site][scope][resource] = measures[-1][2]
+        except IndexError:
+            errors = True
+
+    if errors:
+        logger.warning("One or more resource providers "
+                       "had no capacity metrics.")
 
 
 def capacity_by_site(capacities, now, sender):
