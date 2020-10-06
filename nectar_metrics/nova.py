@@ -265,6 +265,16 @@ def get_capacities_by_site():
     return caps
 
 
+def get_usages_by_site():
+    client = gnocchi.get_client()
+    usages = {}
+    for scope in ['national', 'local', 'PT', 'other']:
+        for resource in ['vcpu', 'memory', 'disk']:
+            fill_usages_for_resource(client, usages, scope, resource)
+    logger.info("Site usages: %s", usages)
+    return usages
+
+
 def fill_capacities_for_resource(client, caps, resource):
     an_hour_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
     capacities = client.aggregates.fetch(
@@ -304,11 +314,76 @@ def fill_capacities_for_resource(client, caps, resource):
                        "had no capacity metrics.")
 
 
+usage_metrics = {
+    'other': [
+        'resource_provider.usage.admin.{resource}',
+        'resource_provider.usage.unknown.{resource}',
+    ],
+    'PT': [
+        'resource_provider.usage.PT.{resource}',
+    ],
+    'local': [
+        'resource_provider.usage.local.*.{resource}',
+    ],
+    'national': [
+        'resource_provider.usage.national.*.{resource}',
+    ],
+}
+
+
+def fill_usages_for_resource(client, usages, scope, resource):
+    an_hour_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+    metrics = usage_metrics[scope]
+    metrics_query = " ".join(["({metric} mean)".format(metric=metric)
+                              for metric in metrics])
+    query = "(aggregate sum (metric {metrics} ))"
+    query = query.format(metrics=metrics_query)
+    query = query.format(resource=resource)
+
+    try:
+        gnocchi_usages = client.aggregates.fetch(
+            operations=query,
+            groupby=['site'],
+            resource_type='resource_provider',
+            granularity=300,
+            start=an_hour_ago,
+            fill=0.0,
+            search={}
+        )
+    except gnocchi.exceptions.Exception:
+        logger.warning("Query")
+        return
+
+    for usage in gnocchi_usages:
+        group = usage['group']
+        site = group['site']
+
+        if site is None:
+            site = 'unknown'
+        if site not in usages:
+            usages[site] = {}
+        if scope not in usages[site]:
+            usages[site][scope] = {}
+        # Get the most recent metric value.
+        measures = usage['measures']['measures']
+        if measures:
+            aggregate = measures.get('aggregated')
+            if aggregate:
+                usages[site][scope][resource] = aggregate[-1][2]
+
+
 def capacity_by_site(capacities, now, sender):
     for site, caps in capacities.items():
         for cap, resources in caps.items():
             for res, value in resources.items():
                 sender.send_capacity_by_site(site, cap, res, value, now)
+
+
+def usage_by_site(usages, now, sender):
+    for site, usages in usages.items():
+        for scope, resources in usages.items():
+            for resource, value in resources.items():
+                sender.send_usage_by_site(site, scope, resource, value, now)
 
 
 def do_report(sender, limit):
@@ -319,6 +394,7 @@ def do_report(sender, limit):
 
     logger.info("Getting site capacity information...")
     capacities = get_capacities_by_site()
+    usages = get_usages_by_site()
 
     logger.info('Fetching user list...')
     for user in kclient.users.list():
@@ -356,6 +432,7 @@ def do_report(sender, limit):
     by_az_by_home(servers, allocations, project_cache, now, sender)
     by_host_by_home(servers, allocations, project_cache, now, sender)
     capacity_by_site(capacities, now, sender)
+    usage_by_site(usages, now, sender)
     change_over_time(servers_by_az, now, sender)
     sender.flush()
 
