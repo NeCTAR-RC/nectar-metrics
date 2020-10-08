@@ -275,19 +275,53 @@ def get_usages_by_site():
     return usages
 
 
+def get_availability_by_site(capacities, usages):
+    availability = {}
+    for site, cap in capacities.items():
+        usage = usages.get(site, {})
+        available = availability.get(site, defaultdict(dict))
+        for resource in ['vcpu', 'memory', 'disk']:
+            local_cap = cap.get('local', {}).get(resource, .0)
+            local_usage = usage.get('local', {}).get(resource, .0)
+            local_availability =  local_cap - local_usage
+            available['local'][resource] = local_availability
+            logger.debug('Local availability {site} {resource}: {value}'.format(
+                 site=site, resource=resource, value=local_availability))
+
+            if 'national' in cap:
+                national_availability = (
+                    cap['national'][resource]
+                    - usage.get('national', {}).get(resource, .0)
+                    - usage.get('PT', {}).get(resource, .0)
+                    - usage.get('other', {}).get(resource, .0)
+                    + min(0, local_availability)
+                )
+                available['national'][resource] = national_availability
+                logger.debug('National availability {site} '
+                             '{resource}: {value}'.format(
+                    site=site, resource=resource, value=national_availability))
+        availability[site] = available
+    return availability
+
+
 def fill_capacities_for_resource(client, caps, resource):
     an_hour_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
-    capacities = client.aggregates.fetch(
-        operations='(aggregate sum '
-                   '(metric resource_provider.capacity.{} '
-                   'mean))'.format(resource),
-        groupby=['site', 'scope'],
-        resource_type='resource_provider',
-        granularity=300,
-        start=an_hour_ago,
-        fill=0.0,
-        search={}
-    )
+    try:
+        capacities = client.aggregates.fetch(
+            operations='(aggregate sum '
+                    '(metric resource_provider.capacity.{} '
+                    'mean))'.format(resource),
+            groupby=['site', 'scope'],
+            resource_type='resource_provider',
+            granularity=300,
+            start=an_hour_ago,
+            fill=0.0,
+            search={}
+        )
+    except gnocchi.exceptions.Exception as e:
+        logger.warning("Gnocchi query failed: %s, query was: %s", str(e), query)
+        return
+
     errors = False
     for cap in capacities:
         group = cap['group']
@@ -351,8 +385,8 @@ def fill_usages_for_resource(client, usages, scope, resource):
             fill=0.0,
             search={}
         )
-    except gnocchi.exceptions.Exception:
-        logger.warning("Query")
+    except gnocchi.exceptions.Exception as e:
+        logger.warning("Gnocchi query failed: %s, query was: %s", str(e), query)
         return
 
     for usage in gnocchi_usages:
@@ -387,6 +421,14 @@ def usage_by_site(usages, now, sender):
                 sender.send_usage_by_site(site, scope, resource, value, now)
 
 
+def availability_by_site(availability, now, sender):
+    for site, availabilities in availability.items():
+        for scope, resources in availabilities.items():
+            for resource, value in resources.items():
+                sender.send_availability_by_site(site, scope, resource,
+                                                 value, now)
+
+
 def do_report(sender, limit):
     nclient = client()
     kclient = keystone_client()
@@ -396,6 +438,7 @@ def do_report(sender, limit):
     logger.info("Getting site capacity information...")
     capacities = get_capacities_by_site()
     usages = get_usages_by_site()
+    availability = get_availability_by_site(capacities, usages)
 
     logger.info('Fetching user list...')
     for user in kclient.users.list():
@@ -434,6 +477,7 @@ def do_report(sender, limit):
     by_host_by_home(servers, allocations, project_cache, now, sender)
     capacity_by_site(capacities, now, sender)
     usage_by_site(usages, now, sender)
+    availability_by_site(availability, now, sender)
     change_over_time(servers_by_az, now, sender)
     sender.flush()
 

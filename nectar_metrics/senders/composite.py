@@ -37,6 +37,9 @@ class GnocchiGraphiteSender(base.BaseSender):
     def send_usage_by_site(self, site, scope, metric, value, time):
         self.gnocchi.send_usage_by_site(site, scope, metric, value, time)
 
+    def send_availability_by_site(self, site, scope, metric, value, time):
+        self.gnocchi.send_availability_by_site(site, scope, metric, value, time)
+
     def send_by_idp(self, idp, metric, value, time):
         self.graphite.send_by_idp(idp, metric, value, time)
 
