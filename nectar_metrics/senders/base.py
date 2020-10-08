@@ -59,6 +59,12 @@ class BaseSender(object):
         return self.send_metric("sites.%s.usage.%s.%s" % (site, scope, metric),
                                 value, time)
 
+    def send_availability_by_site(self, site, scope, metric, value, time):
+        return self.send_metric("sites.%s.availability.%s.%s" % (site,
+                                                                 scope,
+                                                                 metric),
+                                value, time)
+
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric("users.%s.%s" % (idp, metric), value, time)
 
