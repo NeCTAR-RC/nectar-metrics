@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90828282_0d8ebff0",
+        "filename": "nectar_metrics/nova.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2020-10-12T04:58:53Z",
+      "side": 1,
+      "message": "could we get a docstring on this method to explain what this is doing pretty please",
+      "revId": "be2403fe2ac96144fab139bd8485b99a5cadc0ed",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
