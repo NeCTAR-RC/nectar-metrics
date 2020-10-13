@@ -301,7 +301,8 @@ def get_availability_by_site(capacities, usages):
             local_availability = local_cap - local_usage
             available['local'][resource] = local_availability
             logger.debug(
-                f'Local availability {site} {resource}: {local_availability}')
+                'Local availability %s %s: %s',
+                site, resource, local_availability)
 
             if 'national' in cap:
                 national_availability = (
@@ -313,8 +314,8 @@ def get_availability_by_site(capacities, usages):
                 )
                 available['national'][resource] = national_availability
                 logger.debug(
-                    f'National availability {site} {resource}: '
-                    f'{national_availability}')
+                    'National availability %s %s: %s',
+                    site, resource, national_availability)
         availability[site] = available
     return availability
 
