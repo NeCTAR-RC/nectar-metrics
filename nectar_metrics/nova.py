@@ -304,7 +304,7 @@ def get_availability_by_site(capacities, usages):
                 'Local availability %s %s: %s',
                 site, resource, local_availability)
 
-            if 'national' in cap:
+            if 'national' in cap and resource in cap['national']:
                 national_availability = (
                     cap['national'][resource]
                     - usage.get('national', {}).get(resource, .0)
