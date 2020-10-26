@@ -321,7 +321,7 @@ def get_availability_by_site(capacities, usages):
 
 
 def fill_capacities_for_resource(client, caps, resource):
-    an_hour_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+    two_hours_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=2)
     query = '(aggregate sum (metric resource_provider.capacity.{} mean))'
     query = query.format(resource)
 
@@ -330,8 +330,8 @@ def fill_capacities_for_resource(client, caps, resource):
             operations=query,
             groupby=['site', 'scope'],
             resource_type='resource_provider',
-            granularity=300,
-            start=an_hour_ago,
+            granularity=3600,
+            start=two_hours_ago,
             fill=0.0,
             search={}
         )
@@ -384,7 +384,7 @@ usage_metrics = {
 
 
 def fill_usages_for_resource(client, usages, scope, resource):
-    an_hour_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+    two_hours_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=2)
     metrics = usage_metrics[scope]
     metrics_query = " ".join(["({metric} mean)".format(metric=metric)
                              for metric in metrics])
@@ -397,8 +397,8 @@ def fill_usages_for_resource(client, usages, scope, resource):
             operations=query,
             groupby=['site'],
             resource_type='resource_provider',
-            granularity=300,
-            start=an_hour_ago,
+            granularity=3600,
+            start=two_hours_ago,
             fill=0.0,
             search={}
         )
