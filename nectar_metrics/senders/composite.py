@@ -9,7 +9,7 @@ class GnocchiGraphiteSender(base.BaseSender):
         self.graphite = graphite.PickleSocketMetricSender(host, port)
 
     def send_by_az(self, az, metric, value, time):
-        self.gnocchi.send_by_az(az, metric, value, time)
+        # self.gnocchi.send_by_az(az, metric, value, time)
         self.graphite.send_by_az(az, metric, value, time)
 
     def send_by_az_by_domain(self, az, domain, metric, value, time):
@@ -25,7 +25,7 @@ class GnocchiGraphiteSender(base.BaseSender):
         self.graphite.send_by_az_by_tenant(az, tenant, metric, value, time)
 
     def send_by_az_by_home(self, az, home, metric, value, time):
-        self.gnocchi.send_by_az_by_home(az, home, metric, value, time)
+        # self.gnocchi.send_by_az_by_home(az, home, metric, value, time)
         self.graphite.send_by_az_by_home(az, home, metric, value, time)
 
     def send_by_host_by_home(self, host, home, metric, value, time):
