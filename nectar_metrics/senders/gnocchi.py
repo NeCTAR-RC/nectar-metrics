@@ -14,11 +14,15 @@ class GnocchiSender(base.BaseSender):
 
     def send_metric(self, resource_type, resource_name, metric, value, time,
                     by_name=False, create_resource=True):
+        if by_name:
+            terms = [{'=': {'name': resource_name}},
+                     {'=': {'ended_at': None}}]
+        else:
+            terms = [{'=': {'id': resource_name}}]
 
-        search_field = 'name' if by_name else 'id'
         resources = self.client.resource.search(
             resource_type=resource_type,
-            query={'=': {search_field: resource_name}})
+            query={'and': terms})
         num_resources = len(resources)
         if num_resources == 1:
             resource = resources[0]
