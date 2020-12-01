@@ -8,6 +8,9 @@ class GnocchiGraphiteSender(base.BaseSender):
         self.gnocchi = gnocchi.GnocchiSender()
         self.graphite = graphite.PickleSocketMetricSender(host, port)
 
+    def flush(self):
+        self.graphite.flush()
+
     def send_by_az(self, az, metric, value, time):
         # self.gnocchi.send_by_az(az, metric, value, time)
         self.graphite.send_by_az(az, metric, value, time)
