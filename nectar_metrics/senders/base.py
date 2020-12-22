@@ -68,8 +68,8 @@ class BaseSender(object):
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric("users.%s.%s" % (idp, metric), value, time)
 
-    def send_global(self, resource, metric, value, time):
-        return self.send_metric("%s.%s" % (resource, metric), value, time)
+    def send_global(self, metric, value, time):
+        return self.send_metric(metric, value, time)
 
 
 class DummySender(BaseSender):
