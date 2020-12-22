@@ -338,7 +338,7 @@ def fill_capacities_for_resource(client, caps, resource):
             fill=0.0,
             search={}
         )
-    except gnocchi.exceptions.Exception as e:
+    except gnocchi.exceptions.ClientException as e:
         LOG.warning("Gnocchi query failed: %s, query was: %s",
                     str(e), query)
         return
@@ -408,7 +408,7 @@ def fill_usages_for_resource(client, usages, scope, resource):
             fill=0.0,
             search={}
         )
-    except gnocchi.exceptions.Exception as e:
+    except gnocchi.exceptions.ClientException as e:
         LOG.warning("Gnocchi query failed: %s, query was: %s",
                     str(e), query)
         return
