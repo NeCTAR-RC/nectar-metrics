@@ -76,3 +76,5 @@ def test_by_tenant():
                       (30, 'total_instances', 1, 'sentinel'),
                       (30, 'used_memory', 3, 'sentinel'),
                       (30, 'used_vcpus', 3, 'sentinel')]
+    output = sorted(sender.by_global, key=lambda tup: (tup[1], tup[2]))
+    assert output == [('active.projects.compute', 3, 'sentinel')]

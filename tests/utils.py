@@ -4,6 +4,7 @@ class TestSender():
         self.by_az_by_domain = []
         self.by_tenant = []
         self.by_az_by_tenant = []
+        self.by_global = []
 
     def send_by_az_by_domain(self, *args):
         self.by_az_by_domain.append(args)
@@ -16,3 +17,6 @@ class TestSender():
 
     def send_by_az_by_tenant(self, *args):
         self.by_az_by_tenant.append(args)
+
+    def send_global(self, *args):
+        self.by_global.append(args)
