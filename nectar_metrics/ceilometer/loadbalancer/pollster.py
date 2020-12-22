@@ -19,6 +19,7 @@ class LoadBalancerPollster(plugin_base.PollsterBase):
     def get_samples(self, manager, cache, resources):
         samples = []
         total = 0
+        projects = set()
         for lb in resources:
             samples.append(sample.Sample(
                 name='loadbalancer',
@@ -30,12 +31,23 @@ class LoadBalancerPollster(plugin_base.PollsterBase):
                 resource_id=lb.id)
             )
             total += 1
+            projects.add(lb.project_id)
 
         samples.append(sample.Sample(
             name='global.loadbalancer.loadbalancers',
             type=sample.TYPE_GAUGE,
             unit='Instance',
             volume=total,
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
+
+        samples.append(sample.Sample(
+            name='active.projects.loadbalancer',
+            type=sample.TYPE_GAUGE,
+            unit='Projects',
+            volume=len(projects),
             user_id=None,
             project_id=None,
             resource_id='global-stats')
