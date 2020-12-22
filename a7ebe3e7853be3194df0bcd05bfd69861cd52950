@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea0234b0_0ef32d7f",
+        "filename": "nectar_metrics/ceilometer/application_catalog/pollster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-12-22T23:01:22Z",
+      "side": 1,
+      "message": "make projects a set() so you don\u0027t need this check.",
+      "revId": "a7ebe3e7853be3194df0bcd05bfd69861cd52950",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9418522_a7eed69c",
+        "filename": "nectar_metrics/ceilometer/loadbalancer/pollster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-12-22T23:01:22Z",
+      "side": 1,
+      "message": "likewise",
+      "revId": "a7ebe3e7853be3194df0bcd05bfd69861cd52950",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
