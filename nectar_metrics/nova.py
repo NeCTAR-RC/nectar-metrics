@@ -178,6 +178,8 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
             project = project_cache[server['tenant_id']]
             if project.name.startswith('pt-'):
                 home = 'PT'
+            elif 'preemptible' in project.tags:
+                home = 'preemptible'
             elif getattr(project, 'expiry_status', '') == 'admin':
                 home = 'admin'
 
