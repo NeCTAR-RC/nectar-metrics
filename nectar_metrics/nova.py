@@ -178,6 +178,8 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
             project = project_cache[server['tenant_id']]
             if project.name.startswith('pt-'):
                 home = 'PT'
+            elif 'preemptible' in project.tags:
+                home = 'preemptible'
             elif getattr(project, 'expiry_status', '') == 'admin':
                 home = 'admin'
 
@@ -268,7 +270,7 @@ def get_capacities_by_site():
 def get_usages_by_site():
     client = gnocchi.get_client()
     usages = {}
-    for scope in ['national', 'local', 'PT', 'other']:
+    for scope in ['national', 'local', 'PT', 'other', 'preemptible']:
         for resource in ['vcpu', 'memory', 'disk']:
             fill_usages_for_resource(client, usages, scope, resource)
     logger.info("Site usages: %s", usages)
@@ -370,6 +372,9 @@ usage_metrics = {
     'other': [
         'resource_provider.usage.admin.{resource}',
         'resource_provider.usage.unknown.{resource}',
+    ],
+    'preemptible': [
+        'resource_provider.usage.preemptible.{resource}',
     ],
     'PT': [
         'resource_provider.usage.PT.{resource}',
