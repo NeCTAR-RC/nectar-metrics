@@ -105,6 +105,5 @@ class GnocchiSender(base.BaseSender):
     def send_by_idp(self, idp, metric, value, time):
         return self.send_metric('idp', idp, metric, value, time)
 
-    def send_global(self, resource, metric, value, time):
-        return self.send_metric('generic', 'global-stats',
-                                "%s-%s" % (resource, metric), value, time)
+    def send_global(self, metric, value, time):
+        return self.send_metric('generic', 'global-stats', metric, value, time)
