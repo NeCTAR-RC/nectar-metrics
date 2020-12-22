@@ -1,26 +1,27 @@
+from collections import defaultdict
 import datetime
+import logging
 import os
 from os import path
-import sys
-import shutil
-import time
-import logging
 import pickle
-from collections import defaultdict
+import shutil
+import sys
+import time
 
 from nectarallocationclient import client as allocation_client
 from nectarallocationclient import exceptions
 from nectarallocationclient import states
-
 from novaclient import client as nova_client
 
-from nectar_metrics.config import CONFIG
-from nectar_metrics.cli import Main
+from nectar_metrics import cli
+from nectar_metrics import config
 from nectar_metrics import gnocchi
-from nectar_metrics.keystone import client as keystone_client, get_auth_session
+from nectar_metrics.keystone import client as keystone_client
+from nectar_metrics.keystone import get_auth_session
 
 
-logger = logging.getLogger(__name__)
+CONF = config.CONFIG
+LOG = logging.getLogger(__name__)
 flavor = {}
 NOVA_VERSION = '2.60'
 
@@ -45,7 +46,7 @@ def all_servers(client, limit=None):
         try:
             result = client.servers.list(search_opts=opts)
         except Exception as exception:
-            logger.exception(exception)
+            LOG.exception(exception)
             sys.exit(1)
 
         if not result:
@@ -87,11 +88,11 @@ def by_az_by_domain(servers, users, now, sender):
         az = server.get('OS-EXT-AZ:availability_zone')
 
         if server['user_id'] in users and users[server['user_id']] is None:
-            logger.info("skipping unknown user %s" % server['user_id'])
+            LOG.info("skipping unknown user %s" % server['user_id'])
             continue
 
         if server['user_id'] not in users:
-            logger.error(
+            LOG.error(
                 "user %s doesn't exist but is currently owner of server %s"
                 % (server['user_id'], server['id']))
             continue
@@ -163,8 +164,8 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
             # This usually means the instance failed to schedule and is in
             # ERROR state, but it could also mean the instance is shelved.
             # For now, we don't count any resource usage in these cases.
-            logger.debug("Server %s is not on any host, skipping.",
-                         server["id"])
+            LOG.debug("Server %s is not on any host, skipping.",
+                      server["id"])
             continue
 
         home = 'unknown'  # default if not an allocation or PT
@@ -195,7 +196,7 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
 def change_over_time(servers_by_az, now, sender):
     current_servers = dict([(az, set([server['id'] for server in servers]))
                             for az, servers in servers_by_az.items()])
-    working_dir = CONFIG.get('metrics', 'working_dir')
+    working_dir = CONF.get('metrics', 'working_dir')
     previous_servers_file = path.join(working_dir, "previous_servers.pickle")
 
     if not os.path.exists(previous_servers_file):
@@ -206,7 +207,7 @@ def change_over_time(servers_by_az, now, sender):
         with open(previous_servers_file, 'rb') as pickle_file:
             previous_servers = pickle.load(pickle_file)
     except EOFError:
-        logger.warning("Invalid data in pickle %s" % previous_servers_file)
+        LOG.warning("Invalid data in pickle %s" % previous_servers_file)
         previous_servers = current_servers
 
     # Override the pickle each time no matter what.  this will
@@ -263,7 +264,7 @@ def get_capacities_by_site():
     caps = {}
     for resource in ['vcpu', 'memory', 'disk']:
         fill_capacities_for_resource(client, caps, resource)
-    logger.info("Site capacities: %s", caps)
+    LOG.info("Site capacities: %s", caps)
     return caps
 
 
@@ -273,7 +274,7 @@ def get_usages_by_site():
     for scope in ['national', 'local', 'PT', 'other', 'preemptible']:
         for resource in ['vcpu', 'memory', 'disk']:
             fill_usages_for_resource(client, usages, scope, resource)
-    logger.info("Site usages: %s", usages)
+    LOG.info("Site usages: %s", usages)
     return usages
 
 
@@ -302,7 +303,7 @@ def get_availability_by_site(capacities, usages):
             local_usage = usage.get('local', {}).get(resource, .0)
             local_availability = local_cap - local_usage
             available['local'][resource] = local_availability
-            logger.debug(
+            LOG.debug(
                 'Local availability %s %s: %s',
                 site, resource, local_availability)
 
@@ -315,7 +316,7 @@ def get_availability_by_site(capacities, usages):
                     + min(0, local_availability)
                 )
                 available['national'][resource] = national_availability
-                logger.debug(
+                LOG.debug(
                     'National availability %s %s: %s',
                     site, resource, national_availability)
         availability[site] = available
@@ -338,8 +339,8 @@ def fill_capacities_for_resource(client, caps, resource):
             search={}
         )
     except gnocchi.exceptions.Exception as e:
-        logger.warning("Gnocchi query failed: %s, query was: %s",
-                       str(e), query)
+        LOG.warning("Gnocchi query failed: %s, query was: %s",
+                    str(e), query)
         return
 
     errors = False
@@ -364,8 +365,8 @@ def fill_capacities_for_resource(client, caps, resource):
             errors = True
 
     if errors:
-        logger.warning("One or more resource providers "
-                       "had no capacity metrics.")
+        LOG.warning("One or more resource providers "
+                    "had no capacity metrics.")
 
 
 usage_metrics = {
@@ -408,8 +409,8 @@ def fill_usages_for_resource(client, usages, scope, resource):
             search={}
         )
     except gnocchi.exceptions.Exception as e:
-        logger.warning("Gnocchi query failed: %s, query was: %s",
-                       str(e), query)
+        LOG.warning("Gnocchi query failed: %s, query was: %s",
+                    str(e), query)
         return
 
     for usage in gnocchi_usages:
@@ -458,12 +459,12 @@ def do_report(sender, limit):
     users = {}
     project_cache = {}
 
-    logger.info("Getting site capacity information...")
+    LOG.info("Getting site capacity information...")
     capacities = get_capacities_by_site()
     usages = get_usages_by_site()
     availability = get_availability_by_site(capacities, usages)
 
-    logger.info('Fetching user list...')
+    LOG.info('Fetching user list...')
     for user in kclient.users.list():
         if not getattr(user, 'email', None):
             users[user.id] = None
@@ -475,15 +476,15 @@ def do_report(sender, limit):
             email = email.replace('.', '_')
         users[user.id] = email
 
-    logger.info('Fethcing projects...')
+    LOG.info('Fethcing projects...')
     for project in kclient.projects.list():
         project_cache[project.id] = project
 
-    logger.info('Fetching server list...')
+    LOG.info('Fetching server list...')
     servers = [server._info for server in all_servers(nclient, limit)
                if getattr(server, 'OS-EXT-AZ:availability_zone')]
 
-    logger.info('Fetching allocations list...')
+    LOG.info('Fetching allocations list...')
     allocations = get_active_allocations()
 
     servers_by_az = defaultdict(list)
@@ -515,10 +516,10 @@ def do_report(sender, limit):
 
 
 def main():
-    parser = Main('nova')
+    parser = cli.Main('nova')
     parser.add_argument(
         '--limit', default=None,
         help='Limit the response to some servers only.')
     args = parser.parse_args()
-    logger.info("Running Report")
+    LOG.info("Running Report")
     do_report(parser.sender(), args.limit)
