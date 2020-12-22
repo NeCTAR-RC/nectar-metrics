@@ -61,6 +61,9 @@ def by_tenant(volumes, now, sender):
         for metric, value in volume_metrics(volumes).items():
             sender.send_by_tenant(tenant, metric, value, now)
 
+    active_projects = len(volumes_by_tenant)
+    sender.send_global('active.projects.volume', active_projects, now)
+
 
 def by_az_by_tenant(volumes, now, sender):
     volumes_by_az_by_tenant = defaultdict(lambda: defaultdict(list))

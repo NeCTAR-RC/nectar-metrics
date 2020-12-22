@@ -22,6 +22,8 @@ def test_by_tenant():
                       (20, 'used_volume_size', 6, 'sentinel'),
                       (30, 'total_volumes', 1, 'sentinel'),
                       (30, 'used_volume_size', 3, 'sentinel')]
+    output = sorted(sender.by_global, key=lambda tup: (tup[1], tup[2]))
+    assert output == [('active.projects.volume', 3, 'sentinel')]
 
 
 def test_by_az_by_tenant():

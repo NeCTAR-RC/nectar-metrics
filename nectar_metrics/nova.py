@@ -119,6 +119,9 @@ def by_tenant(servers, now, sender):
                 continue
             sender.send_by_tenant(tenant, metric, value, now)
 
+    active_projects = len(servers_by_tenant)
+    sender.send_global('active.projects.compute', active_projects, now)
+
 
 def by_az_by_tenant(servers, now, sender):
     servers_by_az_by_tenant = defaultdict(lambda: defaultdict(list))
