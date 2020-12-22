@@ -19,8 +19,9 @@ class EnvironmentPollster(plugin_base.PollsterBase):
 
     def get_samples(self, manager, cache, resources):
         samples = []
+        projects = set()
 
-        total = sample.Sample(
+        samples.append(sample.Sample(
             name='global.application_catalog.environments',
             type=sample.TYPE_GAUGE,
             unit='environments',
@@ -28,12 +29,22 @@ class EnvironmentPollster(plugin_base.PollsterBase):
             user_id=None,
             project_id=None,
             resource_id='global-stats')
-
-        samples.append(total)
+        )
 
         env_status = collections.defaultdict(int)
         for env in resources:
+            projects.add(env.tenant_id)
             env_status[env.status] += 1
+
+        samples.append(sample.Sample(
+            name='active.projects.application_catalog',
+            type=sample.TYPE_GAUGE,
+            unit='Projects',
+            volume=len(projects),
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
 
         for status, count in env_status.items():
             s = sample.Sample(
