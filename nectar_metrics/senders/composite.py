@@ -1,4 +1,6 @@
-from nectar_metrics.senders import base, gnocchi, graphite
+from nectar_metrics.senders import base
+from nectar_metrics.senders import gnocchi
+from nectar_metrics.senders import graphite
 
 
 class GnocchiGraphiteSender(base.BaseSender):

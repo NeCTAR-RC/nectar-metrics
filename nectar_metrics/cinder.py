@@ -1,14 +1,15 @@
+from collections import defaultdict
+import logging
 import sys
 import time
-import logging
-from collections import defaultdict
 
 from cinderclient import client as cinder_client
 
 from nectar_metrics.cli import Main
 from nectar_metrics import keystone
 
-logger = logging.getLogger(__name__)
+
+LOG = logging.getLogger(__name__)
 
 
 def client():
@@ -29,7 +30,7 @@ def all_volumes(c_client, limit=None):
         try:
             res = c_client.volumes.list(search_opts=opts)
         except Exception as exception:
-            logger.exception(exception)
+            LOG.exception(exception)
             sys.exit(1)
         if not res:
             break
@@ -88,5 +89,5 @@ def main():
         '--limit', default=None,
         help='Limit the response to some volumes only.')
     args = parser.parse_args()
-    logger.info("Running Report")
+    LOG.info("Running Report")
     do_report(parser.sender(), args.limit)

@@ -1,8 +1,11 @@
 import uuid
 
-from nectar_metrics.config import CONFIG
-from nectar_metrics.senders import base
+from nectar_metrics import config
 from nectar_metrics import gnocchi
+from nectar_metrics.senders import base
+
+
+CONF = config.CONFIG
 
 
 class GnocchiSender(base.BaseSender):
@@ -10,7 +13,7 @@ class GnocchiSender(base.BaseSender):
     def __init__(self):
         super(GnocchiSender, self).__init__()
         self.client = gnocchi.get_client()
-        self.archive_policy = CONFIG.get('gnocchi', 'archive_policy')
+        self.archive_policy = CONF.get('gnocchi', 'archive_policy')
 
     def send_metric(self, resource_type, resource_name, metric, value, time,
                     by_name=False, create_resource=True):
