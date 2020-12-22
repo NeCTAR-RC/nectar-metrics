@@ -36,7 +36,7 @@ def list_users(client, time=datetime.now()):
 
 
 def count(sender, users, time):
-    sender.send_global('users', 'total', len(users), time)
+    sender.send_global('users.total', len(users), time)
 
 
 def by_idp(sender, users, time):
