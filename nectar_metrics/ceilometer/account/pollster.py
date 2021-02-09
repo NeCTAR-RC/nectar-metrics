@@ -51,11 +51,13 @@ class UserPollster(plugin_base.PollsterBase):
         user_count = 0
         user_with_orcid_count = 0
         users_by_idp = defaultdict(list)
-
+        active_users = 0
         for user in resources:
             user_count += 1
             if user.orcid:
                 user_with_orcid_count += 1
+            if user.expiry_status != 'inactive':
+                active_users += 1
             for eid in user.external_ids:
                 idp = eid.idp
                 url = urlsplit(idp)
@@ -75,6 +77,15 @@ class UserPollster(plugin_base.PollsterBase):
             type=sample.TYPE_GAUGE,
             unit='User',
             volume=user_count,
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
+        samples.append(sample.Sample(
+            name='global.users.active',
+            type=sample.TYPE_GAUGE,
+            unit='User',
+            volume=active_users,
             user_id=None,
             project_id=None,
             resource_id='global-stats')
