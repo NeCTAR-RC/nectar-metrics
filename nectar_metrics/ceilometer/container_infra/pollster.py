@@ -16,8 +16,12 @@ class MagnumClusterPollster(plugin_base.PollsterBase):
 
     def get_samples(self, manager, cache, resources):
         samples = []
+        projects = set()
 
-        total = sample.Sample(
+        for cluster in resources:
+            projects.add(cluster.project_id)
+
+        samples.append(sample.Sample(
             name='global.container_infra.clusters',
             type=sample.TYPE_GAUGE,
             unit='clusters',
@@ -25,8 +29,16 @@ class MagnumClusterPollster(plugin_base.PollsterBase):
             user_id=None,
             project_id=None,
             resource_id='global-stats')
-
-        samples.append(total)
+        )
+        samples.append(sample.Sample(
+            name='active.projects.container_infra',
+            type=sample.TYPE_GAUGE,
+            unit='Projects',
+            volume=len(projects),
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
 
         sample_iters = []
         sample_iters.append(samples)

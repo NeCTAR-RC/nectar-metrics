@@ -17,4 +17,4 @@ class MagnumClusterDiscovery(plugin_base.DiscoveryBase):
         )
 
     def discover(self, manager, param=None):
-        return self.client.clusters.list()
+        return self.client.clusters.list(detail=True)
