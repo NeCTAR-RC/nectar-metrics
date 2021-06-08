@@ -1,5 +1,6 @@
 python-keystoneclient
 python-cinderclient
+python-heatclient
 python-magnumclient
 python-muranoclient
 python-novaclient
