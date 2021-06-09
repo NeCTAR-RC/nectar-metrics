@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63552be4_1a8fab3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2021-06-09T07:17:29Z",
+      "side": 1,
+      "message": "Looks good, naming is the hardest task 😊",
+      "revId": "c088a57d2e01a48884fc12708f3882f48f37636f",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc7a0fd6_2b8eb0dc",
+        "filename": "nectar_metrics/ceilometer/orchestration/discovery.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2021-06-09T07:17:29Z",
+      "side": 1,
+      "message": "this should probably be called StackDiscovery to keep it consistent and also we might want another discovery for a different heat resource",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "c088a57d2e01a48884fc12708f3882f48f37636f",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f267eb17_b7d2656c",
+        "filename": "nectar_metrics/ceilometer/orchestration/pollster.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2021-06-09T07:17:29Z",
+      "side": 1,
+      "message": "same here, StackPollster",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "c088a57d2e01a48884fc12708f3882f48f37636f",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5"
+    }
+  ]
+}
