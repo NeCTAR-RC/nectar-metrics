@@ -31,6 +31,7 @@ entry_points = {
         'nectar.container_infra = nectar_metrics.ceilometer.container_infra.pollster:MagnumClusterPollster', # noqa
         'nectar.orchestration.stacks = nectar_metrics.ceilometer.orchestration.pollster:HeatStackPollster', # noqa
         'nectar.application_catalog.environments = nectar_metrics.ceilometer.application_catalog.pollster:EnvironmentPollster',  # noqa
+        'nectar.application_catalog.deployments = nectar_metrics.ceilometer.application_catalog.pollster:DeploymentPollster',  # noqa
         'nectar.application_catalog.packages = nectar_metrics.ceilometer.application_catalog.pollster:PackagePollster',  # noqa
         'nectar.network_ip_availability = nectar_metrics.ceilometer.network.pollster:NetworkIPAvailabilityPollster', # noqa
         'nectar.loadbalancers = nectar_metrics.ceilometer.loadbalancer.pollster:LoadBalancerPollster', # noqa

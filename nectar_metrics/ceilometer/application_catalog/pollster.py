@@ -113,3 +113,40 @@ class PackagePollster(plugin_base.PollsterBase):
         sample_iters.append(samples)
         LOG.debug("Sending package samples %s", sample_iters)
         return itertools.chain(*sample_iters)
+
+
+class DeploymentPollster(plugin_base.PollsterBase):
+
+    def __init__(self, conf):
+        super(DeploymentPollster, self).__init__(conf)
+        self.client = murano_client(conf)
+
+    @property
+    def default_discovery(self):
+        return 'application_catalog_packages'
+
+    def get_samples(self, manager, cache, resources):
+        samples = []
+        deployment_total = 0
+
+        environment_list = self.client.environments.list(all_tenants=True)
+
+        for env in environment_list:
+            deployments = self.client.deployments.list(env.id)
+            deployment_total += len(deployments)
+
+        samples.append(sample.Sample(
+            name='global.application_catalog.deployments',
+            type=sample.TYPE_GAUGE,
+            unit='deployments',
+            volume=deployment_total,
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
+
+        sample_iters = []
+        sample_iters.append(samples)
+
+        LOG.debug("Sending package samples %s", sample_iters)
+        return itertools.chain(*sample_iters)

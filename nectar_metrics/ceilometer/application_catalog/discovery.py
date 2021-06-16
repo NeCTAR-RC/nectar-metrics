@@ -22,3 +22,9 @@ class PackageDiscovery(_BaseDiscovery):
                                                  limit=1000)
         packages = list(set([p.fully_qualified_name for p in package_list]))
         return packages
+
+
+class DeploymentDiscovery(_BaseDiscovery):
+    def discover(self, manager, param=None):
+        """Discover deployments to monitor"""
+        return self.client.environments.list(all_tenants=True)
