@@ -15,6 +15,7 @@ class NetworkIPAvailabilityPollster(plugin_base.PollsterBase):
         return 'network_ip_availability'
 
     def get_samples(self, manager, cache, resources):
+
         samples = []
 
         for network in resources:
@@ -22,24 +23,25 @@ class NetworkIPAvailabilityPollster(plugin_base.PollsterBase):
                 name='ip.availability.used',
                 type=sample.TYPE_GAUGE,
                 unit='IP',
-                volume=network['used_ips'],
+                volume=network.used_ips,
                 user_id=None,
-                project_id=network['tenant_id'],
-                resource_id=network['network_id'],
-                resource_metadata={'name': network['network_name']})
+                project_id=network.project_id,
+                resource_id=network.network_id,
+                resource_metadata={'name': network.network_name})
             )
             samples.append(sample.Sample(
                 name='ip.availability.total',
                 type=sample.TYPE_GAUGE,
                 unit='IP',
-                volume=network['total_ips'],
+                volume=network.total_ips,
                 user_id=None,
-                project_id=network['tenant_id'],
-                resource_id=network['network_id'],
-                resource_metadata={'name': network['network_name']})
+                project_id=network.project_id,
+                resource_id=network.network_id,
+                resource_metadata={'name': network.network_name})
             )
 
         sample_iters = []
         sample_iters.append(samples)
+
         LOG.debug("Sending samples %s", sample_iters)
         return itertools.chain(*sample_iters)
