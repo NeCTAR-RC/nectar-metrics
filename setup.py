@@ -33,6 +33,7 @@ entry_points = {
         'nectar.application_catalog.environments = nectar_metrics.ceilometer.application_catalog.pollster:EnvironmentPollster',  # noqa
         'nectar.application_catalog.packages = nectar_metrics.ceilometer.application_catalog.pollster:PackagePollster',  # noqa
         'nectar.network_ip_availability = nectar_metrics.ceilometer.network.pollster:NetworkIPAvailabilityPollster', # noqa
+        'nectar.network_ports_used = nectar_metrics.ceilometer.network.pollster:NetworkPortsUsedPollster', # noqa
         'nectar.loadbalancers = nectar_metrics.ceilometer.loadbalancer.pollster:LoadBalancerPollster', # noqa
     ],
     'ceilometer.builder.poll.central': [

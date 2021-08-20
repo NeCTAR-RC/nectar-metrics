@@ -60,3 +60,32 @@ class NetworkIPAvailabilityPollster(plugin_base.PollsterBase):
         sample_iters.append(samples)
         LOG.debug("Sending samples %s", sample_iters)
         return itertools.chain(*sample_iters)
+
+
+class NetworkPortsUsedPollster(plugin_base.PollsterBase):
+    """Collect stats on number of ports in used"""
+    def __init__(self, conf):
+        super(NetworkPortsUsedPollster, self).__init__(conf)
+        conf.register_group(opt_group)
+        conf.register_opts(OPTS, group=opt_group)
+
+    @property
+    def default_discovery(self):
+        return 'network_ip_availability'
+
+    def get_samples(self, manager, cache, resources):
+        samples = []
+        samples.append(sample.Sample(
+            name='global.network.ports_used',
+            type=sample.TYPE_GAUGE,
+            unit='ports',
+            volume=sum([r['used_ips'] for r in resources]),
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
+
+        sample_iters = []
+        sample_iters.append(samples)
+        LOG.debug("Sending samples %s", sample_iters)
+        return itertools.chain(*sample_iters)
