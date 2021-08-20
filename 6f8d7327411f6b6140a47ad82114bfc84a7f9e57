@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2882528d_a24c7ddc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2021-08-20T01:46:33Z",
+      "side": 1,
+      "message": "Looks good as long as performance hit not bad",
+      "revId": "6f8d7327411f6b6140a47ad82114bfc84a7f9e57",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4df8bbef_876e8899",
+        "filename": "nectar_metrics/ceilometer/network/pollster.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2021-08-20T01:46:33Z",
+      "side": 1,
+      "message": "from a purely performance point of view it would be better to do this in the for loop below but I doubt it makes that much difference",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 115
+      },
+      "revId": "6f8d7327411f6b6140a47ad82114bfc84a7f9e57",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5"
+    }
+  ]
+}
