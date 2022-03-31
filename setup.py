@@ -27,6 +27,7 @@ entry_points = {
         'nectar.allocations.novaquota = nectar_metrics.ceilometer.allocation.pollster:NovaQuotaAllocationPollster', # noqa
         'nectar.allocations.cinderquota = nectar_metrics.ceilometer.allocation.pollster:CinderQuotaAllocationPollster', # noqa
         'nectar.allocations.swiftquota = nectar_metrics.ceilometer.allocation.pollster:SwiftQuotaAllocationPollster', # noqa
+        'nectar.allocations.cloudkittyquota = nectar_metrics.ceilometer.allocation.pollster:CloudkittyQuotaAllocationPollster', # noqa
         'nectar.resource_providers = nectar_metrics.ceilometer.placement.pollster:ResourceProviderPollster', # noqa
         'nectar.container_infra = nectar_metrics.ceilometer.container_infra.pollster:MagnumClusterPollster', # noqa
         'nectar.orchestration.stacks = nectar_metrics.ceilometer.orchestration.pollster:HeatStackPollster', # noqa

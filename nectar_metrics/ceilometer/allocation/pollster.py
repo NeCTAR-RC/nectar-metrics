@@ -5,16 +5,16 @@ from nectarallocationclient import client
 from nectarallocationclient import states
 from oslo_log import log
 
+from ceilometer import keystone_client
 from ceilometer.polling import plugin_base
 from ceilometer import sample
-from ceilometer import keystone_client
+
 
 LOG = log.getLogger(__name__)
 
 
 class AllocationPollsterBase(plugin_base.PollsterBase):
-    """ Collect stats on allocations
-    """
+    """Collect stats on allocations"""
 
     def __init__(self, conf):
         super(AllocationPollsterBase, self).__init__(conf)
@@ -277,6 +277,57 @@ class SwiftQuotaAllocationPollster(AllocationPollsterBase):
                 name='allocations.quota.swift',
                 type=sample.TYPE_GAUGE,
                 unit='GB',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id=home)
+            )
+
+        sample_iters = []
+        sample_iters.append(samples)
+        return itertools.chain(*sample_iters)
+
+
+class CloudkittyQuotaAllocationPollster(AllocationPollsterBase):
+
+    def get_samples(self, manager, cache, resources):
+        samples = []
+        cloudkitty_total = 0
+        home_totals = defaultdict(int)
+
+        for allocation in resources:
+            if allocation.status == states.DELETED:
+                continue
+            elif allocation.status == states.SUBMITTED:
+                continue
+
+            if not allocation.project_id:
+                continue
+
+            cloudkitty_allocated = allocation.get_allocated_cloudkitty_quota()
+            budget = cloudkitty_allocated.get('budget', 0)
+            if budget:
+                budget = int(budget)
+                samples.append(
+                    self._make_sample('budget', budget,
+                                      allocation.project_id))
+                cloudkitty_total += budget
+                home_totals[allocation.allocation_home] += budget
+
+        samples.append(sample.Sample(
+            name='global.allocations.quota.budget',
+            type=sample.TYPE_GAUGE,
+            unit='SU',
+            volume=cloudkitty_total,
+            user_id=None,
+            project_id=None,
+            resource_id='global-stats')
+        )
+        for home, count in home_totals.items():
+            samples.append(sample.Sample(
+                name='allocations.quota.budget',
+                type=sample.TYPE_GAUGE,
+                unit='SU',
                 volume=count,
                 user_id=None,
                 project_id=None,
