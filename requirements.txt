@@ -9,6 +9,7 @@ gnocchiclient
 nectarallocationclient
 manukaclient
 placementclient
+prometheus-client
 numpy
 pandas
 pbr

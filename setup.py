@@ -35,6 +35,7 @@ entry_points = {
         'nectar.application_catalog.packages = nectar_metrics.ceilometer.application_catalog.pollster:PackagePollster',  # noqa
         'nectar.network_ip_availability = nectar_metrics.ceilometer.network.pollster:NetworkIPAvailabilityPollster', # noqa
         'nectar.loadbalancers = nectar_metrics.ceilometer.loadbalancer.pollster:LoadBalancerPollster', # noqa
+        'nectar.virtual_desktops = nectar_metrics.ceilometer.virtual_desktop.pollster:VirtualDesktopPollster', # noqa
     ],
     'ceilometer.builder.poll.central': [
         'f5_virtualservers = nectar_metrics.ceilometer.f5.pollster:F5VirtualServerPollster', # noqa
@@ -58,6 +59,7 @@ entry_points = {
         'application_catalog_environments = nectar_metrics.ceilometer.application_catalog.discovery:EnvironmentDiscovery',  # noqa
         'application_catalog_packages = nectar_metrics.ceilometer.application_catalog.discovery:PackageDiscovery',  # noqa
         'network_ip_availability = nectar_metrics.ceilometer.network.discovery:NetworkIPAvailabilityDiscovery', # noqa
+        'virtual_desktops = nectar_metrics.ceilometer.virtual_desktop.discovery:VirtualDesktopDiscovery', # noqa
     ],
 }
 
