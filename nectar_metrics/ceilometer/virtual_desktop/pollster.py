@@ -25,19 +25,25 @@ class VirtualDesktopPollster(plugin_base.PollsterBase):
                           family.name)
             if m:  # matched action from bumblebee_desktops_<action>_by_domain
                 action = m.groupdict().get('action')
-                for s in family.samples:
-                    if s.labels:
-                        for label, val in s.labels.items():
+                for samp in family.samples:
+                    # NOTE: Samples are a tuple for old versions (0.1.1)
+                    # of prometheus client, but it's an object in newer
+                    # (0.12.0) versions. Force to tuple for compatibility
+                    s = tuple(samp)
+                    labels = s[1]
+                    value = s[2]
+                    if labels:
+                        for label_name, label_value in labels.items():
                             name = "virtual_desktop.desktops.{}.{}".format(
-                                       action, label)
+                                       action, label_name)
                             samples.append(sample.Sample(
                                 name=name,
                                 type=sample.TYPE_GAUGE,
                                 unit='desktops',
-                                volume=s.value,
+                                volume=value,
                                 user_id=None,
                                 project_id=None,
-                                resource_id=val))
+                                resource_id=label_value))
                     else:
                         name = "global.virtual_desktop.desktops.{}".format(
                                    action)
@@ -45,7 +51,7 @@ class VirtualDesktopPollster(plugin_base.PollsterBase):
                             name=name,
                             type=sample.TYPE_GAUGE,
                             unit='desktops',
-                            volume=s.value,
+                            volume=value,
                             user_id=None,
                             project_id=None,
                             resource_id='global-stats'))
