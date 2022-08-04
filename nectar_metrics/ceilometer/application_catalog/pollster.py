@@ -92,7 +92,8 @@ class PackagePollster(plugin_base.PollsterBase):
                                 t = val.get('type')
                                 if t and t.find('/') > 0:
                                     package = t.split('/')[0]
-                                    package_totals[package] += 1
+                                    if package in package_totals:
+                                        package_totals[package] += 1
             except Exception as e:
                 LOG.warning('Failed to add stats for package %s: %s',
                             package, e)
