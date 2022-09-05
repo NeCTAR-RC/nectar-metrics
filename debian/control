@@ -17,6 +17,7 @@ Build-Depends-Indep:
  python3-keystoneclient,
  python3-gnocchiclient,
  python3-nectarallocationclient,
+ python3-warreclient,
  python3-manukaclient
 Standards-Version: 3.9.5
 Homepage: https://github.com/NeCTAR-RC/nectar-metrics
@@ -26,6 +27,8 @@ Architecture: any
 Depends:
  ${misc:Depends},
  ${python3:Depends},
+ python3-manukaclient,
+ python3-warreclient,
  python3-placementclient,
  python3-whisper
 Description: Metrics collection for the Nectar Research Cloud.
