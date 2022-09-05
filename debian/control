@@ -30,7 +30,7 @@ Build-Depends-Indep:
  python3-keystoneclient,
  python3-gnocchiclient,
  python3-nectarallocationclient,
- python3-manukaclient
+ python3-manukaclient,
  python3-warreclient
 Standards-Version: 3.9.5
 Homepage: https://github.com/NeCTAR-RC/nectar-metrics
