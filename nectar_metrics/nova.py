@@ -173,7 +173,10 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
 
         home = 'unknown'  # default if not an allocation or PT
         allocation = allocations.get(server['tenant_id'])
-        if allocation:
+
+        if server.get('flavor').get('original_name').startswith('p3.'):
+            home = 'preemptible'
+        elif allocation:
             home = '{}.{}'.format(
                 'national' if allocation.national else 'local',
                 allocation.associated_site
@@ -182,8 +185,6 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
             project = project_cache[server['tenant_id']]
             if project.name.startswith('pt-'):
                 home = 'PT'
-            elif 'preemptible' in project.tags:
-                home = 'preemptible'
             elif getattr(project, 'expiry_status', '') == 'admin':
                 home = 'admin'
 
