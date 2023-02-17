@@ -95,8 +95,8 @@ class PackagePollster(plugin_base.PollsterBase):
                                     if package in package_totals:
                                         package_totals[package] += 1
             except Exception as e:
-                LOG.warning('Failed to add stats for package %s: %s',
-                            package, e)
+                LOG.warning('Failed to add stats for package')
+                LOG.exception(e)
 
             for package, count in package_totals.items():
                 s = sample.Sample(
