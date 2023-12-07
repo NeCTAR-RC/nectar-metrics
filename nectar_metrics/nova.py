@@ -340,7 +340,7 @@ def fill_capacities_for_resource(client, caps, resource):
             granularity=3600,
             start=two_hours_ago,
             fill=0.0,
-            search={}
+            search={'=': {'ended_at': None}}
         )
     except gnocchi.exceptions.ClientException as e:
         LOG.warning("Gnocchi query failed: %s, query was: %s",
