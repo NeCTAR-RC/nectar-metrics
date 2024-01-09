@@ -88,7 +88,7 @@ class PackagePollster(plugin_base.PollsterBase):
                 if environment.services:
                     for services in environment.services:
                         for val in services.values():
-                            if type(val) == dict:
+                            if isinstance(val, dict):
                                 t = val.get('type')
                                 if t and t.find('/') > 0:
                                     package = t.split('/')[0]
