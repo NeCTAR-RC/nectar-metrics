@@ -28,7 +28,26 @@ class DatabasePollster(plugin_base.PollsterBase):
                 volume=1,
                 user_id=None,
                 project_id=db.tenant_id,
-                resource_id=db.id)
+                resource_id=db.id,
+                resource_metadata={
+                    'name': db.name,
+                    'flavor_id': db.flavor.get('id'),
+                    'datastore_type': db.datastore.get('type'),
+                    'datastore_version': db.datastore.get('version')})
+            )
+            samples.append(sample.Sample(
+                name='database.size',
+                type=sample.TYPE_GAUGE,
+                unit='GB',
+                volume=db.volume.get('size'),
+                user_id=None,
+                project_id=db.tenant_id,
+                resource_id=db.id,
+                resource_metadata={
+                    'name': db.name,
+                    'flavor_id': db.flavor.get('id'),
+                    'datastore_type': db.datastore.get('type'),
+                    'datastore_version': db.datastore.get('version')})
             )
             total += 1
             projects.add(db.tenant_id)

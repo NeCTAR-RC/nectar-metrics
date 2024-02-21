@@ -4,6 +4,7 @@ python-heatclient
 python-magnumclient
 python-muranoclient
 python-novaclient
+python-troveclient
 warreclient
 whisper
 gnocchiclient
