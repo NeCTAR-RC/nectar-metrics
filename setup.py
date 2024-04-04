@@ -39,9 +39,6 @@ entry_points = {
         'nectar.virtual_desktops = nectar_metrics.ceilometer.virtual_desktop.pollster:VirtualDesktopPollster', # noqa
         'nectar.reservation_flavors = nectar_metrics.ceilometer.reservation.pollster:ReservationFlavorPollster', # noqa
     ],
-    'ceilometer.builder.poll.central': [
-        'f5_virtualservers = nectar_metrics.ceilometer.f5.pollster:F5VirtualServerPollster', # noqa
-    ],
     'ceilometer.poll.objectstore': [
         'nectar.swift = nectar_metrics.ceilometer.objectstore.swift:SwiftDiskPollster', # noqa
     ],
@@ -56,7 +53,6 @@ entry_points = {
         'all_databases = nectar_metrics.ceilometer.database.discovery:DatabaseDiscovery', # noqa
         'cinder_pools = nectar_metrics.ceilometer.volume.discovery:PoolDiscovery', # noqa
         'resource_providers = nectar_metrics.ceilometer.placement.discovery:ResourceProviderDiscovery', # noqa
-        'f5_loadbalancers = nectar_metrics.ceilometer.f5.discovery:F5Discovery', # noqa
         'container_infra = nectar_metrics.ceilometer.container_infra.discovery:MagnumClusterDiscovery', # noqa
         'orchestration_stacks = nectar_metrics.ceilometer.orchestration.discovery:HeatStackDiscovery', # noqa
         'application_catalog_environments = nectar_metrics.ceilometer.application_catalog.discovery:EnvironmentDiscovery',  # noqa
