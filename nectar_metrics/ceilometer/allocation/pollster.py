@@ -48,6 +48,7 @@ class AllocationStatusPollster(AllocationPollsterBase):
         samples = []
         counts = {'deleted': 0, 'active': 0, 'pending': 0}
         home_totals = defaultdict(int)
+        bundle_totals = defaultdict(int)
 
         for allocation in resources:
             if allocation.status == states.DELETED:
@@ -61,6 +62,7 @@ class AllocationStatusPollster(AllocationPollsterBase):
                 continue
             counts['active'] += 1
             home_totals[allocation.allocation_home] += 1
+            bundle_totals[allocation.bundle] += 1
 
         for status, count in counts.items():
             samples.append(sample.Sample(
@@ -82,6 +84,19 @@ class AllocationStatusPollster(AllocationPollsterBase):
                 user_id=None,
                 project_id=None,
                 resource_id=home)
+            )
+
+        for bundle, count in bundle_totals.items():
+            if bundle is None:
+                bundle = 'Custom'
+            samples.append(sample.Sample(
+                name='allocations.bundle',
+                type=sample.TYPE_GAUGE,
+                unit='Allocation',
+                volume=count,
+                user_id=None,
+                project_id=None,
+                resource_id=bundle)
             )
 
         sample_iters = []
