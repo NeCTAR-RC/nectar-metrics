@@ -96,7 +96,8 @@ class AllocationStatusPollster(AllocationPollsterBase):
                 volume=count,
                 user_id=None,
                 project_id=None,
-                resource_id=bundle)
+                resource_id=bundle,
+                resource_metadata={'name': bundle})
             )
 
         sample_iters = []
