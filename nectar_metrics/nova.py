@@ -88,7 +88,7 @@ def by_az_by_domain(servers, users, now, sender):
         az = server.get('OS-EXT-AZ:availability_zone')
 
         if server['user_id'] in users and users[server['user_id']] is None:
-            LOG.info("skipping unknown user %s" % server['user_id'])
+            LOG.debug("skipping unknown user %s" % server['user_id'])
             continue
 
         if server['user_id'] not in users:
