@@ -62,7 +62,10 @@ class AllocationStatusPollster(AllocationPollsterBase):
                 continue
             counts['active'] += 1
             home_totals[allocation.allocation_home] += 1
-            bundle_totals[allocation.bundle] += 1
+            if not allocation.managed:
+                bundle_totals['Unmanaged'] += 1
+            else:
+                bundle_totals[allocation.bundle] += 1
 
         for status, count in counts.items():
             samples.append(sample.Sample(
