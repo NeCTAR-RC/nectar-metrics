@@ -369,8 +369,8 @@ def fill_capacities_for_resource(client, caps, resource):
             errors = True
 
     if errors:
-        LOG.warning("One or more resource providers "
-                    "had no capacity metrics.")
+        LOG.info("One or more resource providers "
+                 "had no capacity metrics.")
 
 
 usage_metrics = {
