@@ -31,6 +31,8 @@ class ReservationFlavorPollster(plugin_base.PollsterBase):
     def get_samples(self, manager, cache, resources):
         samples = []
         for flavor in resources:
+            if not flavor.active:
+                continue
             samples.append(
                 sample.Sample(
                     name='warre.reservation-flavor.capacity',
