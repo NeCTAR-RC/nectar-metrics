@@ -1,15 +1,6 @@
+from collections import UserDict
+from configparser import ConfigParser
 import os
-
-try:
-    from UserDict import UserDict
-except ImportError:
-    # py3
-    from collections import UserDict
-
-try:
-    from ConfigParser import SafeConfigParser
-except ImportError:
-    from configparser import SafeConfigParser
 
 
 CONFIG_FILE = '/etc/nectar/metrics.ini'
@@ -58,6 +49,6 @@ def read(filename=None):
         filename = ALT_CONFIG_FILE
     else:
         raise Exception("Can't find configuration file. %s" % CONFIG_FILE)
-    parser = SafeConfigParser()
+    parser = ConfigParser()
     parser.read(filename)
     CONFIG.update(as_dict(parser))
