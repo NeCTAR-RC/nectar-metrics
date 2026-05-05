@@ -490,8 +490,17 @@ def do_report(sender, limit):
         marker = page[-1].id
 
     LOG.info('Fethcing projects...')
-    for project in kclient.projects.list():
-        project_cache[project.id] = project
+    page_size = 500
+    marker = None
+    while True:
+        page = kclient.projects.list(limit=page_size, marker=marker)
+        if not page:
+            break
+        for project in page:
+            project_cache[project.id] = project
+        if len(page) < page_size:
+            break
+        marker = page[-1].id
 
     LOG.info('Fetching server list...')
     servers = [server._info for server in all_servers(nclient, limit)
