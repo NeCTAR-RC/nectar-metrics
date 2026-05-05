@@ -469,16 +469,25 @@ def do_report(sender, limit):
     availability = get_availability_by_site(capacities, usages)
 
     LOG.info('Fetching user list...')
-    for user in kclient.users.list():
-        if not getattr(user, 'email', None):
-            users[user.id] = None
-            continue
-        email = user.email.split('@')[-1]
-        if email.endswith('.edu.au'):
-            email = '_'.join(email.split('.')[-3:])
-        else:
-            email = email.replace('.', '_')
-        users[user.id] = email
+    page_size = 500
+    marker = None
+    while True:
+        page = kclient.users.list(limit=page_size, marker=marker)
+        if not page:
+            break
+        for user in page:
+            if not getattr(user, 'email', None):
+                users[user.id] = None
+                continue
+            email = user.email.split('@')[-1]
+            if email.endswith('.edu.au'):
+                email = '_'.join(email.split('.')[-3:])
+            else:
+                email = email.replace('.', '_')
+            users[user.id] = email
+        if len(page) < page_size:
+            break
+        marker = page[-1].id
 
     LOG.info('Fethcing projects...')
     for project in kclient.projects.list():
