@@ -39,7 +39,7 @@ class SocketMetricSender(base.BaseSender):
         if self.count % self.flooding_at == 0:
             self.log.info("Flooding the server, sleeping for 60.")
             time.sleep(60)
-        self.sock.sendall(message)
+        self.sock.sendall(message.encode('utf-8'))
         return message
 
 
