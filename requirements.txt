@@ -12,6 +12,7 @@ nectarallocationclient
 manukaclient
 placementclient
 prometheus-client
+requests
 numpy
 pandas
 pbr
