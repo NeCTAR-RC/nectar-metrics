@@ -6,6 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
+# Running pip as root is expected inside the image build
+ENV PIP_ROOT_USER_ACTION=ignore
+
 # Install pip requirements. gcc is only needed to build wheels during the
 # install, so install it, build, then purge it and the apt cache so the
 # compiler is not left in the runtime image.
