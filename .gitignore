@@ -1,4 +1,5 @@
 *.py[cod]
+__pycache__/
 
 # C extensions
 *.so
@@ -20,12 +21,22 @@ lib64
 
 # Installer logs
 pip-log.txt
+logs/*
 
 # Unit test / coverage reports
+.coverage/*
 .coverage
+.coverage*
+.cache
 .tox
 nosetests.xml
 htmlcov
+.pytest_cache/
+.testrepository/*
+.eggs/*
+.venv*
+cover/*
+coverage.xml
 
 # Translations
 *.mo
@@ -41,7 +52,13 @@ output/*/index.html
 
 # Sphinx
 docs/_build
-/previous_servers.pickle
+releasenotes/build
 
-.venv
-.cache
+# vs code
+.vscode
+
+# Editors
+.#*
+*~
+
+/previous_servers.pickle
