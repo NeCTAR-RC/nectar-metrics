@@ -1,0 +1,14 @@
+---
+upgrade:
+  - |
+    Packaging has moved to pbr. The package version is now derived from
+    git tags rather than a hardcoded version in ``setup.py``.
+  - |
+    Python 2 support has been formally dropped. Python 3.10 or later is
+    now required.
+other:
+  - |
+    Development tooling has been modernised: linting now runs through
+    pre-commit (ruff, hacking, doc8, typos), tests run on Python 3.12
+    under OpenStack upper-constraints, and release notes are managed
+    with reno.
