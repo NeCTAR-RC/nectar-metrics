@@ -25,13 +25,15 @@ AZ_METRICS = (
 )
 
 _AZ_RE = re.compile(
-    r'^az\.(?P<az>[^.]+)\.(?P<metric>%s)$' % '|'.join(AZ_METRICS))
+    r'^az\.(?P<az>[^.]+)\.(?P<metric>{})$'.format('|'.join(AZ_METRICS))
+)
 _DOMAIN_RE = re.compile(
-    r'^az\.(?P<az>[^.]+)\.domain\.(?P<domain>[^.]+)\.used_vcpus$')
+    r'^az\.(?P<az>[^.]+)\.domain\.(?P<domain>[^.]+)\.used_vcpus$'
+)
 _HOME_RE = re.compile(
-    r'^az\.(?P<az>[^.]+)\.allocation_home\.(?P<home>[^.]+)\.used_vcpus$')
-_ACTIVE_PROJECTS_RE = re.compile(
-    r'^active\.projects\.(?P<service>[^.]+)$')
+    r'^az\.(?P<az>[^.]+)\.allocation_home\.(?P<home>[^.]+)\.used_vcpus$'
+)
+_ACTIVE_PROJECTS_RE = re.compile(r'^active\.projects\.(?P<service>[^.]+)$')
 
 
 def from_dotted_path(path):
@@ -45,8 +47,10 @@ def from_dotted_path(path):
 
     match = _AZ_RE.match(path)
     if match:
-        return ('nectar_%s' % match.group('metric'),
-                {'az': match.group('az')})
+        return (
+            'nectar_{}'.format(match.group('metric')),
+            {'az': match.group('az')},
+        )
 
     match = _DOMAIN_RE.match(path)
     if match:
@@ -54,17 +58,20 @@ def from_dotted_path(path):
         # (e.g. unimelb_edu_au); restore the real dots. Safe because
         # hostnames cannot contain underscores.
         domain = match.group('domain').replace('_', '.')
-        return ('nectar_domain_used_vcpus',
-                {'az': match.group('az'), 'domain': domain})
+        return (
+            'nectar_domain_used_vcpus',
+            {'az': match.group('az'), 'domain': domain},
+        )
 
     match = _HOME_RE.match(path)
     if match:
-        return ('nectar_allocation_home_used_vcpus',
-                {'az': match.group('az'), 'home': match.group('home')})
+        return (
+            'nectar_allocation_home_used_vcpus',
+            {'az': match.group('az'), 'home': match.group('home')},
+        )
 
     match = _ACTIVE_PROJECTS_RE.match(path)
     if match:
-        return ('nectar_active_projects',
-                {'service': match.group('service')})
+        return ('nectar_active_projects', {'service': match.group('service')})
 
     return None

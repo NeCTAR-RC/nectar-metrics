@@ -1,5 +1,5 @@
-from os import path
 import logging.config
+from os import path
 
 from nectar_metrics.config import CONFIG
 
@@ -17,7 +17,7 @@ def setup(filename, file_level='INFO', console_level='INFO'):
             'console': {
                 'level': console_level,
                 'class': 'logging.StreamHandler',
-                'formatter': 'simple'
+                'formatter': 'simple',
             },
             'file': {
                 'level': file_level,

@@ -89,8 +89,10 @@ def do_report(sender, limit):
 def main():
     parser = Main('cinder')
     parser.add_argument(
-        '--limit', default=None,
-        help='Limit the response to some volumes only.')
+        '--limit',
+        default=None,
+        help='Limit the response to some volumes only.',
+    )
     args = parser.parse_args()
     LOG.info("Running Report")
     do_report(parser.sender(), args.limit)

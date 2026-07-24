@@ -1,7 +1,7 @@
 import itertools
 
-from oslo_log import log
 from oslo_config import cfg
+from oslo_log import log
 
 try:
     # queens
@@ -16,23 +16,20 @@ from ceilometer import sample
 LOG = log.getLogger(__name__)
 
 
-opt_group = cfg.OptGroup(name='swift',
-                         title='Options for Swift')
+opt_group = cfg.OptGroup(name='swift', title='Options for Swift')
 
 OPTS = [
-    cfg.StrOpt('region_name',
-               help='Swift Region'),
+    cfg.StrOpt('region_name', help='Swift Region'),
 ]
 
 
 class SwiftDiskPollster(plugin_base.PollsterBase):
-    """ Collects stats on swift disks
-    """
+    """Collects stats on swift disks"""
 
     def __init__(self, conf):
         conf.register_group(opt_group)
         conf.register_opts(OPTS, group=opt_group)
-        super(SwiftDiskPollster, self).__init__(conf)
+        super().__init__(conf)
 
     @property
     def default_discovery(self):
@@ -44,28 +41,32 @@ class SwiftDiskPollster(plugin_base.PollsterBase):
         resource_id = "-".join([region, host, disk])
 
         return sample.Sample(
-            name='swift.disk.%s' % metric,
+            name=f'swift.disk.{metric}',
             type=sample.TYPE_GAUGE,
             unit='B',
             volume=value,
             user_id=None,
             project_id=None,
             resource_id=resource_id,
-            resource_metadata={'host': host, 'region': region,
-                               'device_name': disk})
+            resource_metadata={
+                'host': host,
+                'region': region,
+                'device_name': disk,
+            },
+        )
 
     def get_samples(self, manager, cache, resources):
         samples = []
         host = self.conf.host
         region = self.conf.swift.region_name
         if not host or not region:
-            LOG.error("""host or region missing, host=%s region=%s.
-                      Please check your configuration""" % (host, region))
+            LOG.error(f"""host or region missing, host={host} region={region}.
+                      Please check your configuration""")
             raise
         for disk in resources:
             mounted = disk['mounted']
             if not mounted:
-                LOG.warn("Skipping %s, not mounted" % disk['device'])
+                LOG.warn("Skipping {}, not mounted".format(disk['device']))
                 continue
 
             device_name = disk['device']
@@ -74,11 +75,10 @@ class SwiftDiskPollster(plugin_base.PollsterBase):
             size = disk['size']
 
             samples.append(
-                self._make_sample('available', available, device_name))
-            samples.append(
-                self._make_sample('used', used, device_name))
-            samples.append(
-                self._make_sample('size', size, device_name))
+                self._make_sample('available', available, device_name)
+            )
+            samples.append(self._make_sample('used', used, device_name))
+            samples.append(self._make_sample('size', size, device_name))
 
         sample_iters = []
         sample_iters.append(samples)

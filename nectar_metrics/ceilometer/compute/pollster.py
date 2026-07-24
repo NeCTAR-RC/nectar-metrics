@@ -5,7 +5,6 @@ from ceilometer import sample
 
 
 class ComputePollster(plugin_base.PollsterBase):
-
     @property
     def default_discovery(self):
         return 'all_instances'
@@ -25,10 +24,12 @@ class ComputePollster(plugin_base.PollsterBase):
                     user_id=instance.user_id,
                     project_id=instance.tenant_id,
                     resource_id=instance.id,
-                    resource_metadata={'availability_zone': az,
-                                       'display_name': instance.name,
-                                       'host': host,
-                                       'flavor_id': instance.flavor['id']},
+                    resource_metadata={
+                        'availability_zone': az,
+                        'display_name': instance.name,
+                        'host': host,
+                        'flavor_id': instance.flavor['id'],
+                    },
                 )
                 samples.append(s)
 

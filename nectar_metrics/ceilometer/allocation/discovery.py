@@ -12,9 +12,8 @@ LOG = log.getLogger(__name__)
 
 
 class AllocationDiscovery(plugin_base.DiscoveryBase):
-
     def __init__(self, conf):
-        super(AllocationDiscovery, self).__init__(conf)
+        super().__init__(conf)
         creds = conf.service_credentials
         self.client = client.Client(
             version='1',
@@ -27,16 +26,20 @@ class AllocationDiscovery(plugin_base.DiscoveryBase):
         """Discover object server disks."""
         active_allocations = []
         all_allocations = self.client.allocations.list(
-            parent_request__isnull=True)
+            parent_request__isnull=True
+        )
         for allocation in all_allocations:
-            if allocation.status in [states.DELETED,
-                                     states.SUBMITTED,
-                                     states.APPROVED]:
+            if allocation.status in [
+                states.DELETED,
+                states.SUBMITTED,
+                states.APPROVED,
+            ]:
                 active_allocations.append(allocation)
             else:
                 try:
                     allocation = self.client.allocations.get_last_approved(
-                        parent_request=allocation.id)
+                        parent_request=allocation.id
+                    )
                     active_allocations.append(allocation)
                 except exceptions.AllocationDoesNotExist:
                     continue

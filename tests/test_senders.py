@@ -3,18 +3,20 @@ import json
 import pytest
 
 from nectar_metrics import config
-from nectar_metrics.senders import victoria
 from nectar_metrics.senders.graphite import SocketMetricSender
+from nectar_metrics.senders import victoria
 
 
 def test_socket_sender_sends_bytes(mocker):
     socket_class = mocker.patch(
-        'nectar_metrics.senders.graphite.socket.socket')
+        'nectar_metrics.senders.graphite.socket.socket'
+    )
     sock = socket_class.return_value
     sender = SocketMetricSender('carbon.example.com', 2003)
     sender.send_metric('az.zone1.used_vcpus', 10.5, 1400000000)
     sock.sendall.assert_called_once_with(
-        b'az.zone1.used_vcpus 10.50 1400000000\n')
+        b'az.zone1.used_vcpus 10.50 1400000000\n'
+    )
 
 
 def make_sender(mocker):
@@ -40,8 +42,7 @@ def test_victoria_send_and_flush(mocker):
     assert url == 'http://vm:8428/api/v1/import'
     by_name = dict((line['metric']['__name__'], line) for line in series)
     vcpus = by_name['nectar_used_vcpus']
-    assert vcpus['metric'] == {'__name__': 'nectar_used_vcpus',
-                               'az': 'zone1'}
+    assert vcpus['metric'] == {'__name__': 'nectar_used_vcpus', 'az': 'zone1'}
     assert vcpus['timestamps'] == [1400000000000, 1400000300000]
     assert vcpus['values'] == [10.0, 11.0]
     users = by_name['nectar_users_total']
@@ -64,10 +65,10 @@ def test_victoria_drops_unmigrated(mocker):
     sender = make_sender(mocker)
     sender.send_by_tenant('8ffff', 'used_vcpus', 1, 1400000000)
     sender.send_by_idp('idp_unimelb_edu_au', 'total', 5, 1400000000)
-    sender.send_by_host_by_home('qh2-rcc-1', 'national', 'used_vcpus',
-                                2, 1400000000)
-    sender.send_capacity_by_site('monash', 'national', 'vcpu',
-                                 100, 1400000000)
+    sender.send_by_host_by_home(
+        'qh2-rcc-1', 'national', 'used_vcpus', 2, 1400000000
+    )
+    sender.send_capacity_by_site('monash', 'national', 'vcpu', 100, 1400000000)
     assert sender.buffered == {}
     assert sender.dropped == 4
     sender.flush()
@@ -76,21 +77,23 @@ def test_victoria_drops_unmigrated(mocker):
 
 def test_victoria_domain_labels(mocker):
     sender = make_sender(mocker)
-    sender.send_by_az_by_domain('zone1', 'unimelb_edu_au', 'used_vcpus',
-                                7, 1400000000)
-    sender.send_by_az_by_home('zone1', 'monash', 'used_vcpus',
-                              8, 1400000000)
+    sender.send_by_az_by_domain(
+        'zone1', 'unimelb_edu_au', 'used_vcpus', 7, 1400000000
+    )
+    sender.send_by_az_by_home('zone1', 'monash', 'used_vcpus', 8, 1400000000)
     sender.flush()
     _, series = posted_series(sender)
     by_name = dict((line['metric']['__name__'], line) for line in series)
     assert by_name['nectar_domain_used_vcpus']['metric'] == {
         '__name__': 'nectar_domain_used_vcpus',
         'az': 'zone1',
-        'domain': 'unimelb.edu.au'}
+        'domain': 'unimelb.edu.au',
+    }
     assert by_name['nectar_allocation_home_used_vcpus']['metric'] == {
         '__name__': 'nectar_allocation_home_used_vcpus',
         'az': 'zone1',
-        'home': 'monash'}
+        'home': 'monash',
+    }
 
 
 def test_victoria_auto_flush(mocker, monkeypatch):

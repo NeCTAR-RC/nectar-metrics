@@ -28,8 +28,7 @@ NOVA_VERSION = '2.60'
 
 def client():
     auth_session = get_auth_session()
-    return nova_client.Client(NOVA_VERSION,
-                              session=auth_session)
+    return nova_client.Client(NOVA_VERSION, session=auth_session)
 
 
 def all_servers(client, limit=None):
@@ -88,13 +87,15 @@ def by_az_by_domain(servers, users, now, sender):
         az = server.get('OS-EXT-AZ:availability_zone')
 
         if server['user_id'] in users and users[server['user_id']] is None:
-            LOG.debug("skipping unknown user %s" % server['user_id'])
+            LOG.debug("skipping unknown user {}".format(server['user_id']))
             continue
 
         if server['user_id'] not in users:
             LOG.error(
-                "user %s doesn't exist but is currently owner of server %s"
-                % (server['user_id'], server['id']))
+                "user {} doesn't exist but is currently owner of server {}".format(
+                    server['user_id'], server['id']
+                )
+            )
             continue
 
         domain = users[server['user_id']]
@@ -114,8 +115,7 @@ def by_tenant(servers, now, sender):
         servers_by_tenant[server['tenant_id']].append(server)
     for tenant, servers in servers_by_tenant.items():
         for metric, value in server_metrics(servers).items():
-            if metric not in ['used_vcpus', 'total_instances',
-                              'used_memory']:
+            if metric not in ['used_vcpus', 'total_instances', 'used_memory']:
                 continue
             sender.send_by_tenant(tenant, metric, value, now)
 
@@ -131,8 +131,11 @@ def by_az_by_tenant(servers, now, sender):
     for zone, items in servers_by_az_by_tenant.items():
         for tenant, servers in items.items():
             for metric, value in server_metrics(servers).items():
-                if metric not in ['used_vcpus', 'total_instances',
-                                  'used_memory']:
+                if metric not in [
+                    'used_vcpus',
+                    'total_instances',
+                    'used_memory',
+                ]:
                     continue
                 sender.send_by_az_by_tenant(zone, tenant, metric, value, now)
 
@@ -167,8 +170,7 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
             # This usually means the instance failed to schedule and is in
             # ERROR state, but it could also mean the instance is shelved.
             # For now, we don't count any resource usage in these cases.
-            LOG.debug("Server %s is not on any host, skipping.",
-                      server["id"])
+            LOG.debug("Server %s is not on any host, skipping.", server["id"])
             continue
 
         home = 'unknown'  # default if not an allocation or PT
@@ -179,7 +181,7 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
         elif allocation:
             home = '{}.{}'.format(
                 'national' if allocation.national else 'local',
-                allocation.associated_site
+                allocation.associated_site,
             )
         else:
             project = project_cache[server['tenant_id']]
@@ -198,8 +200,12 @@ def by_host_by_home(servers, allocations, project_cache, now, sender):
 
 
 def change_over_time(servers_by_az, now, sender):
-    current_servers = dict([(az, set([server['id'] for server in servers]))
-                            for az, servers in servers_by_az.items()])
+    current_servers = dict(
+        [
+            (az, set([server['id'] for server in servers]))
+            for az, servers in servers_by_az.items()
+        ]
+    )
     working_dir = CONF.get('metrics', 'working_dir')
     previous_servers_file = path.join(working_dir, "previous_servers.pickle")
 
@@ -211,7 +217,7 @@ def change_over_time(servers_by_az, now, sender):
         with open(previous_servers_file, 'rb') as pickle_file:
             previous_servers = pickle.load(pickle_file)
     except EOFError:
-        LOG.warning("Invalid data in pickle %s" % previous_servers_file)
+        LOG.warning(f"Invalid data in pickle {previous_servers_file}")
         previous_servers = current_servers
 
     # Override the pickle each time no matter what.  this will
@@ -245,13 +251,16 @@ def get_active_allocations():
     allocations = aclient.allocations.list(parent_request__isnull=True)
 
     for allocation in allocations:
-        if (allocation.status == states.DELETED
-                or allocation.status == states.SUBMITTED):
+        if (
+            allocation.status == states.DELETED
+            or allocation.status == states.SUBMITTED
+        ):
             continue
         elif allocation.status != states.APPROVED:
             try:
                 allocation = aclient.allocations.get_last_approved(
-                    parent_request=allocation.id)
+                    parent_request=allocation.id
+                )
             except exceptions.AllocationDoesNotExist:
                 continue
 
@@ -303,26 +312,32 @@ def get_availability_by_site(capacities, usages):
         usage = usages.get(site, {})
         available = availability.get(site, defaultdict(dict))
         for resource in ['vcpu', 'memory', 'disk']:
-            local_cap = cap.get('local', {}).get(resource, .0)
-            local_usage = usage.get('local', {}).get(resource, .0)
+            local_cap = cap.get('local', {}).get(resource, 0.0)
+            local_usage = usage.get('local', {}).get(resource, 0.0)
             local_availability = local_cap - local_usage
             available['local'][resource] = local_availability
             LOG.debug(
                 'Local availability %s %s: %s',
-                site, resource, local_availability)
+                site,
+                resource,
+                local_availability,
+            )
 
             if 'national' in cap and resource in cap['national']:
                 national_availability = (
                     cap['national'][resource]
-                    - usage.get('national', {}).get(resource, .0)
-                    - usage.get('PT', {}).get(resource, .0)
-                    - usage.get('other', {}).get(resource, .0)
+                    - usage.get('national', {}).get(resource, 0.0)
+                    - usage.get('PT', {}).get(resource, 0.0)
+                    - usage.get('other', {}).get(resource, 0.0)
                     + min(0, local_availability)
                 )
                 available['national'][resource] = national_availability
                 LOG.debug(
                     'National availability %s %s: %s',
-                    site, resource, national_availability)
+                    site,
+                    resource,
+                    national_availability,
+                )
         availability[site] = available
     return availability
 
@@ -340,11 +355,10 @@ def fill_capacities_for_resource(client, caps, resource):
             granularity=3600,
             start=two_hours_ago,
             fill=0.0,
-            search={'=': {'ended_at': None}}
+            search={'=': {'ended_at': None}},
         )
     except gnocchi.exceptions.ClientException as e:
-        LOG.warning("Gnocchi query failed: %s, query was: %s",
-                    str(e), query)
+        LOG.warning("Gnocchi query failed: %s, query was: %s", str(e), query)
         return
 
     errors = False
@@ -369,8 +383,7 @@ def fill_capacities_for_resource(client, caps, resource):
             errors = True
 
     if errors:
-        LOG.info("One or more resource providers "
-                 "had no capacity metrics.")
+        LOG.info("One or more resource providers had no capacity metrics.")
 
 
 usage_metrics = {
@@ -396,8 +409,7 @@ usage_metrics = {
 def fill_usages_for_resource(client, usages, scope, resource):
     two_hours_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=2)
     metrics = usage_metrics[scope]
-    metrics_query = " ".join(["({metric} mean)".format(metric=metric)
-                             for metric in metrics])
+    metrics_query = " ".join([f"({metric} mean)" for metric in metrics])
     query = "(aggregate sum (metric {metrics} ))"
     query = query.format(metrics=metrics_query)
     query = query.format(resource=resource)
@@ -410,11 +422,10 @@ def fill_usages_for_resource(client, usages, scope, resource):
             granularity=3600,
             start=two_hours_ago,
             fill=0.0,
-            search={}
+            search={},
         )
     except gnocchi.exceptions.ClientException as e:
-        LOG.warning("Gnocchi query failed: %s, query was: %s",
-                    str(e), query)
+        LOG.warning("Gnocchi query failed: %s, query was: %s", str(e), query)
         return
 
     for usage in gnocchi_usages:
@@ -453,8 +464,9 @@ def availability_by_site(availability, now, sender):
     for site, availabilities in availability.items():
         for scope, resources in availabilities.items():
             for resource, value in resources.items():
-                sender.send_availability_by_site(site, scope, resource,
-                                                 value, now)
+                sender.send_availability_by_site(
+                    site, scope, resource, value, now
+                )
 
 
 def do_report(sender, limit):
@@ -503,8 +515,11 @@ def do_report(sender, limit):
         marker = page[-1].id
 
     LOG.info('Fetching server list...')
-    servers = [server._info for server in all_servers(nclient, limit)
-               if getattr(server, 'OS-EXT-AZ:availability_zone')]
+    servers = [
+        server._info
+        for server in all_servers(nclient, limit)
+        if getattr(server, 'OS-EXT-AZ:availability_zone')
+    ]
 
     LOG.info('Fetching allocations list...')
     allocations = get_active_allocations()
@@ -540,8 +555,10 @@ def do_report(sender, limit):
 def main():
     parser = cli.Main('nova')
     parser.add_argument(
-        '--limit', default=None,
-        help='Limit the response to some servers only.')
+        '--limit',
+        default=None,
+        help='Limit the response to some servers only.',
+    )
     args = parser.parse_args()
     LOG.info("Running Report")
     do_report(parser.sender(), args.limit)

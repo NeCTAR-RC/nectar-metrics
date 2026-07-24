@@ -1,45 +1,66 @@
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
-from nectar_metrics import log
 from nectar_metrics import config
+from nectar_metrics import log
 from nectar_metrics.senders.base import DummySender
-from nectar_metrics.senders.graphite import (PickleSocketMetricSender,
-                                             SocketMetricSender)
-from nectar_metrics.senders.gnocchi import GnocchiSender
 from nectar_metrics.senders.composite import GnocchiGraphiteSender
 from nectar_metrics.senders.composite import GnocchiGraphiteVictoriaSender
 from nectar_metrics.senders.composite import GnocchiVictoriaSender
+from nectar_metrics.senders.gnocchi import GnocchiSender
+from nectar_metrics.senders.graphite import (
+    PickleSocketMetricSender,
+    SocketMetricSender,
+)
 from nectar_metrics.senders.victoria import VictoriaMetricsSender
 
 
-class Main(object):
+class Main:
     def __init__(self, name):
         self.parser = ArgumentParser(
-            formatter_class=ArgumentDefaultsHelpFormatter)
+            formatter_class=ArgumentDefaultsHelpFormatter
+        )
         self.parser.add_argument(
-            '-v', '--verbose', action='count', default=0,
-            help="Increase verbosity (specify multiple times for more)")
+            '-v',
+            '--verbose',
+            action='count',
+            default=0,
+            help="Increase verbosity (specify multiple times for more)",
+        )
         self.parser.add_argument(
-            '-q', '--quiet', action='store_true',
-            help="Don't print any logging output")
+            '-q',
+            '--quiet',
+            action='store_true',
+            help="Don't print any logging output",
+        )
         self.parser.add_argument(
-            '--protocol', choices=['debug', 'carbon',
-                                   'carbon_pickle', 'gnocchi',
-                                   'gnocchi_graphite',
-                                   'victoria', 'gnocchi_victoria',
-                                   'gnocchi_graphite_victoria'],
-            required=True)
+            '--protocol',
+            choices=[
+                'debug',
+                'carbon',
+                'carbon_pickle',
+                'gnocchi',
+                'gnocchi_graphite',
+                'victoria',
+                'gnocchi_victoria',
+                'gnocchi_graphite_victoria',
+            ],
+            required=True,
+        )
+        self.parser.add_argument('--carbon-host', help='Carbon Host.')
         self.parser.add_argument(
-            '--carbon-host', help='Carbon Host.')
-        self.parser.add_argument(
-            '--carbon-port', default=2003, type=int, help='Carbon Port.')
+            '--carbon-port', default=2003, type=int, help='Carbon Port.'
+        )
         self.parser.add_argument(
             '--victoria-url',
             help='VictoriaMetrics base URL (default: [victoria] url '
-                 'from the config file).')
+            'from the config file).',
+        )
         self.parser.add_argument(
-            '--config', default=config.CONFIG_FILE, type=str,
-            help='Config file path.')
+            '--config',
+            default=config.CONFIG_FILE,
+            type=str,
+            help='Config file path.',
+        )
         self.parsed_args = None
         self.name = name
 
@@ -70,8 +91,9 @@ class Main(object):
                 self.parser.error('argument --carbon-host is required')
             if not args.carbon_port:
                 self.parser.error('argument --carbon-port is required')
-            sender = PickleSocketMetricSender(args.carbon_host,
-                                              args.carbon_port)
+            sender = PickleSocketMetricSender(
+                args.carbon_host, args.carbon_port
+            )
         elif args.protocol == 'gnocchi':
             sender = GnocchiSender()
         elif args.protocol == 'gnocchi_graphite':
@@ -84,8 +106,8 @@ class Main(object):
             if not args.carbon_host:
                 self.parser.error('argument --carbon-host is required')
             sender = GnocchiGraphiteVictoriaSender(
-                args.carbon_host, args.carbon_port,
-                self._victoria_url(args))
+                args.carbon_host, args.carbon_port, self._victoria_url(args)
+            )
         elif args.protocol == 'debug':
             sender = DummySender()
 
@@ -96,7 +118,8 @@ class Main(object):
         if not url:
             self.parser.error(
                 'VictoriaMetrics URL not configured; set [victoria] url '
-                'in the config file or pass --victoria-url')
+                'in the config file or pass --victoria-url'
+            )
         return url
 
     def logging(self):
@@ -109,4 +132,4 @@ class Main(object):
             log_level = 'DEBUG'
         elif args.quiet:
             log_level = None
-        log.setup('%s.log' % self.name, 'INFO', log_level)
+        log.setup(f'{self.name}.log', 'INFO', log_level)

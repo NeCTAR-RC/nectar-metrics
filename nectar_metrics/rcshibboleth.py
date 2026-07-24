@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 
 from collections import defaultdict
+
 try:
     from urlparse import urlsplit
 except ImportError:
@@ -17,17 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 ODD_IDPS = {
-    'urn:mace:federation.org.au:testfed:uq.edu.au':
-    'idp.uq.edu.au',
-
-    'urn:mace:federation.org.au:testfed:au-idp.adelaide.edu.au':
-    'idp.adelaide.edu.au',
-
-    'urn:mace:federation.org.au:testfed:mq.edu.au':
-    'idp.mq.edu.au',
-
-    'urn:mace:aaf.edu.au:idp:468d3d0153e23dda76af9397bddf20ca':
-    'idp.des.qld.gov.au',
+    'urn:mace:federation.org.au:testfed:uq.edu.au': 'idp.uq.edu.au',
+    'urn:mace:federation.org.au:testfed:au-idp.adelaide.edu.au': 'idp.adelaide.edu.au',
+    'urn:mace:federation.org.au:testfed:mq.edu.au': 'idp.mq.edu.au',
+    'urn:mace:aaf.edu.au:idp:468d3d0153e23dda76af9397bddf20ca': 'idp.des.qld.gov.au',
 }
 
 
@@ -50,10 +44,10 @@ def by_idp(sender, users, time):
             elif idp in ODD_IDPS:
                 users_by_idp[ODD_IDPS[idp].replace('.', '_')].append(user)
             elif idp == 'idp.fake.nectar.org.au':
-                logger.debug("Unknown IDP %s" % idp)
+                logger.debug(f"Unknown IDP {idp}")
                 continue
             else:
-                logger.warning("Unknown IDP %s" % idp)
+                logger.warning(f"Unknown IDP {idp}")
 
     for idp, users in users_by_idp.items():
         sender.send_by_idp(idp, 'total', len(users), time)
@@ -78,11 +72,14 @@ def parse_date(datestring):
 def main():
     parser = Main('rcshibboleth')
     parser.add_argument(
-        '--from-date', default=datetime.now(), type=parse_date,
-        help='When to backfill data from.')
+        '--from-date',
+        default=datetime.now(),
+        type=parse_date,
+        help='When to backfill data from.',
+    )
     parser.add_argument(
-        '--to-date', default=datetime.now(),
-        help='When to backfill data to.')
+        '--to-date', default=datetime.now(), help='When to backfill data to.'
+    )
     args = parser.parse_args()
     logger.info("Running Report")
     report_metrics(parser.sender(), args.from_date, args.to_date)

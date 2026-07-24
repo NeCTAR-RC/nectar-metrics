@@ -7,6 +7,7 @@ from ceilometer import sample
 from nectar_metrics.ceilometer.application_catalog.common import murano_client
 
 from oslo_log import log
+
 LOG = log.getLogger(__name__)
 
 
@@ -21,14 +22,16 @@ class EnvironmentPollster(plugin_base.PollsterBase):
         samples = []
         projects = set()
 
-        samples.append(sample.Sample(
-            name='global.application_catalog.environments',
-            type=sample.TYPE_GAUGE,
-            unit='environments',
-            volume=len(resources),
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
+        samples.append(
+            sample.Sample(
+                name='global.application_catalog.environments',
+                type=sample.TYPE_GAUGE,
+                unit='environments',
+                volume=len(resources),
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats',
+            )
         )
 
         env_status = collections.defaultdict(int)
@@ -36,27 +39,30 @@ class EnvironmentPollster(plugin_base.PollsterBase):
             projects.add(env.tenant_id)
             env_status[env.status] += 1
 
-        samples.append(sample.Sample(
-            name='active.projects.application_catalog',
-            type=sample.TYPE_GAUGE,
-            unit='Projects',
-            volume=len(projects),
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
+        samples.append(
+            sample.Sample(
+                name='active.projects.application_catalog',
+                type=sample.TYPE_GAUGE,
+                unit='Projects',
+                volume=len(projects),
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats',
+            )
         )
 
         for status, count in env_status.items():
             s = sample.Sample(
-                name="global.application_catalog.environments.{}"
-                     .format(status.replace(" ", "_")),
+                name="global.application_catalog.environments.{}".format(
+                    status.replace(" ", "_")
+                ),
                 type=sample.TYPE_GAUGE,
                 unit="environments",
                 volume=count,
                 user_id=None,
                 project_id=None,
-                resource_id='global-stats'
-                )
+                resource_id='global-stats',
+            )
             samples.append(s)
 
         sample_iters = []
@@ -66,9 +72,8 @@ class EnvironmentPollster(plugin_base.PollsterBase):
 
 
 class PackagePollster(plugin_base.PollsterBase):
-
     def __init__(self, conf):
-        super(PackagePollster, self).__init__(conf)
+        super().__init__(conf)
         self.client = murano_client(conf)
 
     @property

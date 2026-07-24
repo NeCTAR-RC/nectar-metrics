@@ -48,7 +48,7 @@ def read(filename=None):
     elif os.path.exists(ALT_CONFIG_FILE):
         filename = ALT_CONFIG_FILE
     else:
-        raise Exception("Can't find configuration file. %s" % CONFIG_FILE)
+        raise Exception(f"Can't find configuration file. {CONFIG_FILE}")
     parser = ConfigParser()
     parser.read(filename)
     CONFIG.update(as_dict(parser))

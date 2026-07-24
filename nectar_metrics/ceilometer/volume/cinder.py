@@ -16,7 +16,7 @@ LOG = log.getLogger(__name__)
 
 
 class CinderPollster(plugin_base.PollsterBase):
-    """ Collects stats on total and size of volumes
+    """Collects stats on total and size of volumes
     Gathers them on a:
       - per project
       - per project and availability-zone
@@ -51,7 +51,8 @@ class CinderPollster(plugin_base.PollsterBase):
             volume=value,
             user_id=None,
             project_id=None,
-            resource_id=project)
+            resource_id=project,
+        )
 
     def get_samples(self, manager, cache, resources):
         volumes_by_project = defaultdict(list)
@@ -69,7 +70,7 @@ class CinderPollster(plugin_base.PollsterBase):
         for zone, items in volumes_by_az_by_project.items():
             for project, volumes in items.items():
                 for metric, value in self._volume_metrics(volumes).items():
-                    metric = "%s.%s" % (metric, zone)
+                    metric = f"{metric}.{zone}"
                     samples.append(self._make_sample(metric, value, project))
 
         sample_iters = []
@@ -78,45 +79,61 @@ class CinderPollster(plugin_base.PollsterBase):
 
 
 class CinderPoolPollster(plugin_base.PollsterBase):
-
     @property
     def default_discovery(self):
         return 'cinder_pools'
 
     def _make_sample(self, metric, value, resource_id, zone, unit='GB'):
         return sample.Sample(
-            name='cinder.pool.%s' % metric,
+            name=f'cinder.pool.{metric}',
             type=sample.TYPE_GAUGE,
             unit=unit,
             volume=value,
             user_id=None,
             project_id=None,
             resource_id=resource_id,
-            resource_metadata={'availability_zone': zone})
+            resource_metadata={'availability_zone': zone},
+        )
 
     def get_samples(self, manager, cache, resources):
         samples = []
         for pool in resources:
             if hasattr(pool, 'free_capacity_gb'):
-                samples.append(self._make_sample('free_capacity',
-                                                 pool.free_capacity_gb,
-                                                 pool.name,
-                                                 pool.availability_zone))
+                samples.append(
+                    self._make_sample(
+                        'free_capacity',
+                        pool.free_capacity_gb,
+                        pool.name,
+                        pool.availability_zone,
+                    )
+                )
             if hasattr(pool, 'total_capacity_gb'):
-                samples.append(self._make_sample('total_capacity',
-                                                 pool.total_capacity_gb,
-                                                 pool.name,
-                                                 pool.availability_zone))
+                samples.append(
+                    self._make_sample(
+                        'total_capacity',
+                        pool.total_capacity_gb,
+                        pool.name,
+                        pool.availability_zone,
+                    )
+                )
             if hasattr(pool, 'provisioned_capacity_gb'):
-                samples.append(self._make_sample('provisioned_capacity',
-                                                 pool.provisioned_capacity_gb,
-                                                 pool.name,
-                                                 pool.availability_zone))
+                samples.append(
+                    self._make_sample(
+                        'provisioned_capacity',
+                        pool.provisioned_capacity_gb,
+                        pool.name,
+                        pool.availability_zone,
+                    )
+                )
             if hasattr(pool, 'allocated_capacity_gb'):
-                samples.append(self._make_sample('allocated_capacity',
-                                                 pool.allocated_capacity_gb,
-                                                 pool.name,
-                                                 pool.availability_zone))
+                samples.append(
+                    self._make_sample(
+                        'allocated_capacity',
+                        pool.allocated_capacity_gb,
+                        pool.name,
+                        pool.availability_zone,
+                    )
+                )
 
         sample_iters = []
         sample_iters.append(samples)

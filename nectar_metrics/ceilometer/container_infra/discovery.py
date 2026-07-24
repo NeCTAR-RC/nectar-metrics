@@ -5,9 +5,8 @@ from magnumclient import client
 
 
 class MagnumClusterDiscovery(plugin_base.DiscoveryBase):
-
     def __init__(self, conf):
-        super(MagnumClusterDiscovery, self).__init__(conf)
+        super().__init__(conf)
         creds = conf.service_credentials
         self.client = client.Client(
             version='1',

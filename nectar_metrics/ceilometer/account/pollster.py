@@ -1,40 +1,30 @@
 from collections import defaultdict
 import itertools
-try:
-    from urlparse import urlsplit
-except ImportError:
-    from urllib.parse import urlsplit
+
+from urllib.parse import urlsplit
 
 from manukaclient import client
 from oslo_log import log
 
+from ceilometer import keystone_client
 from ceilometer.polling import plugin_base
 from ceilometer import sample
-from ceilometer import keystone_client
 
 LOG = log.getLogger(__name__)
 
 ODD_IDPS = {
-    'urn:mace:federation.org.au:testfed:uq.edu.au':
-    'idp.uq.edu.au',
-
-    'urn:mace:federation.org.au:testfed:au-idp.adelaide.edu.au':
-    'idp.adelaide.edu.au',
-
-    'urn:mace:federation.org.au:testfed:mq.edu.au':
-    'idp.mq.edu.au',
-
-    'urn:mace:aaf.edu.au:idp:468d3d0153e23dda76af9397bddf20ca':
-    'idp.des.qld.gov.au',
+    'urn:mace:federation.org.au:testfed:uq.edu.au': 'idp.uq.edu.au',
+    'urn:mace:federation.org.au:testfed:au-idp.adelaide.edu.au': 'idp.adelaide.edu.au',
+    'urn:mace:federation.org.au:testfed:mq.edu.au': 'idp.mq.edu.au',
+    'urn:mace:aaf.edu.au:idp:468d3d0153e23dda76af9397bddf20ca': 'idp.des.qld.gov.au',
 }
 
 
 class UserPollster(plugin_base.PollsterBase):
-    """ Collect stats on Nectar user acccounts
-    """
+    """Collect stats on Nectar user accounts"""
 
     def __init__(self, conf):
-        super(UserPollster, self).__init__(conf)
+        super().__init__(conf)
         creds = conf.service_credentials
         self.client = client.Client(
             version='1',
@@ -66,49 +56,57 @@ class UserPollster(plugin_base.PollsterBase):
                 elif idp in ODD_IDPS:
                     users_by_idp[ODD_IDPS[idp].replace('.', '_')].append(user)
                 elif idp == 'idp.fake.nectar.org.au':
-                    LOG.debug("Unknown IDP %s" % idp)
+                    LOG.debug(f"Unknown IDP {idp}")
                     continue
                 else:
-                    LOG.warning("Unknown IDP %s" % idp)
+                    LOG.warning(f"Unknown IDP {idp}")
 
         samples = []
-        samples.append(sample.Sample(
-            name='global.users.total',
-            type=sample.TYPE_GAUGE,
-            unit='User',
-            volume=user_count,
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
+        samples.append(
+            sample.Sample(
+                name='global.users.total',
+                type=sample.TYPE_GAUGE,
+                unit='User',
+                volume=user_count,
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats',
+            )
         )
-        samples.append(sample.Sample(
-            name='global.users.active',
-            type=sample.TYPE_GAUGE,
-            unit='User',
-            volume=active_users,
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
+        samples.append(
+            sample.Sample(
+                name='global.users.active',
+                type=sample.TYPE_GAUGE,
+                unit='User',
+                volume=active_users,
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats',
+            )
         )
-        samples.append(sample.Sample(
-            name='global.users.with_orcid',
-            type=sample.TYPE_GAUGE,
-            unit='User',
-            volume=user_with_orcid_count,
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
+        samples.append(
+            sample.Sample(
+                name='global.users.with_orcid',
+                type=sample.TYPE_GAUGE,
+                unit='User',
+                volume=user_with_orcid_count,
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats',
+            )
         )
 
         for idp, users in users_by_idp.items():
-            samples.append(sample.Sample(
-                name='users.total',
-                type=sample.TYPE_GAUGE,
-                unit='User',
-                volume=len(users),
-                user_id=None,
-                project_id=None,
-                resource_id=idp)
+            samples.append(
+                sample.Sample(
+                    name='users.total',
+                    type=sample.TYPE_GAUGE,
+                    unit='User',
+                    volume=len(users),
+                    user_id=None,
+                    project_id=None,
+                    resource_id=idp,
+                )
             )
 
         sample_iters = []

@@ -5,9 +5,8 @@ from nectar_metrics.senders import victoria
 
 
 class GnocchiGraphiteSender(base.BaseSender):
-
     def __init__(self, host, port):
-        super(GnocchiGraphiteSender, self).__init__()
+        super().__init__()
         self.gnocchi = gnocchi.GnocchiSender()
         self.graphite = graphite.PickleSocketMetricSender(host, port)
 
@@ -44,8 +43,9 @@ class GnocchiGraphiteSender(base.BaseSender):
         self.gnocchi.send_usage_by_site(site, scope, metric, value, time)
 
     def send_availability_by_site(self, site, scope, metric, value, time):
-        self.gnocchi.send_availability_by_site(site, scope, metric, value,
-                                               time)
+        self.gnocchi.send_availability_by_site(
+            site, scope, metric, value, time
+        )
 
     def send_by_idp(self, idp, metric, value, time):
         self.graphite.send_by_idp(idp, metric, value, time)
@@ -64,31 +64,27 @@ class GnocchiGraphiteVictoriaSender(GnocchiGraphiteSender):
     """
 
     def __init__(self, host, port, victoria_url=None):
-        super(GnocchiGraphiteVictoriaSender, self).__init__(host, port)
+        super().__init__(host, port)
         self.victoria = victoria.VictoriaMetricsSender(victoria_url)
 
     def flush(self):
-        super(GnocchiGraphiteVictoriaSender, self).flush()
+        super().flush()
         self.victoria.flush()
 
     def send_by_az(self, az, metric, value, time):
-        super(GnocchiGraphiteVictoriaSender, self).send_by_az(
-            az, metric, value, time)
+        super().send_by_az(az, metric, value, time)
         self.victoria.send_by_az(az, metric, value, time)
 
     def send_by_az_by_domain(self, az, domain, metric, value, time):
-        super(GnocchiGraphiteVictoriaSender, self).send_by_az_by_domain(
-            az, domain, metric, value, time)
+        super().send_by_az_by_domain(az, domain, metric, value, time)
         self.victoria.send_by_az_by_domain(az, domain, metric, value, time)
 
     def send_by_az_by_home(self, az, home, metric, value, time):
-        super(GnocchiGraphiteVictoriaSender, self).send_by_az_by_home(
-            az, home, metric, value, time)
+        super().send_by_az_by_home(az, home, metric, value, time)
         self.victoria.send_by_az_by_home(az, home, metric, value, time)
 
     def send_global(self, metric, value, time):
-        super(GnocchiGraphiteVictoriaSender, self).send_global(
-            metric, value, time)
+        super().send_global(metric, value, time)
         self.victoria.send_global(metric, value, time)
 
 
@@ -99,7 +95,7 @@ class GnocchiVictoriaSender(base.BaseSender):
     """
 
     def __init__(self, victoria_url=None):
-        super(GnocchiVictoriaSender, self).__init__()
+        super().__init__()
         self.gnocchi = gnocchi.GnocchiSender()
         self.victoria = victoria.VictoriaMetricsSender(victoria_url)
 
@@ -138,8 +134,9 @@ class GnocchiVictoriaSender(base.BaseSender):
         self.gnocchi.send_usage_by_site(site, scope, metric, value, time)
 
     def send_availability_by_site(self, site, scope, metric, value, time):
-        self.gnocchi.send_availability_by_site(site, scope, metric, value,
-                                               time)
+        self.gnocchi.send_availability_by_site(
+            site, scope, metric, value, time
+        )
 
     def send_global(self, metric, value, time):
         self.gnocchi.send_global(metric, value, time)

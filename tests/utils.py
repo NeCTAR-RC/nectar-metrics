@@ -1,4 +1,4 @@
-class TestSender():
+class TestSender:
     def __init__(self):
         self.by_az = []
         self.by_az_by_domain = []

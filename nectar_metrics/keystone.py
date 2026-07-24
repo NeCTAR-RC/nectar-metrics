@@ -15,12 +15,14 @@ def get_auth_session():
     project_name = CONFIG.get('openstack', 'name')
     auth_url = CONFIG.get('openstack', 'url')
 
-    auth = v3.Password(username=username,
-                       password=password,
-                       project_name=project_name,
-                       auth_url=auth_url,
-                       user_domain_id='default',
-                       project_domain_id='default')
+    auth = v3.Password(
+        username=username,
+        password=password,
+        project_name=project_name,
+        auth_url=auth_url,
+        user_domain_id='default',
+        project_domain_id='default',
+    )
     return session.Session(auth=auth)
 
 

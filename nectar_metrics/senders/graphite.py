@@ -1,5 +1,5 @@
-import socket
 import pickle
+import socket
 import struct
 import time
 
@@ -12,7 +12,7 @@ class SocketMetricSender(base.BaseSender):
     flooding_at = 10000
 
     def __init__(self, host, port):
-        super(SocketMetricSender, self).__init__()
+        super().__init__()
         self.host = host
         self.port = port
         self.connect()
@@ -21,7 +21,7 @@ class SocketMetricSender(base.BaseSender):
     def connect(self):
         if self.sock:
             self.sock.close()
-            self.log.info("Reconnecting, %s sent so far." % self.count)
+            self.log.info(f"Reconnecting, {self.count} sent so far.")
         else:
             self.log.info("Connecting")
         self.sock = socket.socket()
@@ -48,7 +48,7 @@ class PickleSocketMetricSender(SocketMetricSender):
     reconnect_at = 500
 
     def __init__(self, host, port):
-        super(PickleSocketMetricSender, self).__init__(host, port)
+        super().__init__(host, port)
         self.buffered_metrics = []
 
     def send_metric(self, metric, value, now):

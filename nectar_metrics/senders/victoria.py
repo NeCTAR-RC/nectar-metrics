@@ -29,12 +29,13 @@ class VictoriaMetricsSender(base.BaseSender):
     """
 
     def __init__(self, url=None):
-        super(VictoriaMetricsSender, self).__init__()
+        super().__init__()
         url = url or CONF.get('victoria', 'url')
         if not url:
             raise ValueError(
                 "VictoriaMetrics URL not set; add [victoria] url to the "
-                "config file or pass --victoria-url")
+                "config file or pass --victoria-url"
+            )
         self.url = url.rstrip('/')
         self.session = self._build_session()
         # (name, sorted label items) -> ([timestamps_ms], [values])
@@ -49,7 +50,8 @@ class VictoriaMetricsSender(base.BaseSender):
             total=3,
             backoff_factor=1,
             status_forcelist=(500, 502, 503, 504),
-            allowed_methods=frozenset(['POST']))
+            allowed_methods=frozenset(['POST']),
+        )
         adapter = adapters.HTTPAdapter(max_retries=retries)
         session.mount('http://', adapter)
         session.mount('https://', adapter)
@@ -80,18 +82,26 @@ class VictoriaMetricsSender(base.BaseSender):
         for (name, labels), (timestamps, values) in self.buffered.items():
             series = {'__name__': name}
             series.update(dict(labels))
-            lines.append(json.dumps({'metric': series,
-                                     'values': values,
-                                     'timestamps': timestamps}))
+            lines.append(
+                json.dumps(
+                    {
+                        'metric': series,
+                        'values': values,
+                        'timestamps': timestamps,
+                    }
+                )
+            )
         response = self.session.post(
-            '%s/api/v1/import' % self.url,
+            f'{self.url}/api/v1/import',
             data='\n'.join(lines).encode('utf-8'),
-            timeout=(5, 60))
+            timeout=(5, 60),
+        )
         # Raise on persistent failure (after retries on 5xx) so a cron
         # run fails visibly instead of silently losing datapoints.
         response.raise_for_status()
         self.sent += self.buffered_count
-        self.log.debug("Sent %d datapoints in %d series",
-                       self.buffered_count, len(lines))
+        self.log.debug(
+            "Sent %d datapoints in %d series", self.buffered_count, len(lines)
+        )
         self.buffered = {}
         self.buffered_count = 0

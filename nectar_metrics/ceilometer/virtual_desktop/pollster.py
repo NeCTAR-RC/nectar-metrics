@@ -21,8 +21,9 @@ class VirtualDesktopPollster(plugin_base.PollsterBase):
         samples = []
 
         for family in resources:
-            m = re.search(r'bumblebee_desktops_(?P<action>[^\W_]+)',
-                          family.name)
+            m = re.search(
+                r'bumblebee_desktops_(?P<action>[^\W_]+)', family.name
+            )
             if m:  # matched action from bumblebee_desktops_<action>_by_domain
                 action = m.groupdict().get('action')
                 for samp in family.samples:
@@ -34,27 +35,31 @@ class VirtualDesktopPollster(plugin_base.PollsterBase):
                     value = s[2]
                     if labels:
                         for label_name, label_value in labels.items():
-                            name = "virtual_desktop.desktops.{}.{}".format(
-                                       action, label_name)
-                            samples.append(sample.Sample(
+                            name = f"virtual_desktop.desktops.{action}.{label_name}"
+                            samples.append(
+                                sample.Sample(
+                                    name=name,
+                                    type=sample.TYPE_GAUGE,
+                                    unit='desktops',
+                                    volume=value,
+                                    user_id=None,
+                                    project_id=None,
+                                    resource_id=label_value,
+                                )
+                            )
+                    else:
+                        name = f"global.virtual_desktop.desktops.{action}"
+                        samples.append(
+                            sample.Sample(
                                 name=name,
                                 type=sample.TYPE_GAUGE,
                                 unit='desktops',
                                 volume=value,
                                 user_id=None,
                                 project_id=None,
-                                resource_id=label_value))
-                    else:
-                        name = "global.virtual_desktop.desktops.{}".format(
-                                   action)
-                        samples.append(sample.Sample(
-                            name=name,
-                            type=sample.TYPE_GAUGE,
-                            unit='desktops',
-                            volume=value,
-                            user_id=None,
-                            project_id=None,
-                            resource_id='global-stats'))
+                                resource_id='global-stats',
+                            )
+                        )
 
         sample_iters = []
         sample_iters.append(samples)

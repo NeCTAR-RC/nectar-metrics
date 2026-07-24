@@ -54,10 +54,12 @@ def glob_to_regex(pattern):
     Unlike fnmatch, '*' must not cross path components (dots), so
     az.*.used_vcpus does not also match az.x.domain.y.used_vcpus.
     """
-    return re.compile('^%s$' % re.escape(pattern).replace(r'\*', '[^.]*'))
+    return re.compile(
+        '^{}$'.format(re.escape(pattern).replace(r'\*', '[^.]*'))
+    )
 
 
-class RateLimiter(object):
+class RateLimiter:
     """Crude pacing: allow up to per_second sends each second."""
 
     def __init__(self, per_second):
@@ -94,8 +96,9 @@ def archive_bands(info, now):
     return bands
 
 
-def send_file(sender, filepath, metricpath, now, limit=None, limiter=None,
-              dry_run=False):
+def send_file(
+    sender, filepath, metricpath, now, limit=None, limiter=None, dry_run=False
+):
     """Replay one whisper file through the sender.
 
     Returns (points, first_ts, last_ts) for reporting.
@@ -103,7 +106,7 @@ def send_file(sender, filepath, metricpath, now, limit=None, limiter=None,
     try:
         info = whisper.info(filepath)
     except whisper.CorruptWhisperFile:
-        logger.warning("Corrupt whisper file %s" % filepath)
+        logger.warning(f"Corrupt whisper file {filepath}")
         return (0, None, None)
 
     count = 0
@@ -115,10 +118,13 @@ def send_file(sender, filepath, metricpath, now, limit=None, limiter=None,
         # whose retention covers the requested start.
         try:
             result = whisper.fetch(
-                filepath, start + archive['secondsPerPoint'],
-                untilTime=end, now=now)
+                filepath,
+                start + archive['secondsPerPoint'],
+                untilTime=end,
+                now=now,
+            )
         except whisper.InvalidTimeInterval as e:
-            logger.warning("Skipping band of %s: %s" % (filepath, e))
+            logger.warning(f"Skipping band of {filepath}: {e}")
             continue
         if result is None:
             continue
@@ -145,16 +151,23 @@ def paths_in_directory(directory):
         for filename in sorted(filenames):
             filepath = path.join(dirpath, filename)
             if not filename.endswith('.wsp'):
-                logger.info("Skipping %s" % filepath)
+                logger.info(f"Skipping {filepath}")
                 continue
             # convert /var/lib/graphite/server/metric.wsp to
             # server.metric
-            metric_path = filepath[len(directory) + 1:].replace('/', '.')[:-4]
+            metric_path = filepath[len(directory) + 1 :].replace('/', '.')[:-4]
             yield filepath, metric_path
 
 
-def do_report(sender, filepaths, includes, now, limit=None,
-              max_points_per_sec=None, dry_run=False):
+def do_report(
+    sender,
+    filepaths,
+    includes,
+    now,
+    limit=None,
+    max_points_per_sec=None,
+    dry_run=False,
+):
     patterns = [glob_to_regex(include) for include in includes]
     limiter = None
     if max_points_per_sec:
@@ -166,52 +179,79 @@ def do_report(sender, filepaths, includes, now, limit=None,
     for filepath, metricpath in paths_in_directory(filepaths):
         if not any(pattern.match(metricpath) for pattern in patterns):
             skipped_files += 1
-            logger.debug("Excluded by filters: %s" % metricpath)
+            logger.debug(f"Excluded by filters: {metricpath}")
             continue
-        logger.info("Processing %s" % filepath)
+        logger.info(f"Processing {filepath}")
         count, first_ts, last_ts = send_file(
-            sender, filepath, metricpath, now, limit=limit,
-            limiter=limiter, dry_run=dry_run)
-        logger.info("%s: %d points%s" % (
-            metricpath, count,
-            " (%d..%d)" % (first_ts, last_ts) if count else ""))
+            sender,
+            filepath,
+            metricpath,
+            now,
+            limit=limit,
+            limiter=limiter,
+            dry_run=dry_run,
+        )
+        ts_range = f" ({first_ts}..{last_ts})" if count else ""
+        logger.info(f"{metricpath}: {count} points{ts_range}")
         total_files += 1
         total_points += count
     if not dry_run:
         sender.flush()
+    prefix = "DRY RUN: would send " if dry_run else "Sent "
     logger.info(
-        "%s%d points from %d files (%d files excluded by filters)" % (
-            "DRY RUN: would send " if dry_run else "Sent ",
-            total_points, total_files, skipped_files))
+        f"{prefix}{total_points} points from {total_files} files "
+        f"({skipped_files} files excluded by filters)"
+    )
     return (total_files, total_points)
 
 
 def main():
     parser = Main('whisper')
     parser.add_argument(
-        '--limit', default=None, type=int,
-        help='Limit the number of points to send from each file.')
+        '--limit',
+        default=None,
+        type=int,
+        help='Limit the number of points to send from each file.',
+    )
     parser.add_argument(
-        '--include', action='append', default=None,
+        '--include',
+        action='append',
+        default=None,
         help='Graphite glob of metric paths to send (repeatable). '
-             'Defaults to the status-page migration set.')
+        'Defaults to the status-page migration set.',
+    )
     parser.add_argument(
-        '--dry-run', action='store_true',
-        help='Count points per metric without sending anything.')
+        '--dry-run',
+        action='store_true',
+        help='Count points per metric without sending anything.',
+    )
     parser.add_argument(
-        '--max-points-per-sec', default=5000, type=int,
-        help='Rate limit for sends; 0 disables the limit.')
+        '--max-points-per-sec',
+        default=5000,
+        type=int,
+        help='Rate limit for sends; 0 disables the limit.',
+    )
     parser.add_argument(
-        '--now', default=None, type=int,
+        '--now',
+        default=None,
+        type=int,
         help='Reference timestamp for archive band boundaries '
-             '(default: current time). Reuse the same value when '
-             'resuming an interrupted run.')
+        '(default: current time). Reuse the same value when '
+        'resuming an interrupted run.',
+    )
     parser.add_argument(
-        'path', type=str, help='The path to the whisper files to send.')
+        'path', type=str, help='The path to the whisper files to send.'
+    )
     args = parser.parse_args()
     logger.info("Running Report")
     includes = args.include or DEFAULT_INCLUDES
     now = args.now or int(time.time())
-    do_report(parser.sender(), args.path, includes, now, limit=args.limit,
-              max_points_per_sec=args.max_points_per_sec,
-              dry_run=args.dry_run)
+    do_report(
+        parser.sender(),
+        args.path,
+        includes,
+        now,
+        limit=args.limit,
+        max_points_per_sec=args.max_points_per_sec,
+        dry_run=args.dry_run,
+    )

@@ -21,55 +21,65 @@ class DatabasePollster(plugin_base.PollsterBase):
         total = 0
         projects = set()
         for db in resources:
-            samples.append(sample.Sample(
-                name='database',
-                type=sample.TYPE_GAUGE,
-                unit='Instance',
-                volume=1,
-                user_id=None,
-                project_id=db.tenant_id,
-                resource_id=db.id,
-                resource_metadata={
-                    'name': db.name,
-                    'flavor_id': db.flavor.get('id'),
-                    'datastore_type': db.datastore.get('type'),
-                    'datastore_version': db.datastore.get('version')})
+            samples.append(
+                sample.Sample(
+                    name='database',
+                    type=sample.TYPE_GAUGE,
+                    unit='Instance',
+                    volume=1,
+                    user_id=None,
+                    project_id=db.tenant_id,
+                    resource_id=db.id,
+                    resource_metadata={
+                        'name': db.name,
+                        'flavor_id': db.flavor.get('id'),
+                        'datastore_type': db.datastore.get('type'),
+                        'datastore_version': db.datastore.get('version'),
+                    },
+                )
             )
-            samples.append(sample.Sample(
-                name='database.size',
-                type=sample.TYPE_GAUGE,
-                unit='GB',
-                volume=db.volume.get('size'),
-                user_id=None,
-                project_id=db.tenant_id,
-                resource_id=db.id,
-                resource_metadata={
-                    'name': db.name,
-                    'flavor_id': db.flavor.get('id'),
-                    'datastore_type': db.datastore.get('type'),
-                    'datastore_version': db.datastore.get('version')})
+            samples.append(
+                sample.Sample(
+                    name='database.size',
+                    type=sample.TYPE_GAUGE,
+                    unit='GB',
+                    volume=db.volume.get('size'),
+                    user_id=None,
+                    project_id=db.tenant_id,
+                    resource_id=db.id,
+                    resource_metadata={
+                        'name': db.name,
+                        'flavor_id': db.flavor.get('id'),
+                        'datastore_type': db.datastore.get('type'),
+                        'datastore_version': db.datastore.get('version'),
+                    },
+                )
             )
             total += 1
             projects.add(db.tenant_id)
 
-        samples.append(sample.Sample(
-            name='global.database.databases',
-            type=sample.TYPE_GAUGE,
-            unit='Instance',
-            volume=total,
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
+        samples.append(
+            sample.Sample(
+                name='global.database.databases',
+                type=sample.TYPE_GAUGE,
+                unit='Instance',
+                volume=total,
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats',
+            )
         )
 
-        samples.append(sample.Sample(
-            name='active.projects.database',
-            type=sample.TYPE_GAUGE,
-            unit='Projects',
-            volume=len(projects),
-            user_id=None,
-            project_id=None,
-            resource_id='global-stats')
+        samples.append(
+            sample.Sample(
+                name='active.projects.database',
+                type=sample.TYPE_GAUGE,
+                unit='Projects',
+                volume=len(projects),
+                user_id=None,
+                project_id=None,
+                resource_id='global-stats',
+            )
         )
 
         sample_iters = []

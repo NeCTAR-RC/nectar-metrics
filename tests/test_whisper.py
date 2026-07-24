@@ -5,7 +5,7 @@ import whisper as whisper_lib
 
 from nectar_metrics import whisper as nm_whisper
 
-from .utils import TestSender
+from tests.utils import TestSender
 
 
 NOW = int(time.time())
@@ -28,13 +28,13 @@ def sample_points():
     # One point per 60s across the last ~55 minutes: the newest points
     # land in the fine (10s) archive's 5-minute window, the rest only
     # in the coarse (60s) archive.
-    return [(ts, float(i))
-            for i, ts in enumerate(range(NOW - 3300, NOW - 30, 60))]
+    return [
+        (ts, float(i)) for i, ts in enumerate(range(NOW - 3300, NOW - 30, 60))
+    ]
 
 
 def test_archive_bands_are_disjoint_and_coarsest_first(tmp_path):
-    filepath = make_wsp(str(tmp_path), 'az.zone1.used_vcpus',
-                        sample_points())
+    filepath = make_wsp(str(tmp_path), 'az.zone1.used_vcpus', sample_points())
     info = whisper_lib.info(filepath)
     bands = nm_whisper.archive_bands(info, NOW)
     assert len(bands) == 2
@@ -49,11 +49,11 @@ def test_archive_bands_are_disjoint_and_coarsest_first(tmp_path):
 
 
 def test_send_file_replays_all_bands_chronologically(tmp_path):
-    filepath = make_wsp(str(tmp_path), 'az.zone1.used_vcpus',
-                        sample_points())
+    filepath = make_wsp(str(tmp_path), 'az.zone1.used_vcpus', sample_points())
     sender = TestSender()
     count, first_ts, last_ts = nm_whisper.send_file(
-        sender, filepath, 'az.zone1.used_vcpus', NOW)
+        sender, filepath, 'az.zone1.used_vcpus', NOW
+    )
 
     assert count == len(sender.metrics)
     timestamps = [args[2] for args in sender.metrics]
@@ -67,36 +67,42 @@ def test_send_file_replays_all_bands_chronologically(tmp_path):
     assert first_ts == timestamps[0]
     assert last_ts == timestamps[-1]
     # every replayed point carries the original metric path
-    assert set(args[0] for args in sender.metrics) == \
-        {'az.zone1.used_vcpus'}
+    assert set(args[0] for args in sender.metrics) == {'az.zone1.used_vcpus'}
 
 
 def test_send_file_respects_limit(tmp_path):
-    filepath = make_wsp(str(tmp_path), 'az.zone1.used_vcpus',
-                        sample_points())
+    filepath = make_wsp(str(tmp_path), 'az.zone1.used_vcpus', sample_points())
     sender = TestSender()
     count, _, _ = nm_whisper.send_file(
-        sender, filepath, 'az.zone1.used_vcpus', NOW, limit=5)
+        sender, filepath, 'az.zone1.used_vcpus', NOW, limit=5
+    )
     assert count == 5
     assert len(sender.metrics) == 5
 
 
 def test_do_report_filters_to_migration_set(tmp_path):
     make_wsp(str(tmp_path), 'az.zone1.used_vcpus', sample_points())
-    make_wsp(str(tmp_path), 'az.zone1.domain.unimelb_edu_au.used_vcpus',
-             sample_points())
+    make_wsp(
+        str(tmp_path),
+        'az.zone1.domain.unimelb_edu_au.used_vcpus',
+        sample_points(),
+    )
     make_wsp(str(tmp_path), 'tenant.8ffff.total_volumes', sample_points())
-    make_wsp(str(tmp_path), 'az.zone1.tenant.8ffff.used_vcpus',
-             sample_points())
+    make_wsp(
+        str(tmp_path), 'az.zone1.tenant.8ffff.used_vcpus', sample_points()
+    )
 
     sender = TestSender()
     files, points = nm_whisper.do_report(
-        sender, str(tmp_path), nm_whisper.DEFAULT_INCLUDES, NOW)
+        sender, str(tmp_path), nm_whisper.DEFAULT_INCLUDES, NOW
+    )
     assert files == 2
     assert points == len(sender.metrics)
     sent_paths = set(args[0] for args in sender.metrics)
-    assert sent_paths == {'az.zone1.used_vcpus',
-                          'az.zone1.domain.unimelb_edu_au.used_vcpus'}
+    assert sent_paths == {
+        'az.zone1.used_vcpus',
+        'az.zone1.domain.unimelb_edu_au.used_vcpus',
+    }
     assert sender.flushes == 1
 
 
@@ -104,8 +110,8 @@ def test_do_report_dry_run_sends_nothing(tmp_path):
     make_wsp(str(tmp_path), 'az.zone1.used_vcpus', sample_points())
     sender = TestSender()
     files, points = nm_whisper.do_report(
-        sender, str(tmp_path), nm_whisper.DEFAULT_INCLUDES, NOW,
-        dry_run=True)
+        sender, str(tmp_path), nm_whisper.DEFAULT_INCLUDES, NOW, dry_run=True
+    )
     assert files == 1
     assert points > 0
     assert sender.metrics == []

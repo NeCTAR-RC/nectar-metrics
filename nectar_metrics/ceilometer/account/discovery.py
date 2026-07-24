@@ -10,9 +10,8 @@ LOG = log.getLogger(__name__)
 
 
 class UserDiscovery(plugin_base.DiscoveryBase):
-
     def __init__(self, conf):
-        super(UserDiscovery, self).__init__(conf)
+        super().__init__(conf)
         creds = conf.service_credentials
         self.client = client.Client(
             version='1',
