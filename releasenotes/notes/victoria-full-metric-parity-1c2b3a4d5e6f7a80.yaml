@@ -1,0 +1,20 @@
+---
+features:
+  - |
+    The VictoriaMetrics sender now supports every metric family the
+    Graphite and Gnocchi senders do. Newly mapped series: per-tenant
+    (``nectar_tenant_*``), per-az per-tenant (``nectar_az_tenant_*``),
+    per-host (``nectar_host_*``), per-site capacity, usage and
+    availability (``nectar_site_*``) and per-IdP user counts
+    (``nectar_idp_users_total``).
+upgrade:
+  - |
+    The ``gnocchi_graphite_victoria`` and ``gnocchi_victoria``
+    composite senders now forward all metrics to VictoriaMetrics,
+    including the per-tenant and per-IdP series that were previously
+    not forwarded (or retired) and the site and host series that
+    previously went to Gnocchi only. Gnocchi and Graphite routing is
+    unchanged. The whisper backfill tool now defaults to replaying
+    every metric path the VictoriaMetrics sender supports, instead
+    of only the status-page set; pass ``--include`` to narrow the
+    scope.

@@ -22,10 +22,11 @@ class VictoriaMetricsSender(base.BaseSender):
 
     Dotted metric paths composed by the BaseSender helpers (and by the
     whisper backfill tool) are mapped to Prometheus-style names and
-    labels via nectar_metrics.naming; paths outside the migrated set
-    are dropped. Values keep full float precision and timestamps are
-    sent in milliseconds, so live writes and backfilled history are
-    byte-identical on the wire.
+    labels via nectar_metrics.naming; every path family the collectors
+    emit is mapped, and anything outside those families (carbon
+    internals, retired trees) is dropped. Values keep full float
+    precision and timestamps are sent in milliseconds, so live writes
+    and backfilled history are byte-identical on the wire.
     """
 
     def __init__(self, url=None):

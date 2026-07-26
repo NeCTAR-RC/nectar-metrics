@@ -61,16 +61,65 @@ def test_victoria_preserves_precision(mocker):
     assert series[0]['values'] == [10.123456789]
 
 
-def test_victoria_drops_unmigrated(mocker):
+def test_victoria_tenant_idp_host_site_labels(mocker):
     sender = make_sender(mocker)
     sender.send_by_tenant('8ffff', 'used_vcpus', 1, 1400000000)
+    sender.send_by_az_by_tenant('zone1', '8ffff', 'used_memory', 4, 1400000000)
     sender.send_by_idp('idp_unimelb_edu_au', 'total', 5, 1400000000)
     sender.send_by_host_by_home(
-        'qh2-rcc-1', 'national', 'used_vcpus', 2, 1400000000
+        'qh2-rcc-1', 'national.monash', 'used_vcpus', 2, 1400000000
     )
     sender.send_capacity_by_site('monash', 'national', 'vcpu', 100, 1400000000)
+    sender.send_usage_by_site('monash', 'local', 'memory', 50, 1400000000)
+    sender.send_availability_by_site('monash', 'local', 'disk', 7, 1400000000)
+    assert sender.dropped == 0
+    sender.flush()
+
+    _, series = posted_series(sender)
+    by_name = dict((line['metric']['__name__'], line) for line in series)
+    assert by_name['nectar_tenant_used_vcpus']['metric'] == {
+        '__name__': 'nectar_tenant_used_vcpus',
+        'tenant': '8ffff',
+    }
+    assert by_name['nectar_az_tenant_used_memory']['metric'] == {
+        '__name__': 'nectar_az_tenant_used_memory',
+        'az': 'zone1',
+        'tenant': '8ffff',
+    }
+    assert by_name['nectar_idp_users_total']['metric'] == {
+        '__name__': 'nectar_idp_users_total',
+        'idp': 'idp.unimelb.edu.au',
+    }
+    # The BaseSender flattens the hostname before it reaches the
+    # dotted path, matching what the whisper backfill produces.
+    assert by_name['nectar_host_used_vcpus']['metric'] == {
+        '__name__': 'nectar_host_used_vcpus',
+        'host': 'qh2_rcc_1',
+        'home': 'national.monash',
+    }
+    assert by_name['nectar_site_capacity_vcpu']['metric'] == {
+        '__name__': 'nectar_site_capacity_vcpu',
+        'site': 'monash',
+        'scope': 'national',
+    }
+    assert by_name['nectar_site_usage_memory']['metric'] == {
+        '__name__': 'nectar_site_usage_memory',
+        'site': 'monash',
+        'scope': 'local',
+    }
+    assert by_name['nectar_site_availability_disk']['metric'] == {
+        '__name__': 'nectar_site_availability_disk',
+        'site': 'monash',
+        'scope': 'local',
+    }
+
+
+def test_victoria_drops_unknown_paths(mocker):
+    sender = make_sender(mocker)
+    sender.send_metric('carbon.agents.foo.updateOperations', 1, 1400000000)
+    sender.send_metric('az.zone1.unknown_metric', 2, 1400000000)
     assert sender.buffered == {}
-    assert sender.dropped == 4
+    assert sender.dropped == 2
     sender.flush()
     sender.session.post.assert_not_called()
 

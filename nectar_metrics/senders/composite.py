@@ -58,9 +58,8 @@ class GnocchiGraphiteSender(base.BaseSender):
 class GnocchiGraphiteVictoriaSender(GnocchiGraphiteSender):
     """Transition composite for the Graphite to VictoriaMetrics
     migration: everything continues to flow to Graphite and Gnocchi
-    exactly as with GnocchiGraphiteSender, while the metrics the
-    status page needs are additionally written to VictoriaMetrics.
-    Per-tenant and per-idp series are deliberately not forwarded.
+    exactly as with GnocchiGraphiteSender, while every metric is
+    additionally written to VictoriaMetrics.
     """
 
     def __init__(self, host, port, victoria_url=None):
@@ -79,9 +78,39 @@ class GnocchiGraphiteVictoriaSender(GnocchiGraphiteSender):
         super().send_by_az_by_domain(az, domain, metric, value, time)
         self.victoria.send_by_az_by_domain(az, domain, metric, value, time)
 
+    def send_by_tenant(self, tenant, metric, value, time):
+        super().send_by_tenant(tenant, metric, value, time)
+        self.victoria.send_by_tenant(tenant, metric, value, time)
+
+    def send_by_az_by_tenant(self, az, tenant, metric, value, time):
+        super().send_by_az_by_tenant(az, tenant, metric, value, time)
+        self.victoria.send_by_az_by_tenant(az, tenant, metric, value, time)
+
     def send_by_az_by_home(self, az, home, metric, value, time):
         super().send_by_az_by_home(az, home, metric, value, time)
         self.victoria.send_by_az_by_home(az, home, metric, value, time)
+
+    def send_by_host_by_home(self, host, home, metric, value, time):
+        super().send_by_host_by_home(host, home, metric, value, time)
+        self.victoria.send_by_host_by_home(host, home, metric, value, time)
+
+    def send_capacity_by_site(self, site, scope, metric, value, time):
+        super().send_capacity_by_site(site, scope, metric, value, time)
+        self.victoria.send_capacity_by_site(site, scope, metric, value, time)
+
+    def send_usage_by_site(self, site, scope, metric, value, time):
+        super().send_usage_by_site(site, scope, metric, value, time)
+        self.victoria.send_usage_by_site(site, scope, metric, value, time)
+
+    def send_availability_by_site(self, site, scope, metric, value, time):
+        super().send_availability_by_site(site, scope, metric, value, time)
+        self.victoria.send_availability_by_site(
+            site, scope, metric, value, time
+        )
+
+    def send_by_idp(self, idp, metric, value, time):
+        super().send_by_idp(idp, metric, value, time)
+        self.victoria.send_by_idp(idp, metric, value, time)
 
     def send_global(self, metric, value, time):
         super().send_global(metric, value, time)
@@ -89,9 +118,9 @@ class GnocchiGraphiteVictoriaSender(GnocchiGraphiteSender):
 
 
 class GnocchiVictoriaSender(base.BaseSender):
-    """End-state composite once Graphite is decommissioned: site and
-    host metrics keep flowing to Gnocchi, the status-page metrics go
-    to VictoriaMetrics, and the per-tenant/per-idp series are retired.
+    """End-state composite once Graphite is decommissioned: every
+    metric goes to VictoriaMetrics, while site and host metrics (and
+    globals) keep flowing to Gnocchi as before.
     """
 
     def __init__(self, victoria_url=None):
@@ -112,29 +141,33 @@ class GnocchiVictoriaSender(base.BaseSender):
         self.victoria.send_by_az_by_home(az, home, metric, value, time)
 
     def send_by_tenant(self, tenant, metric, value, time):
-        # Retired with Graphite; no consumer.
-        pass
+        self.victoria.send_by_tenant(tenant, metric, value, time)
 
     def send_by_az_by_tenant(self, az, tenant, metric, value, time):
-        # Retired with Graphite; no consumer.
-        pass
+        self.victoria.send_by_az_by_tenant(az, tenant, metric, value, time)
 
     def send_by_idp(self, idp, metric, value, time):
-        # Retired with Graphite; duplicated in Gnocchi by the
-        # ceilometer account pollster.
-        pass
+        # Also duplicated in Gnocchi by the ceilometer account
+        # pollster.
+        self.victoria.send_by_idp(idp, metric, value, time)
 
     def send_by_host_by_home(self, host, home, metric, value, time):
         self.gnocchi.send_by_host_by_home(host, home, metric, value, time)
+        self.victoria.send_by_host_by_home(host, home, metric, value, time)
 
     def send_capacity_by_site(self, site, scope, metric, value, time):
         self.gnocchi.send_capacity_by_site(site, scope, metric, value, time)
+        self.victoria.send_capacity_by_site(site, scope, metric, value, time)
 
     def send_usage_by_site(self, site, scope, metric, value, time):
         self.gnocchi.send_usage_by_site(site, scope, metric, value, time)
+        self.victoria.send_usage_by_site(site, scope, metric, value, time)
 
     def send_availability_by_site(self, site, scope, metric, value, time):
         self.gnocchi.send_availability_by_site(
+            site, scope, metric, value, time
+        )
+        self.victoria.send_availability_by_site(
             site, scope, metric, value, time
         )
 

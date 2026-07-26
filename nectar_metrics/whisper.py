@@ -27,25 +27,9 @@ import time
 import whisper
 
 from nectar_metrics.cli import Main
+from nectar_metrics import naming
 
 logger = logging.getLogger(__name__)
-
-# The metrics the status page (langstroth) uses, plus the cheap
-# active.projects globals - exactly what the live dual-write forwards
-# to VictoriaMetrics, so backfilled and live series sets match. Keep
-# in sync with nectar_metrics/naming.py.
-DEFAULT_INCLUDES = [
-    'users.total',
-    'az.*.total_instances',
-    'az.*.used_vcpus',
-    'az.*.used_memory',
-    'az.*.used_disk',
-    'az.*.instances_created',
-    'az.*.instances_deleted',
-    'az.*.domain.*.used_vcpus',
-    'az.*.allocation_home.*.used_vcpus',
-    'active.projects.*',
-]
 
 
 def glob_to_regex(pattern):
@@ -168,7 +152,19 @@ def do_report(
     max_points_per_sec=None,
     dry_run=False,
 ):
-    patterns = [glob_to_regex(include) for include in includes]
+    if includes:
+        patterns = [glob_to_regex(include) for include in includes]
+
+        def included(metricpath):
+            return any(pattern.match(metricpath) for pattern in patterns)
+
+    else:
+        # Default: every path the naming map recognises - the same
+        # set the VictoriaMetrics sender accepts, so the backfill can
+        # never drift from what live writes forward.
+        def included(metricpath):
+            return naming.from_dotted_path(metricpath) is not None
+
     limiter = None
     if max_points_per_sec:
         limiter = RateLimiter(max_points_per_sec)
@@ -177,7 +173,7 @@ def do_report(
     total_files = 0
     skipped_files = 0
     for filepath, metricpath in paths_in_directory(filepaths):
-        if not any(pattern.match(metricpath) for pattern in patterns):
+        if not included(metricpath):
             skipped_files += 1
             logger.debug(f"Excluded by filters: {metricpath}")
             continue
@@ -218,7 +214,8 @@ def main():
         action='append',
         default=None,
         help='Graphite glob of metric paths to send (repeatable). '
-        'Defaults to the status-page migration set.',
+        'Defaults to every metric path the VictoriaMetrics sender '
+        'supports.',
     )
     parser.add_argument(
         '--dry-run',
@@ -244,12 +241,11 @@ def main():
     )
     args = parser.parse_args()
     logger.info("Running Report")
-    includes = args.include or DEFAULT_INCLUDES
     now = args.now or int(time.time())
     do_report(
         parser.sender(),
         args.path,
-        includes,
+        args.include,
         now,
         limit=args.limit,
         max_points_per_sec=args.max_points_per_sec,

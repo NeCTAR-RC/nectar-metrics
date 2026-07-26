@@ -80,7 +80,7 @@ def test_send_file_respects_limit(tmp_path):
     assert len(sender.metrics) == 5
 
 
-def test_do_report_filters_to_migration_set(tmp_path):
+def test_do_report_defaults_to_all_mapped_paths(tmp_path):
     make_wsp(str(tmp_path), 'az.zone1.used_vcpus', sample_points())
     make_wsp(
         str(tmp_path),
@@ -91,26 +91,56 @@ def test_do_report_filters_to_migration_set(tmp_path):
     make_wsp(
         str(tmp_path), 'az.zone1.tenant.8ffff.used_vcpus', sample_points()
     )
+    make_wsp(
+        str(tmp_path),
+        'hosts.qh2_rcc_1.national.monash.used_vcpus',
+        sample_points(),
+    )
+    make_wsp(
+        str(tmp_path), 'sites.monash.capacity.local.vcpu', sample_points()
+    )
+    make_wsp(str(tmp_path), 'users.idp_unimelb_edu_au.total', sample_points())
+    # not mapped by naming, so excluded from the default backfill
+    make_wsp(
+        str(tmp_path), 'carbon.agents.foo.updateOperations', sample_points()
+    )
 
     sender = TestSender()
-    files, points = nm_whisper.do_report(
-        sender, str(tmp_path), nm_whisper.DEFAULT_INCLUDES, NOW
-    )
-    assert files == 2
+    files, points = nm_whisper.do_report(sender, str(tmp_path), None, NOW)
+    assert files == 7
     assert points == len(sender.metrics)
     sent_paths = set(args[0] for args in sender.metrics)
     assert sent_paths == {
         'az.zone1.used_vcpus',
         'az.zone1.domain.unimelb_edu_au.used_vcpus',
+        'tenant.8ffff.total_volumes',
+        'az.zone1.tenant.8ffff.used_vcpus',
+        'hosts.qh2_rcc_1.national.monash.used_vcpus',
+        'sites.monash.capacity.local.vcpu',
+        'users.idp_unimelb_edu_au.total',
     }
     assert sender.flushes == 1
+
+
+def test_do_report_include_globs_narrow_the_set(tmp_path):
+    make_wsp(str(tmp_path), 'az.zone1.used_vcpus', sample_points())
+    make_wsp(str(tmp_path), 'tenant.8ffff.total_volumes', sample_points())
+
+    sender = TestSender()
+    files, points = nm_whisper.do_report(
+        sender, str(tmp_path), ['az.*.used_vcpus'], NOW
+    )
+    assert files == 1
+    assert points == len(sender.metrics)
+    sent_paths = set(args[0] for args in sender.metrics)
+    assert sent_paths == {'az.zone1.used_vcpus'}
 
 
 def test_do_report_dry_run_sends_nothing(tmp_path):
     make_wsp(str(tmp_path), 'az.zone1.used_vcpus', sample_points())
     sender = TestSender()
     files, points = nm_whisper.do_report(
-        sender, str(tmp_path), nm_whisper.DEFAULT_INCLUDES, NOW, dry_run=True
+        sender, str(tmp_path), None, NOW, dry_run=True
     )
     assert files == 1
     assert points > 0
