@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    New ``nectar-metrics-gnocchi-backfill`` tool that replays the
+    historical site and host datapoints stored in Gnocchi (the
+    ``sites.*`` and ``hosts.*`` families never existed in Graphite)
+    through any sender, for migrating that history into
+    VictoriaMetrics. Where a timestamp is covered by more than one
+    archive-policy granularity the finest wins, and re-runs are safe
+    because VictoriaMetrics deduplicates identical points.
