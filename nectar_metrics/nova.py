@@ -12,6 +12,7 @@ from nectarallocationclient import client as allocation_client
 from nectarallocationclient import exceptions
 from nectarallocationclient import states
 from novaclient import client as nova_client
+from novaclient import exceptions as nova_exceptions
 
 from nectar_metrics import cli
 from nectar_metrics import config
@@ -41,9 +42,26 @@ def all_servers(client, limit=None):
     while True:
         if marker:
             opts["marker"] = marker
+        else:
+            opts.pop("marker", None)
 
         try:
             result = client.servers.list(search_opts=opts)
+        except nova_exceptions.BadRequest as exception:
+            # The server used as the pagination marker was deleted
+            # while we were listing. Drop it and continue from the
+            # server before it.
+            if marker and 'marker' in str(exception):
+                LOG.warning(
+                    "Marker %s deleted mid-listing, retrying from "
+                    "previous server",
+                    marker,
+                )
+                servers.pop()
+                marker = servers[-1].id if servers else None
+                continue
+            LOG.exception(exception)
+            sys.exit(1)
         except Exception as exception:
             LOG.exception(exception)
             sys.exit(1)
@@ -501,7 +519,7 @@ def do_report(sender, limit):
             break
         marker = page[-1].id
 
-    LOG.info('Fethcing projects...')
+    LOG.info('Fetching projects...')
     page_size = 500
     marker = None
     while True:

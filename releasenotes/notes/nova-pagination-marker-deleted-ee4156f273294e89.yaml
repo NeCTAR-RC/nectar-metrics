@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The nova report no longer aborts when an instance used as the
+    pagination marker is deleted while the server list is being
+    fetched. Listing now resumes from the previous server instead of
+    failing with ``marker not found (HTTP 400)``.

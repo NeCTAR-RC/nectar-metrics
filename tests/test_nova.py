@@ -1,3 +1,7 @@
+from unittest import mock
+
+from novaclient import exceptions as nova_exceptions
+
 from nectar_metrics import nova
 
 from tests.utils import TestSender
@@ -17,6 +21,40 @@ servers = [
     }
     for i in [1, 1, 1, 1, 1, 2, 2, 2, 3]
 ]
+
+
+def _server(server_id):
+    server = mock.Mock()
+    server.id = server_id
+    return server
+
+
+def test_all_servers_marker_deleted():
+    """Pagination recovers when the marker server is deleted mid-listing."""
+    responses = [
+        [_server('a'), _server('b')],
+        nova_exceptions.BadRequest(400, message='marker [b] not found'),
+        [_server('c')],
+        [],
+    ]
+    markers = []
+
+    def list_servers(search_opts):
+        markers.append(search_opts.get('marker'))
+        response = responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
+
+    client = mock.Mock()
+    client.servers.list.side_effect = list_servers
+
+    result = nova.all_servers(client)
+
+    # The deleted marker server is dropped and listing resumes from
+    # the server before it.
+    assert [s.id for s in result] == ['a', 'c']
+    assert markers == [None, 'b', 'a', 'c']
 
 
 def test_server_metrics():
