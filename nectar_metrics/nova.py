@@ -19,6 +19,7 @@ from nectar_metrics import config
 from nectar_metrics import gnocchi
 from nectar_metrics.keystone import client as keystone_client
 from nectar_metrics.keystone import get_auth_session
+from nectar_metrics import retry
 
 
 CONF = config.CONFIG
@@ -30,6 +31,11 @@ NOVA_VERSION = '2.60'
 def client():
     auth_session = get_auth_session()
     return nova_client.Client(NOVA_VERSION, session=auth_session)
+
+
+@retry.retry_on_transient()
+def _list_servers(client, opts):
+    return client.servers.list(search_opts=opts)
 
 
 def all_servers(client, limit=None):
@@ -46,7 +52,7 @@ def all_servers(client, limit=None):
             opts.pop("marker", None)
 
         try:
-            result = client.servers.list(search_opts=opts)
+            result = _list_servers(client, opts)
         except nova_exceptions.BadRequest as exception:
             # The server used as the pagination marker was deleted
             # while we were listing. Drop it and continue from the
@@ -266,7 +272,11 @@ def get_active_allocations():
     active_allocations = {}
 
     # All approved allocations
-    allocations = aclient.allocations.list(parent_request__isnull=True)
+    list_allocations = retry.retry_on_transient()(aclient.allocations.list)
+    get_last_approved = retry.retry_on_transient()(
+        aclient.allocations.get_last_approved
+    )
+    allocations = list_allocations(parent_request__isnull=True)
 
     for allocation in allocations:
         if (
@@ -276,9 +286,7 @@ def get_active_allocations():
             continue
         elif allocation.status != states.APPROVED:
             try:
-                allocation = aclient.allocations.get_last_approved(
-                    parent_request=allocation.id
-                )
+                allocation = get_last_approved(parent_request=allocation.id)
             except exceptions.AllocationDoesNotExist:
                 continue
 
@@ -501,8 +509,9 @@ def do_report(sender, limit):
     LOG.info('Fetching user list...')
     page_size = 500
     marker = None
+    list_users = retry.retry_on_transient()(kclient.users.list)
     while True:
-        page = kclient.users.list(limit=page_size, marker=marker)
+        page = list_users(limit=page_size, marker=marker)
         if not page:
             break
         for user in page:
@@ -522,8 +531,9 @@ def do_report(sender, limit):
     LOG.info('Fetching projects...')
     page_size = 500
     marker = None
+    list_projects = retry.retry_on_transient()(kclient.projects.list)
     while True:
-        page = kclient.projects.list(limit=page_size, marker=marker)
+        page = list_projects(limit=page_size, marker=marker)
         if not page:
             break
         for project in page:

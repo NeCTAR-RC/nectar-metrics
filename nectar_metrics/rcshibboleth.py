@@ -12,6 +12,7 @@ from manukaclient import client as manuka_client
 
 from nectar_metrics.cli import Main
 from nectar_metrics import keystone
+from nectar_metrics import retry
 
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ ODD_IDPS = {
 }
 
 
+@retry.retry_on_transient()
 def list_users(client, time=datetime.now()):
     return client.users.list(registered_at__lt=time, state='created')
 

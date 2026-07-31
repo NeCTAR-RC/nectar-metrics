@@ -1,0 +1,11 @@
+---
+fixes:
+  - |
+    The nova, cinder and rcshibboleth reports now retry transient
+    OpenStack API failures with exponential backoff instead of aborting
+    the whole run. Retriable conditions are the gateway and server
+    errors (HTTP 429/500/502/503/504) and dropped connections. This
+    covers the nova server, user, project and allocation listings, the
+    cinder volume listing and the rcshibboleth user listing, so an
+    intermittent gateway timeout (HTTP 504) no longer fails a
+    collection cycle.

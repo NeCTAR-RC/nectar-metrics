@@ -7,6 +7,7 @@ from cinderclient import client as cinder_client
 
 from nectar_metrics.cli import Main
 from nectar_metrics import keystone
+from nectar_metrics import retry
 
 
 LOG = logging.getLogger(__name__)
@@ -15,6 +16,11 @@ LOG = logging.getLogger(__name__)
 def client():
     auth_session = keystone.get_auth_session()
     return cinder_client.Client('3', session=auth_session)
+
+
+@retry.retry_on_transient()
+def _list_volumes(c_client, opts):
+    return c_client.volumes.list(search_opts=opts)
 
 
 def all_volumes(c_client, limit=None):
@@ -28,7 +34,7 @@ def all_volumes(c_client, limit=None):
         if marker:
             opts["marker"] = marker
         try:
-            res = c_client.volumes.list(search_opts=opts)
+            res = _list_volumes(c_client, opts)
         except Exception as exception:
             LOG.exception(exception)
             sys.exit(1)
