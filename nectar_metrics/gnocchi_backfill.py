@@ -1,11 +1,10 @@
 """Replay historical site and host datapoints from Gnocchi.
 
-The sites.* and hosts.* metric families never existed in Graphite -
-the GnocchiSender was their only store - so the whisper backfill
-cannot migrate them. This tool reads their measure history straight
-from Gnocchi and replays it through a sender, composing the same
-dotted metric paths the collectors do, so the resulting series are
-identical to live writes.
+The sites.* and hosts.* metric families have the GnocchiSender as
+their only long-term store. This tool reads their measure history
+straight from Gnocchi and replays it through a sender, composing the
+same dotted metric paths the collectors do, so the resulting series
+are identical to live writes.
 
 Two Gnocchi resource types are read:
 
@@ -20,8 +19,7 @@ Two Gnocchi resource types are read:
   pollster (capacity, unscoped usage totals) are skipped.
 
 Where a timestamp is covered by more than one archive-policy
-granularity, the finest granularity wins, mirroring the whisper
-archive band replay.
+granularity, the finest granularity wins.
 
 Re-runs are safe: identical (series, timestamp, value) points are
 deduplicated by VictoriaMetrics.
@@ -29,12 +27,31 @@ deduplicated by VictoriaMetrics.
 
 from datetime import datetime
 import logging
+import time
 
 from nectar_metrics.cli import Main
 from nectar_metrics import gnocchi
-from nectar_metrics.whisper import RateLimiter
 
 logger = logging.getLogger(__name__)
+
+
+class RateLimiter:
+    """Crude pacing: allow up to per_second sends each second."""
+
+    def __init__(self, per_second):
+        self.per_second = per_second
+        self.window = time.time()
+        self.count = 0
+
+    def wait(self):
+        self.count += 1
+        if self.count >= self.per_second:
+            elapsed = time.time() - self.window
+            if elapsed < 1:
+                time.sleep(1 - elapsed)
+            self.window = time.time()
+            self.count = 0
+
 
 AGGREGATION = 'mean'
 

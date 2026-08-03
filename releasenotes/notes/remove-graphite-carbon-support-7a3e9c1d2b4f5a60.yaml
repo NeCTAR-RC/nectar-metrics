@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    Graphite/Carbon support has been removed following the completed
+    migration to VictoriaMetrics. The ``carbon``, ``carbon_pickle``,
+    ``gnocchi_graphite`` and ``gnocchi_graphite_victoria`` protocols
+    and the ``--carbon-host`` and ``--carbon-port`` options are gone;
+    use ``victoria`` or ``gnocchi_victoria`` instead. The
+    ``nectar-metrics-whisper`` backfill tool and the ``whisper``
+    dependency have also been removed.

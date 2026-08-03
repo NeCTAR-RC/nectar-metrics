@@ -36,5 +36,5 @@ USER appuser
 
 # The collectors are one-shot commands run by cron or a CronJob spec,
 # which supplies the real command (nectar-metrics-nova, -cinder,
-# -rcshibboleth, -whisper). Config is expected at /etc/nectar/metrics.ini.
+# -rcshibboleth). Config is expected at /etc/nectar/metrics.ini.
 CMD ["nectar-metrics-nova", "--help"]

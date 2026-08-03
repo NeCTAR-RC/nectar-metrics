@@ -6,7 +6,6 @@ python-muranoclient
 python-novaclient
 python-troveclient
 warreclient
-whisper
 gnocchiclient
 nectarallocationclient
 manukaclient

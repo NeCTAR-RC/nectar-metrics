@@ -36,21 +36,19 @@ Nova metrics::
 
    $ nectar-metrics-nova --help
    usage: nectar-metrics-nova [-h] [-v] [-q] --protocol
-                              {debug,carbon,carbon_pickle}
-                              [--carbon-host CARBON_HOST]
-                              [--carbon-port CARBON_PORT] [--config CONFIG]
+                              {debug,gnocchi,victoria,gnocchi_victoria}
+                              [--victoria-url VICTORIA_URL] [--config CONFIG]
                               [--limit LIMIT]
 
-   optional arguments:
+   options:
      -h, --help            show this help message and exit
      -v, --verbose         Increase verbosity (specify multiple times for more)
                            (default: 0)
      -q, --quiet           Don't print any logging output (default: False)
-     --protocol {debug,carbon,carbon_pickle}
-     --carbon-host CARBON_HOST
-                           Carbon Host. (default: None)
-     --carbon-port CARBON_PORT
-                           Carbon Port. (default: 2003)
+     --protocol {debug,gnocchi,victoria,gnocchi_victoria}
+     --victoria-url VICTORIA_URL
+                           VictoriaMetrics base URL (default: [victoria] url from
+                           the config file). (default: None)
      --config CONFIG       Config file path. (default: /etc/nectar/metrics.ini)
      --limit LIMIT         Limit the response to some servers only. (default:
                            None)
@@ -81,21 +79,19 @@ Cinder gathers usage information about current cinder usage.::
 
    $ nectar-metrics-cinder --help
    usage: nectar-metrics-cinder [-h] [-v] [-q] --protocol
-                                {debug,carbon,carbon_pickle}
-                                [--carbon-host CARBON_HOST]
-                                [--carbon-port CARBON_PORT] [--config CONFIG]
+                                {debug,gnocchi,victoria,gnocchi_victoria}
+                                [--victoria-url VICTORIA_URL] [--config CONFIG]
                                 [--limit LIMIT]
 
-   optional arguments:
+   options:
      -h, --help            show this help message and exit
      -v, --verbose         Increase verbosity (specify multiple times for more)
                            (default: 0)
      -q, --quiet           Don't print any logging output (default: False)
-     --protocol {debug,carbon,carbon_pickle}
-     --carbon-host CARBON_HOST
-                           Carbon Host. (default: None)
-     --carbon-port CARBON_PORT
-                           Carbon Port. (default: 2003)
+     --protocol {debug,gnocchi,victoria,gnocchi_victoria}
+     --victoria-url VICTORIA_URL
+                           VictoriaMetrics base URL (default: [victoria] url from
+                           the config file). (default: None)
      --config CONFIG       Config file path. (default: /etc/nectar/metrics.ini)
      --limit LIMIT         Limit the response to some volumes only. (default:
                            None)
@@ -116,22 +112,20 @@ the current user registrations.::
 
    $ nectar-metrics-rcshibboleth --help
    usage: nectar-metrics-rcshibboleth [-h] [-v] [-q] --protocol
-                                      {debug,carbon,carbon_pickle}
-                                      [--carbon-host CARBON_HOST]
-                                      [--carbon-port CARBON_PORT]
+                                      {debug,gnocchi,victoria,gnocchi_victoria}
+                                      [--victoria-url VICTORIA_URL]
                                       [--config CONFIG] [--from-date FROM_DATE]
                                       [--to-date TO_DATE]
 
-   optional arguments:
+   options:
      -h, --help            show this help message and exit
      -v, --verbose         Increase verbosity (specify multiple times for more)
                            (default: 0)
      -q, --quiet           Don't print any logging output (default: False)
-     --protocol {debug,carbon,carbon_pickle}
-     --carbon-host CARBON_HOST
-                           Carbon Host. (default: None)
-     --carbon-port CARBON_PORT
-                           Carbon Port. (default: 2003)
+     --protocol {debug,gnocchi,victoria,gnocchi_victoria}
+     --victoria-url VICTORIA_URL
+                           VictoriaMetrics base URL (default: [victoria] url from
+                           the config file). (default: None)
      --config CONFIG       Config file path. (default: /etc/nectar/metrics.ini)
      --from-date FROM_DATE
                            When to backfill data from. (default: 2015-02-23

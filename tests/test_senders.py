@@ -3,20 +3,7 @@ import json
 import pytest
 
 from nectar_metrics import config
-from nectar_metrics.senders.graphite import SocketMetricSender
 from nectar_metrics.senders import victoria
-
-
-def test_socket_sender_sends_bytes(mocker):
-    socket_class = mocker.patch(
-        'nectar_metrics.senders.graphite.socket.socket'
-    )
-    sock = socket_class.return_value
-    sender = SocketMetricSender('carbon.example.com', 2003)
-    sender.send_metric('az.zone1.used_vcpus', 10.5, 1400000000)
-    sock.sendall.assert_called_once_with(
-        b'az.zone1.used_vcpus 10.50 1400000000\n'
-    )
 
 
 def make_sender(mocker):
@@ -91,7 +78,7 @@ def test_victoria_tenant_idp_host_site_labels(mocker):
         'idp': 'idp.unimelb.edu.au',
     }
     # The BaseSender flattens the hostname before it reaches the
-    # dotted path, matching what the whisper backfill produces.
+    # dotted path.
     assert by_name['nectar_host_used_vcpus']['metric'] == {
         '__name__': 'nectar_host_used_vcpus',
         'host': 'qh2_rcc_1',

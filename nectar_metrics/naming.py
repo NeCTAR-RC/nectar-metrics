@@ -1,17 +1,15 @@
-"""Mapping from legacy Graphite dotted metric paths to the
-Prometheus-style metric names and labels used by VictoriaMetrics.
+"""Mapping from legacy dotted metric paths to the Prometheus-style
+metric names and labels used by VictoriaMetrics.
 
 Dotted paths are the interchange format between the collectors (the
-BaseSender helpers compose dotted paths), the whisper backfill tool
-(paths derived from .wsp file names) and the VictoriaMetrics sender.
-Keeping a single parser here guarantees that backfilled history and
-live writes always map to identical series.
+BaseSender helpers compose dotted paths), the backfill tools and the
+VictoriaMetrics sender. Keeping a single parser here guarantees that
+backfilled history and live writes always map to identical series.
 
 Every path family the collectors emit (nova, cinder, rcshibboleth)
-is mapped, so the VictoriaMetrics sender supports the same metrics
-as the Graphite and Gnocchi senders. Paths outside the known
-families (carbon internals, retired trees, unknown metric names)
-return None and are dropped by the VictoriaMetrics sender.
+is mapped. Paths outside the known families (retired trees, unknown
+metric names) return None and are dropped by the VictoriaMetrics
+sender.
 """
 
 import re
@@ -78,8 +76,8 @@ _ACTIVE_PROJECTS_RE = re.compile(r'^active\.projects\.(?P<service>[^.]+)$')
 def from_dotted_path(path):
     """Map a legacy dotted metric path to a (name, labels) tuple.
 
-    Returns None for paths outside the known families (carbon
-    internals, retired trees, unknown metric names).
+    Returns None for paths outside the known families (retired
+    trees, unknown metric names).
     """
     if path == 'users.total':
         return ('nectar_users_total', {})

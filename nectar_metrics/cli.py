@@ -3,14 +3,8 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from nectar_metrics import config
 from nectar_metrics import log
 from nectar_metrics.senders.base import DummySender
-from nectar_metrics.senders.composite import GnocchiGraphiteSender
-from nectar_metrics.senders.composite import GnocchiGraphiteVictoriaSender
 from nectar_metrics.senders.composite import GnocchiVictoriaSender
 from nectar_metrics.senders.gnocchi import GnocchiSender
-from nectar_metrics.senders.graphite import (
-    PickleSocketMetricSender,
-    SocketMetricSender,
-)
 from nectar_metrics.senders.victoria import VictoriaMetricsSender
 
 
@@ -36,19 +30,11 @@ class Main:
             '--protocol',
             choices=[
                 'debug',
-                'carbon',
-                'carbon_pickle',
                 'gnocchi',
-                'gnocchi_graphite',
                 'victoria',
                 'gnocchi_victoria',
-                'gnocchi_graphite_victoria',
             ],
             required=True,
-        )
-        self.parser.add_argument('--carbon-host', help='Carbon Host.')
-        self.parser.add_argument(
-            '--carbon-port', default=2003, type=int, help='Carbon Port.'
         )
         self.parser.add_argument(
             '--victoria-url',
@@ -80,34 +66,12 @@ class Main:
     def sender(self):
         args = self.parse_args()
 
-        if args.protocol == 'carbon':
-            if not args.carbon_host:
-                self.parser.error('argument --carbon-host is required')
-            if not args.carbon_port:
-                self.parser.error('argument --carbon-port is required')
-            sender = SocketMetricSender(args.carbon_host, args.carbon_port)
-        elif args.protocol == 'carbon_pickle':
-            if not args.carbon_host:
-                self.parser.error('argument --carbon-host is required')
-            if not args.carbon_port:
-                self.parser.error('argument --carbon-port is required')
-            sender = PickleSocketMetricSender(
-                args.carbon_host, args.carbon_port
-            )
-        elif args.protocol == 'gnocchi':
+        if args.protocol == 'gnocchi':
             sender = GnocchiSender()
-        elif args.protocol == 'gnocchi_graphite':
-            sender = GnocchiGraphiteSender(args.carbon_host, args.carbon_port)
         elif args.protocol == 'victoria':
             sender = VictoriaMetricsSender(self._victoria_url(args))
         elif args.protocol == 'gnocchi_victoria':
             sender = GnocchiVictoriaSender(self._victoria_url(args))
-        elif args.protocol == 'gnocchi_graphite_victoria':
-            if not args.carbon_host:
-                self.parser.error('argument --carbon-host is required')
-            sender = GnocchiGraphiteVictoriaSender(
-                args.carbon_host, args.carbon_port, self._victoria_url(args)
-            )
         elif args.protocol == 'debug':
             sender = DummySender()
 

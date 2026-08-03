@@ -11,22 +11,21 @@ from nectar_metrics.senders import base
 
 CONF = config.CONFIG
 
-# Flush automatically once this many datapoints are buffered so the
-# whisper backfill (hundreds of millions of points) keeps memory
-# bounded.
+# Flush automatically once this many datapoints are buffered so
+# backfills (hundreds of millions of points) keep memory bounded.
 FLUSH_AT = 50000
 
 
 class VictoriaMetricsSender(base.BaseSender):
     """Sends metrics to the VictoriaMetrics JSON line import API.
 
-    Dotted metric paths composed by the BaseSender helpers (and by the
-    whisper backfill tool) are mapped to Prometheus-style names and
-    labels via nectar_metrics.naming; every path family the collectors
-    emit is mapped, and anything outside those families (carbon
-    internals, retired trees) is dropped. Values keep full float
-    precision and timestamps are sent in milliseconds, so live writes
-    and backfilled history are byte-identical on the wire.
+    Dotted metric paths composed by the BaseSender helpers (and by
+    backfill tools) are mapped to Prometheus-style names and labels
+    via nectar_metrics.naming; every path family the collectors emit
+    is mapped, and anything outside those families is dropped. Values
+    keep full float precision and timestamps are sent in
+    milliseconds, so live writes and backfilled history are
+    byte-identical on the wire.
     """
 
     def __init__(self, url=None):
