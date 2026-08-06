@@ -10,6 +10,8 @@ gnocchiclient
 nectarallocationclient
 manukaclient
 placementclient
+oslo.config
+oslo.log
 prometheus-client
 requests
 sentry-sdk

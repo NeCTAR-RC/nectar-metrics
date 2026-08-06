@@ -142,15 +142,15 @@ def test_victoria_auto_flush(mocker, monkeypatch):
 
 
 def test_victoria_url_from_config():
-    config.CONFIG.set('victoria', 'url', 'http://fromconf:8428')
+    config.CONF.set_override('url', 'http://fromconf:8428', group='victoria')
     try:
         sender = victoria.VictoriaMetricsSender()
         assert sender.url == 'http://fromconf:8428'
     finally:
-        del config.CONFIG.data['victoria']
+        config.CONF.clear_override('url', group='victoria')
 
 
 def test_victoria_no_url_raises():
-    assert config.CONFIG.get('victoria', 'url') is None
+    assert config.CONF.victoria.url is None
     with pytest.raises(ValueError):
         victoria.VictoriaMetricsSender()

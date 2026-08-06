@@ -26,12 +26,16 @@ deduplicated by VictoriaMetrics.
 """
 
 from datetime import datetime
-import logging
 import time
 
+from oslo_config import cfg
+from oslo_log import log as logging
+
 from nectar_metrics.cli import Main
+from nectar_metrics import config
 from nectar_metrics import gnocchi
 
+CONF = config.CONF
 logger = logging.getLogger(__name__)
 
 
@@ -195,30 +199,30 @@ def do_report(
 
 
 def main():
-    parser = Main('gnocchi_backfill')
-    parser.add_argument(
-        '--limit',
-        default=None,
-        type=int,
-        help='Limit the number of points to send from each metric.',
+    metrics_cli = Main(
+        'gnocchi_backfill',
+        [
+            cfg.IntOpt(
+                'limit',
+                help='Limit the number of points to send from each metric.',
+            ),
+            cfg.BoolOpt(
+                'dry-run',
+                default=False,
+                help='Count points per metric without sending anything.',
+            ),
+            cfg.IntOpt(
+                'max-points-per-sec',
+                default=5000,
+                help='Rate limit for sends; 0 disables the limit.',
+            ),
+        ],
     )
-    parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help='Count points per metric without sending anything.',
-    )
-    parser.add_argument(
-        '--max-points-per-sec',
-        default=5000,
-        type=int,
-        help='Rate limit for sends; 0 disables the limit.',
-    )
-    args = parser.parse_args()
     logger.info("Running Report")
     do_report(
-        parser.sender(),
+        metrics_cli.sender(),
         gnocchi.get_client(),
-        limit=args.limit,
-        max_points_per_sec=args.max_points_per_sec,
-        dry_run=args.dry_run,
+        limit=CONF.limit,
+        max_points_per_sec=CONF.max_points_per_sec,
+        dry_run=CONF.dry_run,
     )

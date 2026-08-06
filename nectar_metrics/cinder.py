@@ -1,15 +1,18 @@
 from collections import defaultdict
-import logging
 import sys
 import time
 
 from cinderclient import client as cinder_client
+from oslo_config import cfg
+from oslo_log import log as logging
 
 from nectar_metrics.cli import Main
+from nectar_metrics import config
 from nectar_metrics import keystone
 from nectar_metrics import retry
 
 
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -93,12 +96,14 @@ def do_report(sender, limit):
 
 
 def main():
-    parser = Main('cinder')
-    parser.add_argument(
-        '--limit',
-        default=None,
-        help='Limit the response to some volumes only.',
+    metrics_cli = Main(
+        'cinder',
+        [
+            cfg.IntOpt(
+                'limit',
+                help='Limit the response to some volumes only.',
+            ),
+        ],
     )
-    args = parser.parse_args()
     LOG.info("Running Report")
-    do_report(parser.sender(), args.limit)
+    do_report(metrics_cli.sender(), CONF.limit)

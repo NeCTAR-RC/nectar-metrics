@@ -9,7 +9,7 @@ from nectar_metrics import naming
 from nectar_metrics.senders import base
 
 
-CONF = config.CONFIG
+CONF = config.CONF
 
 # Flush automatically once this many datapoints are buffered so
 # backfills (hundreds of millions of points) keep memory bounded.
@@ -30,7 +30,7 @@ class VictoriaMetricsSender(base.BaseSender):
 
     def __init__(self, url=None):
         super().__init__()
-        url = url or CONF.get('victoria', 'url')
+        url = url or CONF.victoria.url
         if not url:
             raise ValueError(
                 "VictoriaMetrics URL not set; add [victoria] url to the "

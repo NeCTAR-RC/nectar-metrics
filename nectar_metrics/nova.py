@@ -1,6 +1,5 @@
 from collections import defaultdict
 import datetime
-import logging
 import os
 from os import path
 import pickle
@@ -13,6 +12,8 @@ from nectarallocationclient import exceptions
 from nectarallocationclient import states
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
+from oslo_config import cfg
+from oslo_log import log as logging
 
 from nectar_metrics import cli
 from nectar_metrics import config
@@ -22,7 +23,7 @@ from nectar_metrics.keystone import get_auth_session
 from nectar_metrics import retry
 
 
-CONF = config.CONFIG
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 flavor = {}
 NOVA_VERSION = '2.60'
@@ -230,7 +231,7 @@ def change_over_time(servers_by_az, now, sender):
             for az, servers in servers_by_az.items()
         ]
     )
-    working_dir = CONF.get('metrics', 'working_dir')
+    working_dir = CONF.metrics.working_dir
     previous_servers_file = path.join(working_dir, "previous_servers.pickle")
 
     if not os.path.exists(previous_servers_file):
@@ -581,12 +582,14 @@ def do_report(sender, limit):
 
 
 def main():
-    parser = cli.Main('nova')
-    parser.add_argument(
-        '--limit',
-        default=None,
-        help='Limit the response to some servers only.',
+    metrics_cli = cli.Main(
+        'nova',
+        [
+            cfg.IntOpt(
+                'limit',
+                help='Limit the response to some servers only.',
+            ),
+        ],
     )
-    args = parser.parse_args()
     LOG.info("Running Report")
-    do_report(parser.sender(), args.limit)
+    do_report(metrics_cli.sender(), CONF.limit)

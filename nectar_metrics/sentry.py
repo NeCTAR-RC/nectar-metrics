@@ -1,13 +1,14 @@
 import importlib.metadata
-import logging
 import os
 import sys
 
+from oslo_log import log as logging
 import sentry_sdk
 
-from nectar_metrics.config import CONFIG
+from nectar_metrics import config
 
 
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -29,12 +30,12 @@ def setup():
     sentry-sdk default integrations report unhandled exceptions and
     ERROR level log messages.
     """
-    dsn = CONFIG.get('sentry', 'dsn') or os.environ.get('SENTRY_DSN')
+    dsn = CONF.sentry.dsn or os.environ.get('SENTRY_DSN')
     if not dsn:
         return False
     sentry_sdk.init(
         dsn=dsn,
-        environment=CONFIG.get('sentry', 'environment'),
+        environment=CONF.sentry.environment,
         release=_get_release(),
         # GlitchTip does not support sessions
         auto_session_tracking=False,

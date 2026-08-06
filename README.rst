@@ -29,29 +29,37 @@ small selection of servers::
    az.monash-01.instances_created 0.00 1415353638
 
 
+Common options
+--------------
+
+All the collector commands take the following options:
+
+--protocol PROTOCOL
+   Sender used to report the metrics (required); one of ``debug``,
+   ``gnocchi``, ``victoria`` or ``gnocchi_victoria``.
+--victoria-url URL
+   VictoriaMetrics base URL (default: [victoria] url from the config
+   file).
+
+They also accept the standard ``oslo.config`` and ``oslo.log``
+options, e.g. ``--config-file``, ``--debug``, ``--log-file`` and
+``--log-dir``; see ``--help`` for the full list. Without
+``--config-file`` the config is read from ``/etc/nectar/metrics.ini``,
+falling back to a ``metrics.ini`` in the current directory.
+
 Nova
 ----
 
 Nova metrics::
 
    $ nectar-metrics-nova --help
-   usage: nectar-metrics-nova [-h] [-v] [-q] --protocol
-                              {debug,gnocchi,victoria,gnocchi_victoria}
-                              [--victoria-url VICTORIA_URL] [--config CONFIG]
-                              [--limit LIMIT]
+   usage: nectar-metrics-nova [-h] [--config-file PATH] [--debug]
+                              [--protocol PROTOCOL]
+                              [--victoria-url VICTORIA_URL] [--limit LIMIT]
+                              ...
 
    options:
-     -h, --help            show this help message and exit
-     -v, --verbose         Increase verbosity (specify multiple times for more)
-                           (default: 0)
-     -q, --quiet           Don't print any logging output (default: False)
-     --protocol {debug,gnocchi,victoria,gnocchi_victoria}
-     --victoria-url VICTORIA_URL
-                           VictoriaMetrics base URL (default: [victoria] url from
-                           the config file). (default: None)
-     --config CONFIG       Config file path. (default: /etc/nectar/metrics.ini)
-     --limit LIMIT         Limit the response to some servers only. (default:
-                           None)
+     --limit LIMIT         Limit the response to some servers only.
 
 Nova output is grouped in several ways: by tenant, by cell, by cell by
 tenant and by cell by email domain of the user who launched the
@@ -78,23 +86,13 @@ Cinder
 Cinder gathers usage information about current cinder usage.::
 
    $ nectar-metrics-cinder --help
-   usage: nectar-metrics-cinder [-h] [-v] [-q] --protocol
-                                {debug,gnocchi,victoria,gnocchi_victoria}
-                                [--victoria-url VICTORIA_URL] [--config CONFIG]
-                                [--limit LIMIT]
+   usage: nectar-metrics-cinder [-h] [--config-file PATH] [--debug]
+                                [--protocol PROTOCOL]
+                                [--victoria-url VICTORIA_URL] [--limit LIMIT]
+                                ...
 
    options:
-     -h, --help            show this help message and exit
-     -v, --verbose         Increase verbosity (specify multiple times for more)
-                           (default: 0)
-     -q, --quiet           Don't print any logging output (default: False)
-     --protocol {debug,gnocchi,victoria,gnocchi_victoria}
-     --victoria-url VICTORIA_URL
-                           VictoriaMetrics base URL (default: [victoria] url from
-                           the config file). (default: None)
-     --config CONFIG       Config file path. (default: /etc/nectar/metrics.ini)
-     --limit LIMIT         Limit the response to some volumes only. (default:
-                           None)
+     --limit LIMIT         Limit the response to some volumes only.
 
 Cinder metrics are grouped by tenant and by az by tenant::
 
@@ -111,27 +109,18 @@ RCShibboleth queries the RCShibboleth database and gathers details of
 the current user registrations.::
 
    $ nectar-metrics-rcshibboleth --help
-   usage: nectar-metrics-rcshibboleth [-h] [-v] [-q] --protocol
-                                      {debug,gnocchi,victoria,gnocchi_victoria}
+   usage: nectar-metrics-rcshibboleth [-h] [--config-file PATH] [--debug]
+                                      [--protocol PROTOCOL]
                                       [--victoria-url VICTORIA_URL]
-                                      [--config CONFIG] [--from-date FROM_DATE]
+                                      [--from-date FROM_DATE]
                                       [--to-date TO_DATE]
+                                      ...
 
    options:
-     -h, --help            show this help message and exit
-     -v, --verbose         Increase verbosity (specify multiple times for more)
-                           (default: 0)
-     -q, --quiet           Don't print any logging output (default: False)
-     --protocol {debug,gnocchi,victoria,gnocchi_victoria}
-     --victoria-url VICTORIA_URL
-                           VictoriaMetrics base URL (default: [victoria] url from
-                           the config file). (default: None)
-     --config CONFIG       Config file path. (default: /etc/nectar/metrics.ini)
      --from-date FROM_DATE
-                           When to backfill data from. (default: 2015-02-23
-                           15:59:54.720779)
-     --to-date TO_DATE     When to backfill data to. (default: 2015-02-23
-                           15:59:54.720840)
+                           When to backfill data from (YYYY-MM-DD, default:
+                           now).
+     --to-date TO_DATE     When to backfill data to (YYYY-MM-DD, default: now).
 
 
 The only metric that is reported is the current registrations grouped by IdP::

@@ -8,10 +8,10 @@ run, so wrap the affected calls with :func:`retry_on_transient`.
 """
 
 import functools
-import logging
 import time
 
 from keystoneauth1 import exceptions as ksa_exceptions
+from oslo_log import log as logging
 
 
 LOG = logging.getLogger(__name__)

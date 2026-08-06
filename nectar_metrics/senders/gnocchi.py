@@ -5,14 +5,14 @@ from nectar_metrics import gnocchi
 from nectar_metrics.senders import base
 
 
-CONF = config.CONFIG
+CONF = config.CONF
 
 
 class GnocchiSender(base.BaseSender):
     def __init__(self):
         super().__init__()
         self.client = gnocchi.get_client()
-        self.archive_policy = CONF.get('gnocchi', 'archive_policy')
+        self.archive_policy = CONF.gnocchi.archive_policy
 
     def send_metric(
         self,

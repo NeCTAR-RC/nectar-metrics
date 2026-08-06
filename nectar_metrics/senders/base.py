@@ -1,8 +1,6 @@
-import logging
 import sys
 
-
-logger = logging.getLogger(__name__)
+from oslo_log import log as logging
 
 
 class BaseSender:

@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime, timedelta
 
 from collections import defaultdict
@@ -9,12 +8,16 @@ except ImportError:
     from urllib.parse import urlsplit
 
 from manukaclient import client as manuka_client
+from oslo_config import cfg
+from oslo_log import log as logging
 
 from nectar_metrics.cli import Main
+from nectar_metrics import config
 from nectar_metrics import keystone
 from nectar_metrics import retry
 
 
+CONF = config.CONF
 logger = logging.getLogger(__name__)
 
 
@@ -72,16 +75,22 @@ def parse_date(datestring):
 
 
 def main():
-    parser = Main('rcshibboleth')
-    parser.add_argument(
-        '--from-date',
-        default=datetime.now(),
-        type=parse_date,
-        help='When to backfill data from.',
+    metrics_cli = Main(
+        'rcshibboleth',
+        [
+            cfg.Opt(
+                'from-date',
+                type=parse_date,
+                default=datetime.now(),
+                help='When to backfill data from.',
+            ),
+            cfg.Opt(
+                'to-date',
+                type=parse_date,
+                default=datetime.now(),
+                help='When to backfill data to.',
+            ),
+        ],
     )
-    parser.add_argument(
-        '--to-date', default=datetime.now(), help='When to backfill data to.'
-    )
-    args = parser.parse_args()
     logger.info("Running Report")
-    report_metrics(parser.sender(), args.from_date, args.to_date)
+    report_metrics(metrics_cli.sender(), CONF.from_date, CONF.to_date)

@@ -1,0 +1,19 @@
+---
+upgrade:
+  - |
+    The collectors now use ``oslo.config`` and ``oslo.log`` instead of
+    the home-grown configuration and logging modules. The command line
+    interface changes as a result:
+
+    * ``--config`` is replaced by the standard ``--config-file``
+      option. The default config file search still finds
+      ``/etc/nectar/metrics.ini`` and falls back to a ``metrics.ini``
+      in the current directory.
+    * The ``-v/--verbose`` and ``-q/--quiet`` options are replaced by
+      the standard ``oslo.log`` options such as ``--debug``,
+      ``--log-file`` and ``--use-stderr``.
+    * File logging is now configured with ``log_dir`` in the
+      ``[DEFAULT]`` section of the config file rather than ``log_dir``
+      in the ``[metrics]`` section. Log files are named after the
+      command, e.g. ``nectar-metrics-nova.log`` instead of
+      ``nova.log``.

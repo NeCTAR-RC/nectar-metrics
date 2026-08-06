@@ -5,9 +5,11 @@ from unittest import mock
 
 import pytest
 
-from nectar_metrics.config import CONFIG
+from nectar_metrics import config
 from nectar_metrics import sentry
 
+
+CONF = config.CONF
 
 DSN = 'https://key@glitchtip.example.com/1'
 RELEASE = 'nectar-metrics@1.0.0'
@@ -16,9 +18,9 @@ RELEASE = 'nectar-metrics@1.0.0'
 @pytest.fixture(autouse=True)
 def clean_environment(monkeypatch):
     monkeypatch.delenv('SENTRY_DSN', raising=False)
-    CONFIG.data.pop('sentry', None)
     yield
-    CONFIG.data.pop('sentry', None)
+    CONF.clear_override('dsn', group='sentry')
+    CONF.clear_override('environment', group='sentry')
 
 
 @mock.patch('nectar_metrics.sentry._get_release', return_value=RELEASE)
@@ -29,8 +31,8 @@ class TestSentrySetup:
         mock_sdk.init.assert_not_called()
 
     def test_setup_with_dsn(self, mock_sdk, mock_release):
-        CONFIG.set('sentry', 'dsn', DSN)
-        CONFIG.set('sentry', 'environment', 'testing')
+        CONF.set_override('dsn', DSN, group='sentry')
+        CONF.set_override('environment', 'testing', group='sentry')
         assert sentry.setup()
         mock_sdk.init.assert_called_once_with(
             dsn=DSN,
@@ -43,7 +45,7 @@ class TestSentrySetup:
         )
 
     def test_setup_dsn_only(self, mock_sdk, mock_release):
-        CONFIG.set('sentry', 'dsn', DSN)
+        CONF.set_override('dsn', DSN, group='sentry')
         assert sentry.setup()
         mock_sdk.init.assert_called_once_with(
             dsn=DSN,

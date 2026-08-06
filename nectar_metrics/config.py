@@ -1,54 +1,80 @@
-from collections import UserDict
-from configparser import ConfigParser
 import os
+import sys
+
+from oslo_config import cfg
 
 
-CONFIG_FILE = '/etc/nectar/metrics.ini'
-WORKING_PATH = os.getcwd()
-ALT_CONFIG_FILE = os.path.join(WORKING_PATH, "metrics.ini")
+CONF = cfg.CONF
+
+metrics_opts = [
+    cfg.StrOpt(
+        'working_dir',
+        default='.',
+        help='Directory used to store state between runs.',
+    ),
+]
+
+openstack_opts = [
+    cfg.StrOpt('user', help='OpenStack username.'),
+    cfg.StrOpt('passwd', secret=True, help='OpenStack password.'),
+    cfg.StrOpt('name', help='OpenStack project name.'),
+    cfg.StrOpt('url', help='Keystone authentication URL.'),
+]
+
+gnocchi_opts = [
+    cfg.StrOpt(
+        'archive_policy',
+        help='Archive policy used when creating new metrics.',
+    ),
+]
+
+victoria_opts = [
+    cfg.StrOpt('url', help='VictoriaMetrics base URL.'),
+]
+
+sentry_opts = [
+    cfg.StrOpt(
+        'dsn',
+        secret=True,
+        help='GlitchTip/Sentry compatible DSN. When set, unhandled '
+        'exceptions and ERROR level log messages are reported.',
+    ),
+    cfg.StrOpt('environment', help='Sentry environment name.'),
+]
+
+CONF.register_opts(metrics_opts, group='metrics')
+CONF.register_opts(openstack_opts, group='openstack')
+CONF.register_opts(gnocchi_opts, group='gnocchi')
+CONF.register_opts(victoria_opts, group='victoria')
+CONF.register_opts(sentry_opts, group='sentry')
 
 
-class ConfigurationDict(UserDict):
-    def get(self, section, key, default=None):
-        if section in self.data:
-            if key in self.data[section]:
-                return self.data[section][key]
-        return default
+def default_config_files():
+    """Find metrics.ini in the standard locations.
 
-    def get_list(self, section, key, default=[]):
-        if section in self.data:
-            if key in self.data[section]:
-                return self.data[section][key].split(',')
-        return default
-
-    def set(self, section, key, value):
-        if section not in self.data:
-            self.data[section] = {}
-        self.data[section][key] = value
-        return value
+    Searches the oslo.config default directories (~/.nectar/, ~/,
+    /etc/nectar/ and /etc/) and falls back to a metrics.ini in the
+    current working directory.
+    """
+    files = cfg.find_config_files(
+        project='nectar', prog='metrics', extension='.ini'
+    )
+    if not files:
+        local = os.path.join(os.getcwd(), 'metrics.ini')
+        if os.path.exists(local):
+            files = [local]
+    return files
 
 
-CONFIG = ConfigurationDict()
-
-
-def as_dict(config):
-    config_dict = {}
-    for section in config.sections():
-        config_dict[section] = {}
-        for key, val in config.items(section):
-            config_dict[section][key] = val
-    return config_dict
-
-
-def read(filename=None):
-    if os.path.exists(filename):
-        filename = filename
-    elif os.path.exists(CONFIG_FILE):
-        filename = CONFIG_FILE
-    elif os.path.exists(ALT_CONFIG_FILE):
-        filename = ALT_CONFIG_FILE
-    else:
-        raise Exception(f"Can't find configuration file. {CONFIG_FILE}")
-    parser = ConfigParser()
-    parser.read(filename)
-    CONFIG.update(as_dict(parser))
+def init(args=None, prog=None):
+    """Parse the config files and command line options."""
+    if args is None:
+        args = sys.argv[1:]
+    CONF(
+        args,
+        project='nectar-metrics',
+        prog=prog,
+        default_config_files=default_config_files(),
+    )
+    if not CONF.config_file:
+        raise Exception("Can't find configuration file: metrics.ini")

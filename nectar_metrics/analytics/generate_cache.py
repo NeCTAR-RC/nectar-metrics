@@ -2,20 +2,38 @@
 # to pickle and json. This is primarily used to generate a cache for Jupyter
 # notebooks to work on, so we don't have to grab data on each run of a notebook
 
-import argparse
 from openstack import connection
 import pandas as pd
 
 from gnocchiclient.v1 import client
+from oslo_config import cfg
+from oslo_log import log as logging
 
 from nectar_metrics import config
-from nectar_metrics.config import CONFIG
 from nectar_metrics import keystone
 from nectar_metrics import sentry
 
-config.read(config.CONFIG_FILE)
-sentry.setup()
-SESSION = keystone.get_auth_session()
+CONF = config.CONF
+
+cli_opts = [
+    cfg.BoolOpt(
+        'instances',
+        default=False,
+        help='Generate instances cache from gnocchi.',
+    ),
+    cfg.BoolOpt(
+        'glance-images',
+        default=False,
+        help='Generate images cache from glance.',
+    ),
+    cfg.BoolOpt(
+        'upload-swift',
+        default=False,
+        help='Uploads caches to swift.',
+    ),
+]
+
+SESSION = None
 VERSION = 1
 
 
@@ -95,7 +113,7 @@ def _dump_file(dataframe, filename, pickle=True, json=True, version=VERSION):
 # Upload to swift
 def _upload_swift(project=None, container='analytics-data', filename=None):
     if not project:
-        project = CONFIG['openstack']['name']
+        project = CONF.openstack.name
 
     conn = connection.Connection(session=SESSION)
 
@@ -105,30 +123,17 @@ def _upload_swift(project=None, container='analytics-data', filename=None):
 
 
 def main():
+    global SESSION
 
-    parser = argparse.ArgumentParser(
-        description="Generates pickle and json cache files from "
-        "OpenStack services."
-    )
+    logging.register_options(CONF)
+    CONF.register_cli_opts(cli_opts)
+    config.init(prog='analytics-generate-cache')
+    logging.setup(CONF, 'nectar_metrics')
+    sentry.setup()
+    SESSION = keystone.get_auth_session()
 
-    parser.add_argument(
-        '--instances',
-        help='Generate instances cache from gnocchi.',
-        action='store_true',
-    )
-    parser.add_argument(
-        '--glance-images',
-        help='Generate images cache from glance.',
-        action='store_true',
-    )
-    parser.add_argument(
-        '--upload-swift', help='Uploads caches to swift.', action='store_true'
-    )
+    if CONF.instances:
+        generate_gnocchi_instances(upload_swift=CONF.upload_swift)
 
-    args = parser.parse_args()
-
-    if args.instances:
-        generate_gnocchi_instances(upload_swift=args.upload_swift)
-
-    if args.glance_images:
-        generate_openstack_image_list(upload_swift=args.upload_swift)
+    if CONF.glance_images:
+        generate_openstack_image_list(upload_swift=CONF.upload_swift)
