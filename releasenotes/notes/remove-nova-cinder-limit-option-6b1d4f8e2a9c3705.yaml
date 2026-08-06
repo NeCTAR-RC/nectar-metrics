@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The unused ``--limit`` option has been removed from the
+    ``nectar-metrics-nova`` and ``nectar-metrics-cinder`` collectors.
+    Both collectors now always report on all servers or volumes.

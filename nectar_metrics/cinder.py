@@ -3,16 +3,13 @@ import sys
 import time
 
 from cinderclient import client as cinder_client
-from oslo_config import cfg
 from oslo_log import log as logging
 
 from nectar_metrics.cli import Main
-from nectar_metrics import config
 from nectar_metrics import keystone
 from nectar_metrics import retry
 
 
-CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -26,12 +23,10 @@ def _list_volumes(c_client, opts):
     return c_client.volumes.list(search_opts=opts)
 
 
-def all_volumes(c_client, limit=None):
+def all_volumes(c_client):
     volumes = []
     marker = None
     opts = {"all_tenants": True}
-    if limit:
-        opts['limit'] = limit
 
     while True:
         if marker:
@@ -44,11 +39,6 @@ def all_volumes(c_client, limit=None):
         if not res:
             break
         volumes.extend(res)
-
-        # Quit if we have got enough servers.
-        if limit and len(volumes) >= int(limit):
-            break
-
         marker = volumes[-1].id
     return volumes
 
@@ -86,9 +76,9 @@ def by_az_by_tenant(volumes, now, sender):
                 sender.send_by_az_by_tenant(zone, tenant, metric, value, now)
 
 
-def do_report(sender, limit):
+def do_report(sender):
     c_client = client()
-    volumes = [volume._info for volume in all_volumes(c_client, limit)]
+    volumes = [volume._info for volume in all_volumes(c_client)]
     now = int(time.time())
     by_tenant(volumes, now, sender)
     by_az_by_tenant(volumes, now, sender)
@@ -96,14 +86,6 @@ def do_report(sender, limit):
 
 
 def main():
-    metrics_cli = Main(
-        'cinder',
-        [
-            cfg.IntOpt(
-                'limit',
-                help='Limit the response to some volumes only.',
-            ),
-        ],
-    )
+    metrics_cli = Main('cinder')
     LOG.info("Running Report")
-    do_report(metrics_cli.sender(), CONF.limit)
+    do_report(metrics_cli.sender())

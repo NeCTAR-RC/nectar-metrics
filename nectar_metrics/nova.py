@@ -12,7 +12,6 @@ from nectarallocationclient import exceptions
 from nectarallocationclient import states
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
-from oslo_config import cfg
 from oslo_log import log as logging
 
 from nectar_metrics import cli
@@ -39,12 +38,10 @@ def _list_servers(client, opts):
     return client.servers.list(search_opts=opts)
 
 
-def all_servers(client, limit=None):
+def all_servers(client):
     servers = []
     marker = None
     opts = {"all_tenants": True}
-    if limit:
-        opts['limit'] = limit
 
     while True:
         if marker:
@@ -77,11 +74,6 @@ def all_servers(client, limit=None):
             break
 
         servers.extend(result)
-
-        # Quit if we have got enough servers.
-        if limit and len(servers) >= int(limit):
-            break
-
         marker = servers[-1].id
     return servers
 
@@ -496,7 +488,7 @@ def availability_by_site(availability, now, sender):
                 )
 
 
-def do_report(sender, limit):
+def do_report(sender):
     nclient = client()
     kclient = keystone_client()
     users = {}
@@ -546,7 +538,7 @@ def do_report(sender, limit):
     LOG.info('Fetching server list...')
     servers = [
         server._info
-        for server in all_servers(nclient, limit)
+        for server in all_servers(nclient)
         if getattr(server, 'OS-EXT-AZ:availability_zone')
     ]
 
@@ -582,14 +574,6 @@ def do_report(sender, limit):
 
 
 def main():
-    metrics_cli = cli.Main(
-        'nova',
-        [
-            cfg.IntOpt(
-                'limit',
-                help='Limit the response to some servers only.',
-            ),
-        ],
-    )
+    metrics_cli = cli.Main('nova')
     LOG.info("Running Report")
-    do_report(metrics_cli.sender(), CONF.limit)
+    do_report(metrics_cli.sender())
