@@ -12,6 +12,7 @@ manukaclient
 placementclient
 prometheus-client
 requests
+sentry-sdk
 numpy
 pandas
 pbr

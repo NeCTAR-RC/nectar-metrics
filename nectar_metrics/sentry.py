@@ -1,0 +1,44 @@
+import importlib.metadata
+import logging
+import os
+import sys
+
+import sentry_sdk
+
+from nectar_metrics.config import CONFIG
+
+
+LOG = logging.getLogger(__name__)
+
+
+def _get_release():
+    try:
+        version = importlib.metadata.version('nectar-metrics')
+    except importlib.metadata.PackageNotFoundError:
+        # Not installed as a package, let sentry-sdk auto-detect
+        # (e.g. the git commit of a source checkout)
+        return None
+    return f'nectar-metrics@{version}'
+
+
+def setup():
+    """Enable error reporting to GlitchTip/Sentry.
+
+    A no-op unless a DSN is set in the [sentry] section of the config
+    file (or the SENTRY_DSN environment variable). Once enabled, the
+    sentry-sdk default integrations report unhandled exceptions and
+    ERROR level log messages.
+    """
+    dsn = CONFIG.get('sentry', 'dsn') or os.environ.get('SENTRY_DSN')
+    if not dsn:
+        return False
+    sentry_sdk.init(
+        dsn=dsn,
+        environment=CONFIG.get('sentry', 'environment'),
+        release=_get_release(),
+        # GlitchTip does not support sessions
+        auto_session_tracking=False,
+    )
+    sentry_sdk.set_tag('command', os.path.basename(sys.argv[0]))
+    LOG.debug("Sentry error reporting enabled")
+    return True

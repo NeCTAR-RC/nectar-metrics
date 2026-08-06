@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Added support for reporting errors to a GlitchTip/Sentry server. When
+    a DSN is set via ``dsn`` in the ``[sentry]`` section of the config
+    file (or the ``SENTRY_DSN`` environment variable), unhandled
+    exceptions and ``ERROR`` level log messages are reported. An optional
+    ``environment`` option sets the environment name attached to each
+    event.

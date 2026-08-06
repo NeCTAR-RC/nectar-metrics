@@ -11,8 +11,10 @@ from gnocchiclient.v1 import client
 from nectar_metrics import config
 from nectar_metrics.config import CONFIG
 from nectar_metrics import keystone
+from nectar_metrics import sentry
 
 config.read(config.CONFIG_FILE)
+sentry.setup()
 SESSION = keystone.get_auth_session()
 VERSION = 1
 

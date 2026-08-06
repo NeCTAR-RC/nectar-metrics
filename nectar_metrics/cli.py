@@ -6,6 +6,7 @@ from nectar_metrics.senders.base import DummySender
 from nectar_metrics.senders.composite import GnocchiVictoriaSender
 from nectar_metrics.senders.gnocchi import GnocchiSender
 from nectar_metrics.senders.victoria import VictoriaMetricsSender
+from nectar_metrics import sentry
 
 
 class Main:
@@ -62,6 +63,7 @@ class Main:
     def _post_arg_parsing(self):
         config.read(self.parsed_args.config)
         self.logging()
+        sentry.setup()
 
     def sender(self):
         args = self.parse_args()
