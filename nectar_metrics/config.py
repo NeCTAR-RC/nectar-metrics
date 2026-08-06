@@ -1,10 +1,13 @@
 import os
 import sys
 
+from keystoneauth1 import loading as ks_loading
 from oslo_config import cfg
 
 
 CONF = cfg.CONF
+
+SERVICE_AUTH_GROUP = 'service_auth'
 
 metrics_opts = [
     cfg.StrOpt(
@@ -12,13 +15,6 @@ metrics_opts = [
         default='.',
         help='Directory used to store state between runs.',
     ),
-]
-
-openstack_opts = [
-    cfg.StrOpt('user', help='OpenStack username.'),
-    cfg.StrOpt('passwd', secret=True, help='OpenStack password.'),
-    cfg.StrOpt('name', help='OpenStack project name.'),
-    cfg.StrOpt('url', help='Keystone authentication URL.'),
 ]
 
 gnocchi_opts = [
@@ -43,10 +39,12 @@ sentry_opts = [
 ]
 
 CONF.register_opts(metrics_opts, group='metrics')
-CONF.register_opts(openstack_opts, group='openstack')
 CONF.register_opts(gnocchi_opts, group='gnocchi')
 CONF.register_opts(victoria_opts, group='victoria')
 CONF.register_opts(sentry_opts, group='sentry')
+
+ks_loading.register_auth_conf_options(CONF, SERVICE_AUTH_GROUP)
+ks_loading.register_session_conf_options(CONF, SERVICE_AUTH_GROUP)
 
 
 def default_config_files():

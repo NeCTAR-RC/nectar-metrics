@@ -10,6 +10,7 @@ gnocchiclient
 nectarallocationclient
 manukaclient
 placementclient
+openstacksdk
 oslo.config
 oslo.log
 prometheus-client

@@ -111,10 +111,7 @@ def _dump_file(dataframe, filename, pickle=True, json=True, version=VERSION):
 
 
 # Upload to swift
-def _upload_swift(project=None, container='analytics-data', filename=None):
-    if not project:
-        project = CONF.openstack.name
-
+def _upload_swift(container='analytics-data', filename=None):
     conn = connection.Connection(session=SESSION)
 
     if filename:

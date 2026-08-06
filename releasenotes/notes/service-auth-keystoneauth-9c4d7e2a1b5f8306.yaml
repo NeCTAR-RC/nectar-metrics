@@ -1,0 +1,19 @@
+---
+upgrade:
+  - |
+    OpenStack credentials are now configured with the standard
+    keystoneauth options in a ``[service_auth]`` section instead of
+    the custom ``[openstack]`` section, for example::
+
+      [service_auth]
+      auth_type = password
+      auth_url = https://keystone.example.com:5000/v3
+      username = username
+      password = secret
+      project_name = project
+      user_domain_id = default
+      project_domain_id = default
+
+    When ``auth_type`` is not set the collectors fall back to the
+    ``OS_*`` environment variables or ``clouds.yaml`` via
+    openstacksdk.
