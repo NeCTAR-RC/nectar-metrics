@@ -81,16 +81,18 @@ def main():
             cfg.Opt(
                 'from-date',
                 type=parse_date,
-                default=datetime.now(),
-                help='When to backfill data from.',
+                help='When to backfill data from (YYYY-MM-DD).',
             ),
             cfg.Opt(
                 'to-date',
                 type=parse_date,
-                default=datetime.now(),
-                help='When to backfill data to.',
+                help='When to backfill data to (YYYY-MM-DD).',
             ),
         ],
     )
     logger.info("Running Report")
-    report_metrics(metrics_cli.sender(), CONF.from_date, CONF.to_date)
+    # With no dates given, report a single iteration at the current time.
+    now = datetime.now()
+    from_time = CONF.from_date or now
+    to_time = CONF.to_date or now + timedelta(seconds=1)
+    report_metrics(metrics_cli.sender(), from_time, to_time)

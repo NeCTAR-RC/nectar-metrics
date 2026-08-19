@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Fixed a startup crash in ``nectar-metrics-rcshibboleth`` introduced by
+    the oslo.config migration. The ``--from-date`` and ``--to-date`` options
+    used a ``datetime`` default, which oslo.config rejects when validating
+    defaults against the option type. The options now default to unset and
+    the previous behaviour is preserved: with no dates given a single report
+    is sent for the current time.
