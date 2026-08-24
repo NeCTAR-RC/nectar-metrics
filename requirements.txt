@@ -16,6 +16,5 @@ oslo.log
 prometheus-client
 requests
 sentry-sdk
-numpy
 pandas
 pbr

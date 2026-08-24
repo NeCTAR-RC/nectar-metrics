@@ -1,4 +1,4 @@
-FROM python:3.12-slim-trixie
+FROM python:3.14-slim-trixie
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -9,17 +9,18 @@ ENV PYTHONUNBUFFERED=1
 # Running pip as root is expected inside the image build
 ENV PIP_ROOT_USER_ACTION=ignore
 
-# Install pip requirements. gcc is only needed to build wheels during the
-# install, so install it, build, then purge it and the apt cache so the
-# compiler is not left in the runtime image.
+# Install pip requirements. A C/C++ toolchain is only needed to build wheels
+# during the install (numpy has no Python 3.14 wheels for the constrained
+# version), so install it, build, then purge it and the apt cache so the
+# compilers are not left in the runtime image.
 COPY requirements.txt .
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc \
+    && apt-get install -y --no-install-recommends build-essential \
     && python -m pip install --no-cache-dir \
         -c https://releases.openstack.org/constraints/upper/2026.1 \
         -r requirements.txt \
-    && apt-get purge -y --auto-remove gcc \
+    && apt-get purge -y --auto-remove build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
