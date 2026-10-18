@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 
 from nectar_metrics import gnocchi_backfill
 from nectar_metrics import naming
@@ -7,7 +7,7 @@ from tests.utils import TestSender
 
 
 def ts(epoch):
-    return datetime.fromtimestamp(epoch, tz=timezone.utc)
+    return datetime.fromtimestamp(epoch, tz=UTC)
 
 
 def test_finest_points_prefers_finest_granularity():
